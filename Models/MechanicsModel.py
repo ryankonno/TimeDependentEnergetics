@@ -51,7 +51,7 @@ class MechModel():
 		return np.exp(-np.abs((e_m**skew -1)/self.width)**round)
 
 	def F_va(self, dedt_ce):
-		dedt_ce_max_ = self.getdedt_ce_max()
+		# dedt_ce_max_ = self.getdedt_ce_max()
 		return (1+dedt_ce/self.dedt_ce_max)/(1-dedt_ce/self.dedt_ce_max/self.kappa) * (dedt_ce < 0) \
 				+ (1.5 - 0.5*(1-dedt_ce/self.dedt_ce_max)/(1+7.56 * dedt_ce/ self.dedt_ce_max / self.kappa))*(dedt_ce >0)\
 				+ (dedt_ce == 0)
@@ -81,6 +81,13 @@ class MechModel():
 		# stiffness = k_l/F_0*l_0 * ( 1 + (0.9/-np.exp(Q * F)))
 
 		return stiffness
+	##########################################################
+	# 			Function to compute the muscle force 
+	def computeForce(self, act_, e_m_, dedt_m_): 
+		'''
+		Function to compute the scaled muscle force give act, e_m, dedt_m
+		'''
+		return act_ * self.F_la(e_m_) * self.F_va(dedt_m_) + self.F_lp(e_m_)
 	
 	##########################################################
 	# 			FUNCTIONS TO SCALE FORCE-VELOCITY CONSTANTS

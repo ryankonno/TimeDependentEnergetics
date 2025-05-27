@@ -317,9 +317,9 @@ ax_time.plot(rates, time_active/ (1/rates * 0.4))
 ax_time.set_xlabel('Contraction rate (1/s)')
 ax_time.set_ylabel('MU time active (computed/ideal)')
 
-fig_energy.savefig('./Figures/Energy.pdf')
-fig_cadyn.savefig('./Figures/CaMech.pdf')
-fig_means.savefig('./Figures/MeanRates.pdf')
+fig_energy.savefig('./Figures/Energy_EXP1.pdf')
+fig_cadyn.savefig('./Figures/CaMech_EXP1.pdf')
+fig_means.savefig('./Figures/MeanRates_EXP1.pdf')
 
 plt.show()
 

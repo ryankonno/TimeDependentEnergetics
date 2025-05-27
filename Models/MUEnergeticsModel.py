@@ -24,7 +24,7 @@ class EnergeticsModel():
     def __init__(self):
         return None
     
-    def actEnergetics(self, t, ca_vec, catn_vec, params):
+    def actEnergetics(self, t, ca_vec, catn_vec, params, e_m = None, dedt_m = None, force = None, params_mech = None):
         '''
         Activation component of the energetics 
             designed for investigating Ca dependent properties of activation model
@@ -63,10 +63,36 @@ class EnergeticsModel():
 
         # Compute cross-bridge energetics (maintenance)
         # This will be scaled based on catn_vec
-        q_m = r_m * catn_vec # 1/s, heat rate of cross-bridge kinetics 
+        q_m_0 = r_m * catn_vec # 1/s, heat rate of cross-bridge kinetics
+
+        # Length dependent parts of the code
+        if e_m is None or not e_m.any(): 
+            # No length dependence
+            q_m = q_m_0
+            
+            return q_a, q_m # Reported in 1/s
+        else:
+            # Assume that we want to compute the length dependent aspects 
+
+            # Import a mechanics model for the force-length and force-velo relations
+            from Models.MechanicsModel import MechModel
+            mech_model = MechModel(params_mech)
+
+            # Maintenance 
+            q_m = q_m_0 * mech_model.F_la(e_m) 
+
+            # Shortening-lengthening heat rate 
+            # q_sl = - params['r_sl'] * catn_vec * mech_model.F_la(e_m) * dedt_m * (dedt_m < 0) \
+            #             + dedt_m * mech_model.F_la(e_m) * force * (dedt_m <= 0)
+            # Ingore lengthening heat (set to zero)
+            q_sl = - params['r_sl'] * catn_vec * mech_model.F_la(e_m) * dedt_m * (dedt_m < 0)
+
+            # Work 
+            # NOTE: this force here should be the MU force??
+            w = force * dedt_m * (dedt_m < 0)
 
 
-        return q_a, q_m
+            return q_a, q_m, q_sl, w # Reported in 1/s
 
     
     def dHdt(self, act, t, e_ce, dedt_ce, F, r1, r2, params):

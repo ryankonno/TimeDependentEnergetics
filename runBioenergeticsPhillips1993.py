@@ -33,7 +33,8 @@ params = {
         'k_m_1':  0.0367, # 1/s
 
         # Energetic constant to predict energetic rates
-        'r_r': 522e-3, # J umol^-1, Calculated based on the glycogen and atp enthalpys
+        # 'r_r': 522e-3, # J umol^-1, Calculated based on the glycogen and atp enthalpys
+        'r_r': 2802e-3 # J umol^{-1}, Based on enthalpy of glucose catabolism (Kabo et al. 2013)
         # 'r_r': 0.04489659, # J umol^-1, Optimized to experimental data (Phillips et al. 1993)
     }
 }

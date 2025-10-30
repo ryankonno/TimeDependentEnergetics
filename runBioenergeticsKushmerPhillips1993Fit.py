@@ -30,7 +30,7 @@ params = {
         'c_atp_0': 3.3, # mM,  Kushmerick et al. 1992 
         'c_PCr_0': 11.4, # mM,  Kushmerick et al. 1992 
         'Pi_0': 6, # mM,  Kushmerick et al. 1992 
-        'V_max_oxphos':  1.8, # mM/s, Vicini 2000... TBD
+        'V_max_oxphos':  2 * 0.5, # mM/s, Vicini 2000... TBD
         # # EDL
         # 'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
         # 'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
@@ -299,11 +299,11 @@ model = Bioenergetics(params)
 model.K_adp = opt_res.x[0]
 model.V_max_oxphos = opt_res.x[1]
 model.atp_peak = opt_res.x[2]
-sol = model.solveBioenergetics(t_span, c_atp_0) # Solve the IVP 
+sol_opt = model.solveBioenergetics(t_span, c_atp_0) # Solve the IVP 
 
 # Plot the comparison between PCr experimental and modelled 
 fig, ax  = plt.subplots(figsize = (6,4), layout = 'constrained') 
-ax.plot(sol.t, sol.y[1,], label = 'PCr (model)', color = 'k')
+ax.plot(sol_opt.t, sol_opt.y[1,], label = 'PCr (model)', color = 'k')
 ax.plot(t_exp, model.c_pcr_0 + pcr_exp, label = 'PCr (Phillip et al. 1993)', ls = 'None', marker = '.', color = 'k')
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('PCr Concentration [mol/g]')

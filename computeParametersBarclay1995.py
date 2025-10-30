@@ -8,7 +8,8 @@ import numpy as np
 sigma_0 = 2e5         # Pa 
 mass = 0.51e-3        # g 
 rho = 1e6             # g/m^3 
-l_0 = 9.7e-3          # m 
+# l_0 = 9.5e-3          # m, SOL 
+l_0 = 10e-3           # m, EDL
 
 G_atp = 60e3          # J/mol Free energy of ATP
 
@@ -39,7 +40,8 @@ print(f'dATPdt = {dATPdt} umol/g')
 Compute the initial heat rates based on the four cycles measured during the experiment 
 '''
 cycles = np.array((1,5,15,30)) # Cycle number
-dATPdt_vec = np.array((0.225, 0.176, 0.166, 0.164)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g
+# dATPdt_vec = np.array((0.225, 0.176, 0.166, 0.164)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g, slow 
+dATPdt_vec = np.array((0.667, 0.616, 0.606,0.606)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g, fast 
 
 # Use a cubic spline to interpolate these values 
 # from scipy.interpolate import interp1d 
@@ -47,7 +49,8 @@ dATPdt_vec = np.array((0.225, 0.176, 0.166, 0.164)) * F_0 * l_0 / mass  / G_atp 
 
 # Use an exponential fit 
 def f(x, a, b, c, d): 
-    return a * np.exp(b * x - c) + d
+    # return a * np.exp(b * x - c) + d
+    return a * b ** x - c
 from scipy.optimize import curve_fit 
 popt, _ = curve_fit(f, cycles, dATPdt_vec)
 

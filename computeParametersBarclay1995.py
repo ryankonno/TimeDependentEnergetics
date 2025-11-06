@@ -6,10 +6,13 @@ import numpy as np
 
 # Constants from Barclay 1995
 sigma_0 = 2e5         # Pa 
-mass = 0.51e-3        # g 
 rho = 1e6             # g/m^3 
-# l_0 = 9.5e-3          # m, SOL 
-l_0 = 10e-3           # m, EDL
+
+mass = 1.99e-3        # g, SOL
+l_0 = 9.5e-3          # m, SOL 
+ 
+# mass = 2.85e-3        # g, EDL
+# l_0 = 10e-3           # m, EDL
 
 G_atp = 60e3          # J/mol Free energy of ATP
 
@@ -32,7 +35,7 @@ dHidt = dHidt_f0l0 * F_0 * l_0 / mass  # W/g
 print(f'dHidt = {dHidt} W/g')
 
 # Compute the rate of atp consumption 
-dATPdt = dHidt / G_atp * 10**6 # umol/g
+dATPdt = dHidt / G_atp * 10**6 # umol/g 
 print(f'dATPdt = {dATPdt} umol/g')
 
 #######

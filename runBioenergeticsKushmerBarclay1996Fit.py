@@ -38,9 +38,9 @@ params = {
             # For Phillips Simulation 
             'atp_peak': 0.25,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
 
-            'F_0': 0.0102, # N, 
-            'l_0': 9.5e-3, # m,
-            'mass': 1.99e-3, #g, 
+            'F_0': 0.041, # N, 
+            'l_0': 9.5e-3, # m, 
+            'mass': 1.99e-3, # g, 
 
         }, 
         'EDL': { 
@@ -52,7 +52,7 @@ params = {
             # For Phillips Simulation 
             'atp_peak': 0.25,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
 
-            'F_0': 0.0102, # N, 
+            'F_0': 0.057, # N, 
             'l_0': 10e-3, # m,
             'mass': 2.85e-3, # g, 
         },
@@ -209,8 +209,10 @@ class Bioenergetics():
                 Function as defined in computeParametersBarclay1995.py 
                 *** Ensure its the same if any adjustments are made (e.g. fibre-type) ***
                 '''
-                return a * np.exp(b * x - c) + d
-            popt = np.array((26.31884038, -0.42107639,  4.45702316,  0.54965355))
+                # return a * np.exp(b * x - c) + d
+                return a * b ** x - c
+            popt = np.array((0.30521532,  0.65633996, -0.54965355 ,  1))
+            # popt = np.array((26.31884038, -0.42107639,  4.45702316,  0.54965355))
             tstimend = 0.8 # s, Length of stimulation (B1995)
         elif muscle == 'EDL':
             # Use variable ATP usage 
@@ -220,7 +222,9 @@ class Bioenergetics():
                 *** Ensure its the same if any adjustments are made (e.g. fibre-type) ***
                 '''
                 return a * b ** x - c
-            popt = np.array((0.3194931, 0.63699497, -2.01981868, 1.)) 
+            # popt = np.array((0.3194931, 0.63699497, -2.01981868, 1.)) 
+            popt = np.array((0.3194931,   0.63699497, -2.0198186, 1.)) 
+            
             tstimend = 0.2 # s, Length of stimulation (B1995)
         
         cycle_count = np.floor(t/t_cycle_length) + 1
@@ -269,7 +273,7 @@ class Bioenergetics():
 
         self.c_a_tot = c_atp_0 + c_adp_0
 
-        sol = solve_ivp(self.rhs, t_span, y_0, "BDF", max_step = 0.1)
+        sol = solve_ivp(self.rhs, t_span, y_0, "BDF", max_step = 0.01)
         
         return sol
     

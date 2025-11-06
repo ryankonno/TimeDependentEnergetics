@@ -25,7 +25,7 @@ params = {
 
     # Energetics parameters 
     # 'Energetics_model':{
-
+# [0.04685323 1.19819909 0.23897525]
         # Mouse data 
         'SOL': {
             # Slow data
@@ -37,18 +37,20 @@ params = {
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
             'Pi_0': 6, # mM,  Kushmerick et al. 1992 
-            'V_max_oxphos':  1.88, # mM/s, Vicini 2000... TBD
+            # 'V_max_oxphos':  1.88, # mM/s, Vicini 2000... TBD
+            'V_max_oxphos': 1.19819909, # mM/s, Optimised to Phillips et al. 1993
             # For Phillips Simulation 
-            'atp_peak': 0.25,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
+            'atp_peak': 0.238975255,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
         }, 
         'EDL': { 
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
             'Pi_0': 0, # mM,  Kushmerick et al. 1992 
-            'V_max_oxphos': 1.88/2, # mM/s, Vicini 2000... TBD
+            # 'V_max_oxphos': 1.88/2, # mM/s, Vicini 2000... TBD
+            'V_max_oxphos': 1.19819909 / 2, # mM/s, Optimised to Phillips et al. 1993
             # For Phillips Simulation 
-            'atp_peak': 0.25,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
+            'atp_peak': 0.23897525,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
         },
         
         # 'c_c_tot': 42, # mM, Harris 1974
@@ -67,10 +69,9 @@ params = {
         'k_stim': 0.0139,  # 1/s, Vicini 2000, estimated from exp data Blei et al. 1993
         'k_post': 0.9 * 0.0139,  # 1/s, Vicini 2000, estimated from exp data Blei et al. 1993 NOTE: cannot find value for this rate... assume half of stim?
 
-
-
         # May need to tune these parameters...
-        'K_adp': 0.058, # mM, Vicini 2000.... TBD (may need to optimise for this parameter)
+        # 'K_adp': 0.058, # mM, Vicini 2000.... TBD (may need to optimise for this parameter)
+        'K_adp': 0.04685323, #mM, Optimised to Phillips et al. 1993
         'nh': 2.57, # unitless, VIcini 2000, .... TBD (may need to optimise for this parameter)
 
         # Assume constant across all species and muscle fibre-types

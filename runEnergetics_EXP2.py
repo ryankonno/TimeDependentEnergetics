@@ -48,23 +48,99 @@ params = {
         "n": 3, # Hill coefficient
     },
 
-    # Energetics parameters 
+        # Energetics parameters 
     'Energetics_model':{
         # 'nu': 1.72,
 
-        # 'H_PCr': 36e3, # J/mol, Enthalpy of pcr
+        # 'H_PCr': 36e3, # J/mol, Enthalpy of pcr 
 
         'r_am': 0.6177, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
-
-                # Define parameters for the ODE 
-        # .... In this code they are used as initial values for the optimization
-        'k_recpcr': 0.0214, # 1/s
-        'k_m_1':  0.0367, # 1/s
+        'r_sl': 0.234, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+        # 'r_am': 2.792, # W/F_0/l_0, Maximum heat rate of isometric contraction (fast-type fibre)
+        # 'r_sl': 0.697, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
 
         # Energetic constant to predict energetic rates
         # 'r_r': 522e-3, # J (umol)^-1, Calculated based on the glycogen and atp enthalpys
         'r_r': 0.04489659, # J (umol)^-1, Optimized to experimental data (Phillips et al. 1993)
-    }
+    },
+
+    # Mouse data 
+    'SOL': {
+        # Slow data
+        # 'c_c_tot': 25.9, # mM, Kushmerick et al. 1992 
+        # 'c_atp_0': 3.3, # mM,  Kushmerick et al. 1992 
+        # 'c_pcr_0': 11.4, # mM,  Kushmerick et al. 1992 
+        # Fast data 
+        'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
+        'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
+        'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
+        # 'Pi_0': 6, # mM,  Kushmerick et al. 1992 
+        'V_max_oxphos':  1.88, # mM/s, Opt to Phillips
+        # 'V_max_oxphos':  5, # mM/s, Vicini 2000... TBD
+        # For Phillips Simulation 
+        'atp_peak': 0.25,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
+
+        'F_0': 0.0102, # N, 
+        'l_0': 9.5e-3, # m,
+        'mass': 1.99e-3, # g, 
+        # Energetic constant to predict energetic rates 
+        # 'r_rec': (1 - 0.76) / 0.76 * 32 * 60e3, # J/ s / L, Assumes mitochondrial efficiency based on average mouse sol 
+        # 'r_rec': (1 - 0.76) * 2810e3, # J/ s / L, Assumes mitochondrial efficiency based on average mouse sol 
+        'r_rec': 0.04489659, # J (umol)^-1, Optimized to expe rimental data (Phillips et al. 1993)
+
+        'duty_cycle':  0.16, # unitless, Duty cycle of initial heat rate
+
+    }, 
+    'EDL': { 
+        'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
+        'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
+        'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
+        'Pi_0': 0, # mM,  Kushmerick et al. 1992 
+        'V_max_oxphos': 1.88/2, # mM/s, Opt to Phillips
+        # 'V_max_oxphos':  2.5, # mM/s, Vicini 2000... TBD
+        # For Phillips Simulation 
+        'atp_peak': 0.25,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
+
+        'F_0': 0.0102, # N, 
+        'l_0': 10e-3, # m,
+        'mass': 2.85e-3, # g, 
+
+        # Energetic constant to predict energetic rates 
+        # 'r_rec': (1 - 0.86) / 0.86 * 32 * 60e3, # J/ s / L, Assumes mitochondrial efficiency based on average mouse sol 
+        # 'r_rec': (1 - 0.86) * 2810e3, # J/ s / L, Assumes mitochondrial efficiency based on average mouse sol 
+        'r_rec': 0.04489659, # J (umol)^-1, Optimized to experimental data (Phillips et al. 1993)
+
+        'duty_cycle':  0.04, # unitless, Duty cycle of initial heat rate
+    },
+    
+    # 'c_c_tot': 42, # mM, Harris 1974
+    # 'c_atp_0': 8.2, # mM, Harris 1974
+    # 'c_pcr_0': 32, # mM, Approximate value Vicini 2000
+    # # 'c_c_tot': 20, # mM, Grassi 1998
+    # # 'c_atp_0': 6.5, # mM, Grassi 1998
+    # 'Pi_0': 3.183, # mM, Vicini 2000
+
+    # 'V_max_oxphos': 0.5, # mM/s, Vicini 2000... TBD (may need to optimise for this parameter)
+    # 'V_max_oxphos': 14.8 / 60, # mM/s, Vicini 2000... TBD (may need to optimise for this parameter)
+
+    # Contraction dependent
+    # NOTE: k_rest is not used in this implementation
+    'k_rest': 0,# 0.0014, # 1/s, Vicini 2000, estimated off of experimental data Blei et al. 1993
+    'k_stim': 0.0139,  # 1/s, Vicini 2000, estimated from exp data Blei et al. 1993
+    'k_post': 0.9 * 0.0139,  # 1/s, Vicini 2000, estimated from exp data Blei et al. 1993 NOTE: cannot find value for this rate... assume half of stim?
+
+    # May need to tune these parameters...
+    'K_adp': 0.058, # mM, Vicini 2000.... TBD (may need to optimise for this parameter)
+    'nh': 2.57, # unitless, VIcini 2000, .... TBD (may need to optimise for this parameter)
+
+    # Assume constant across all species and muscle fibre-types
+    'V_ck_f': 1000,# 100, # mM/s, Kushmerick 1998
+    'K_b': 1.11, #mM, MacFarland 1994
+    'K_ia': 0.135, # mM, MacFarland 1994
+    'K_eq': 1.77e2, # ?, Assuming a pH of 7, Lawson 1979
+    'K_iq': 3.5, # mM, MacFarland 1994
+    'K_ib': 3.9, # mM, MacFarland 1994
+    'K_p': 3.8, # mM, MacFarland 1994
 }
 
 ###
@@ -136,12 +212,13 @@ def computeEnergetics(t_vec_, ca_vec_, catn_vec_, F_0_, l_0_, mass_):
     q_i_W_g = (q_a + q_m) * s_f
 
     # Compute the recovery energetic rate using teh bioenergetics model 
-    from Models.BioenergeticsModel import Bioenergetics
-    model = Bioenergetics(params['Energetics_model']['k_recpcr'], params['Energetics_model']['k_m_1'],t_vec_, q_i_W_g)
-    sol = model.solveODE(t_vec_[0], t_vec_[-1], t_vec_) # Solve the IVP 
-    PCr, activation = sol.y
+    from Models.BioenergeticsModelKushmer import Bioenergetics
+    model = Bioenergetics(params, t_vec_, q_i_W_g, muscle = 'SOL')
+    t_span = (t_vec_[0], t_vec_[-1])
+    sol = model.solveBioenergetics(t_span, params['SOL']['c_atp_0']) # Solve the IVP 
+    c_atp, c_pcr = sol.y
 
-    q_r_W_g = model.computeEnergetics(PCr, activation, params['Energetics_model']['r_r']) # W/g, Compute the recovery energetic rate
+    q_r_W_g = model.computeRecoveryEnergetics(c_atp) # W/g, Compute the recovery energetic rate
 
     # Scale from W/g to W
     q_r = q_r_W_g * mass_

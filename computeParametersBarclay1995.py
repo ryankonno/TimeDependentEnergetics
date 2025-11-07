@@ -3,13 +3,14 @@ Code to compute the parameters used based on the Barclay 1995 study
 '''
 
 import numpy as np 
+from scipy.optimize import curve_fit 
 
 # Constants from Barclay 1995
-sigma_0 = 2e5         # Pa 
-rho = 1e6             # g/m^3 
+sigma_0 = 2e5         # Pa
+rho = 1e6             # g/m^3
 
 mass = 1.99e-3        # g, SOL
-l_0 = 9.5e-3          # m, SOL 
+l_0 = 9.5e-3          # m, SOL
  
 # mass = 2.85e-3        # g, EDL
 # l_0 = 10e-3           # m, EDL
@@ -43,8 +44,10 @@ print(f'dATPdt = {dATPdt} umol/g')
 Compute the initial heat rates based on the four cycles measured during the experiment 
 '''
 cycles = np.array((1,5,15,30)) # Cycle number
-# dATPdt_vec = np.array((0.225, 0.176, 0.166, 0.164)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g, slow 
-dATPdt_vec = np.array((0.667, 0.616, 0.606,0.606)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g, fast 
+# dATPdt_vec = np.array((0.225, 0.176, 0.166, 0.164)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g, slow, initial 
+dATPdt_vec = np.array((5.339988e-03, 5.726164e-02, 7.235249e-02, 7.009909e-02)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g, slow, recovery
+# dATPdt_vec = np.array((0.667, 0.616, 0.606,0.606)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g, fast 
+# dATPdt_vec = np.array((2.518854e-02, 6.404227e-02, 6.903081e-02, 7.313249e-02)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g, fast, recovery
 
 # Use a cubic spline to interpolate these values 
 # from scipy.interpolate import interp1d 
@@ -52,9 +55,9 @@ dATPdt_vec = np.array((0.667, 0.616, 0.606,0.606)) * F_0 * l_0 / mass  / G_atp *
 
 # Use an exponential fit 
 def f(x, a, b, c, d): 
-    # return a * np.exp(b * x - c) + d
-    return a * b ** x - c
-from scipy.optimize import curve_fit 
+    # return a * np.exp( b* x - c) + d
+    return a * b ** x- c
+    # return 0.1 * a * b **(  x**d) - c
 popt, _ = curve_fit(f, cycles, dATPdt_vec)
 
 print(f'Constants for the function {popt}')

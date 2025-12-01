@@ -68,6 +68,7 @@ class ActivationModel():
         # print(self.t[np.int64(MUAP_idx)])
         for stim_idx in t_stim_idx:
             t_n = self.t[stim_idx]
+            # print(t_n)
             # Compute the stimulus values for the action potential 
             t_isi = t_n - t_n_1
             A = 0.2 # Values from Mayfield et al. 2022

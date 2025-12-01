@@ -44,13 +44,22 @@ params = {
             # 'Pi_0': 6, # mM,  Kushmerick et al. 1992 
             'V_max_oxphos':  1.88, # mM/s, Vicini 2000... TBD
             # For Phillips Simulation 
-            'atp_peak': 0.25,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
+            'atp_peak': 0.25, # 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
+
+            # May need to tune these parameters...
+            'K_adp': 0.058, # mM, Vicini 2000.... TBD (may need to optimise for this parameter)
+            # 'nh': 2.57, # unitless, VIcini 2000, .... TBD (may need to optimise for this parameter)
+            'nh': 0.6456, # unitless, Varied
 
             'F_0': 0.041, # N, 
             'l_0': 9.5e-3, # m, 
             'mass': 1.99e-3, # g, 
            
-            'r_rec': 1 / 0.8 * 60e3 # J / mol, Assumes mitochondrial efficiency based on average mouse sol and edl
+            # 'r_rec': 1 / 0.8 * 60e3, # J / mol, Assumes mitochondrial efficiency based on average mouse sol and edl
+            'r_rec': 149835.87, # J / mol, Optimised value
+            
+            # Heat data used for optimisation 
+            'heat_exp_rec': np.array((5.339988e-03, 5.726164e-02, 7.235249e-02, 7.009909e-02)) # J/F0l0, Slow, recovery heat 
 
 
         }, 
@@ -63,11 +72,21 @@ params = {
             # For Phillips Simulation 
             'atp_peak': 0.25,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
 
+            # May need to tune these parameters...
+            'K_adp': 0.058, # mM, Vicini 2000.... TBD (may need to optimise for this parameter)
+            # 'nh': 2.57, # unitless, VIcini 2000, .... TBD (may need to optimise for this parameter)
+            'nh': 1.180, # unitless, Varied
+
             'F_0': 0.057, # N, 
             'l_0': 10e-3, # m,
             'mass': 2.85e-3, # g, 
             
-            'r_rec': 1 / 0.8 * 60e3 # J / mol, Assumes mitochondrial efficiency based on average mouse sol and edl
+            # 'r_rec': 1 / 0.8 * 60e3, # J / mol, Assumes mitochondrial efficiency based on average mouse sol and edl
+            'r_rec': 66536.221, # J / mol, Optimised value
+            
+
+            # Heat data used for optimisation 
+            'heat_exp_rec': np.array((2.518854e-02, 6.404227e-02, 6.903081e-02, 7.313249e-02)) # J/F0l0, Fast, recovery heat 
 
         },
         
@@ -87,12 +106,10 @@ params = {
         'k_stim': 0.0139,  # 1/s, Vicini 2000, estimated from exp data Blei et al. 1993
         'k_post': 0.9 * 0.0139,  # 1/s, Vicini 2000, estimated from exp data Blei et al. 1993 NOTE: cannot find value for this rate... assume half of stim?
 
-        # May need to tune these parameters...
-        'K_adp': 0.058, # mM, Vicini 2000.... TBD (may need to optimise for this parameter)
-        'nh': 2.57, # unitless, VIcini 2000, .... TBD (may need to optimise for this parameter)
+
 
         # Assume constant across all species and muscle fibre-types
-        'V_ck_f': 1000,# 100, # mM/s, Kushmerick 1998
+        'V_ck_f': 100,# 100, # mM/s, Kushmerick 1998
         'K_b': 1.11, #mM, MacFarland 1994
         'K_ia': 0.135, # mM, MacFarland 1994
         'K_eq': 1.77e2, # ?, Assuming a pH of 7, Lawson 1979
@@ -102,6 +119,7 @@ params = {
 
         # Energetic constant to predict energetic rates 
         # 'r_rec': 1 / 0.8 * 60e3 # J / mol, Assumes mitochondrial efficiency based on average mouse sol and edl
+        'Gatp': 60e3, # J/mol, Free energy of ATP (Barclay 2019)
     # }
 }
 
@@ -112,15 +130,15 @@ params = {
 #     return a * b ** x - c
 cycle = np.array((1,5,15,30)) # Cycle numbers
 t_exp = params['t_cycle_start'] +  cycle * 5 # s, Times for teh experimental values 
-heat_exp_rec = np.array((5.339988e-03, 5.726164e-02, 7.235249e-02, 7.009909e-02)) # J/F0l0, Slow, recovery heat 
+# heat_exp_rec = np.array((5.339988e-03, 5.726164e-02, 7.235249e-02, 7.009909e-02)) # J/F0l0, Slow, recovery heat 
 # heat_exp_rec = np.array((2.518854e-02, 6.404227e-02, 6.903081e-02, 7.313249e-02)) # J/F0l0, Fast, recovery heat 
-def rec_heat_exp(t): 
+def rec_heat_exp(t, heat_exp_rec): 
     cspline_exp = PchipInterpolator(t_exp, heat_exp_rec)
     return cspline_exp(t) * (t >= params['t_cycle_start'] + 5) * (t < params['t_cycle_end'])
 # cspline_exp = PchipInterpolator(t_exp, heat_exp_rec)
 fig, ax = plt.subplots(layout = 'constrained')
-ax.plot(np.linspace(0,50*5, 100), rec_heat_exp(np.linspace(0,50*5, 100))) 
-ax.plot(t_exp, heat_exp_rec, '.') 
+ax.plot(np.linspace(0,50*5, 100), rec_heat_exp(np.linspace(0,50*5, 100), params['SOL']['heat_exp_rec'])) 
+ax.plot(t_exp, params['SOL']['heat_exp_rec'], '.') 
 plt.show()
 
 
@@ -150,8 +168,8 @@ class Bioenergetics():
         self.k_post = params['k_post']
         self.atp_peak = params[self.muscle]['atp_peak']
 
-        self.K_adp = params['K_adp']
-        self.nh = params['nh']
+        self.K_adp = params[self.muscle]['K_adp']
+        self.nh = params[self.muscle]['nh']
 
         self.V_ck_f =  params['V_ck_f'] 
         self.K_b = params['K_b'] 
@@ -180,37 +198,7 @@ class Bioenergetics():
                     (1 + c_adp / self.K_ia + c_atp / self.K_iq + c_pcr / self.K_ib \
                      + c_adp * c_pcr / self.K_b / self.K_ia + c_cr * c_atp / self.K_iq / self.K_p)
          
-    # def phi_atp(self, t, c_atp): 
-    #     ''' 
-    #     Function defining ATP use during the contraction 
-        
-    #     Modified to simulate the contractions from Barclay et al. 1995
-    #     '''
-    #     # Constant atp_peak [we use variable atp usage now... see below]
-    #     # atp_peak = 0.75 # umol/s/(g wet wt) [computed using computeParametersBarclay1995.py]
 
-    #     tstimend = 0.8 # s, Length of stimulation (B1995)
-    #     trampend = 1
-    #     t_start_cycle = 20
-
-    #     # Normalize time
-    #     t_cycle_length = 5 # s, Length of the cycle
-    #     t_cycle = t%t_cycle_length
-
-    #     # Use variable ATP usage 
-    #     def f(x, a, b, c, d): 
-    #         ''' 
-    #         Function as defined in computeParametersBarclay1995.py 
-    #         *** Ensure its the same if any adjustments are made (e.g. fibre-type) ***
-    #         '''
-    #         return a * np.exp(b * x - c) + d
-    #     popt = np.array((26.31884038, -0.42107639,  4.45702316,  0.54965355))
-    #     cycle_count = np.floor(t/t_cycle_length) + 1
-    #     # Compute the atp usage based on the cycle number
-    #     atp_peak = f(cycle_count, *popt) # umol/s/(g wet wt) [computed using computeParametersBarclay1995.py]
-
-    #     return (atp_peak * (t_cycle < tstimend) + atp_peak * 0.5 * (np.sin((np.pi*(t_cycle-tstimend) / (trampend-tstimend) + np.pi/2)) + 1) * (t_cycle > tstimend) * (t_cycle < trampend)) * (t > t_start_cycle) + self.k_rest * (t <= t_start_cycle)
-    
     def phi_atp(self, t, c_atp): 
         ''' 
         Function defining ATP use during the contraction 
@@ -287,7 +275,7 @@ class Bioenergetics():
 
         # Calculate the ICs assuming that c_pcr_0 is known
         c_adp_0 = c_atp_0 * (self.c_c_tot - self.c_pcr_0) / (self.K_eq * self.c_pcr_0)
-        self.k_rest = self.V_max_oxphos * (c_adp_0 / self.K_adp)**self.nh / c_atp_0 / (1 +(c_adp_0 / self.K_adp)**self.nh) 
+        self.k_rest = self.V_max_oxphos * (c_adp_0 / self.K_adp)**self.nh / c_atp_0 / (1 +(c_adp_0 / self.K_adp)**self.nh)
         # print(f'k_rest = {self.k_rest}')
 
         # Define resting rate 
@@ -311,14 +299,14 @@ class Bioenergetics():
 
         # Here we assume self.r_rec is in units of J / mol
         # Converted phi_oxphos from umol/s/g to mol/s/g
-        energy_rate = self.r_rec * self.phi_oxphos(c_adp_) * 1e-6 
+        energy_rate = self.r_rec * (self.phi_oxphos(c_adp_) - self.phi_rest) * 1e-6  # subtract resting rate
+        # energy_rate = self.r_rec * self.phi_oxphos(c_adp_) * 1e-6 
 
         return energy_rate # J / g / s
 
 
 
-# First perform an optimisation of only the recovery heat parameters 
-
+# First perform an optimisation of only the recovery heat parameters
 def f_opt(x):
     '''
     Function to optimize
@@ -328,8 +316,11 @@ def f_opt(x):
     ####
     # Define the bioenergetics model 
     model = Bioenergetics(params)
-    # model.K_adp = x[0]
-    # model.V_max_oxphos = x[1]
+    model.r_rec = x[0]
+    model.nh = x[1]
+    # model.V_ck_f = x[1]
+    # model.K_adp = x[1]
+    # model.V_max_oxphos = x[2]
     # model.atp_peak = x[2]
     #####
     # Solve the ode 
@@ -342,8 +333,7 @@ def f_opt(x):
     # # Interpolate values to compare 
     # pcr_model = np.interp(t_exp, sol.t, c_pcr)
 
-    # Compute the recovery  
-    model.r_rec = x
+    # Compute the recovery 
     recovery_heat_model_ = model.computeRecoveryEnergetics(c_atp)
 
     # Scale the recovery heat to units of F0 l0 / s
@@ -351,16 +341,12 @@ def f_opt(x):
     recovery_heat_model = recovery_heat_model_ * scale_factor
 
     # compute the recovery heat from the experiment 
-    recovery_heat_exp = rec_heat_exp(sol.t) # Units of F0l0/s
+    recovery_heat_exp = rec_heat_exp(sol.t, params[muscle]['heat_exp_rec']) # Units of F0l0/s
 
     # only fit over the times from t_cycle_start to t_cycle_end 
     recovery_heat_model_crop = recovery_heat_model[(sol.t > params['t_cycle_start'] + 5) * (sol.t < params['t_cycle_end'])]
     recovery_heat_exp_crop = recovery_heat_exp[(sol.t > params['t_cycle_start']+ 5) * (sol.t < params['t_cycle_end'])]
     
-    # fig, ax = plt.subplots(layout = 'constrained')
-    # ax.plot(recovery_heat_model_crop)
-    # ax.plot(recovery_heat_exp_crop)
-    # plt.show()
     # Compute the error 
     error = np.linalg.norm(recovery_heat_model_crop - recovery_heat_exp_crop) / np.linalg.norm(recovery_heat_exp_crop)
 
@@ -369,40 +355,62 @@ def f_opt(x):
 # initialise experimental parameters
 t_span = (params['t_start'],params['t_end']) 
 
-# muscle = 'SOL'
-# Perform optimization 
-for muscle in ('SOL', 'EDL'):
-    params['muscle'] = muscle
-    x0 = (params[muscle]['r_rec'])
-    constraints = (5e4,2e6)
-    opt_res = minimize_scalar(f_opt, constraints, constraints, method = 'Bounded', options = {'disp': False, 'maxiter': 500})
-    # opt_res = minimize(f_opt, x0, method = 'Nelder-Mead', bounds = constraints, options = {'disp': True, 'maxiter': 500})
-    print(f'Optimal parameters for {muscle}: {opt_res.x}')
-     
-    # Update the value in the params file 
-    params[muscle]['r_rec'] = opt_res.x
-    model = Bioenergetics(params)
-    sol = model.solveBioenergetics(t_span, params[params['muscle']]['c_atp_0'])
-    # Compute the efficiency based on substrates + thermodynamics theory 
-    n_atp = 38 # number of atp
-    Gatp = 60e3 # J/mol 
-    # r_rec is in units of J / mol
-    r_rec_J = params[muscle]['r_rec'] 
-    efficiency = n_atp * Gatp / (params[muscle]['r_rec'] + n_atp * Gatp)
-    print(f'    efficiency: {efficiency}')
+# # muscle = 'SOL'
+# # Perform optimization 
+# for muscle in ('SOL', 'EDL'):
+#     params['muscle'] = muscle
+    
+#     # Scalar optimisation 
+#     # x0 = (params[muscle]['r_rec'])
+#     # constraints = (5e4,2e6)
+#     # opt_res = minimize_scalar(f_opt, constraints, constraints, method = 'Bounded', options = {'disp': False, 'maxiter': 500})
 
-    # Plot the recovery heat for verification 
-    fig, ax = plt.subplots(layout = 'constrained')
-    recovery_heat_model_ = model.computeRecoveryEnergetics(sol.y[0,])
-    scale_factor = params[muscle]['mass'] / params[muscle]['F_0'] / params[muscle]['l_0']
-    recovery_heat_model = recovery_heat_model_ * scale_factor # Now in F0l0/s
-    ax.plot(sol.t, recovery_heat_model, label = 'Mod rec')
-    ax.plot(sol.t, rec_heat_exp(sol.t), ls = ':', label = 'Exp rec')
-    ax.plot(sol.t, model.phi_atp(sol.t, sol.y[0,]) * 10**-6 * scale_factor * Gatp, label = "Init" )
-    ax.legend()
-    ax.set_xlabel('Time (s)')
-    ax.set_ylabel('Energy (F0l0/s)')    
-    plt.show()
+#     # Optimise to r_rec, K_adp, V_max_oxphos
+#     # constraints = ((5e4,2e6), (0,1), (0.1,10))
+#     # x0 = (1e5, params['K_adp'], params[muscle]['V_max_oxphos'])
+
+#     # Optimis to r_rec, V_ck_f 
+#     # constraints = ((5e4,2e6), (0,200))
+#     # x0 = (1e5, params['V_ck_f'])
+#     # opt_res = minimize(f_opt, x0, method = 'Nelder-Mead', bounds = constraints, options = {'disp': True, 'maxiter': 500})
+
+#     # Optimis to r_rec, V_ck_f 
+#     constraints = ((5e4,2e6), (0,5))
+#     x0 = (1e5, params[muscle]['nh'])
+#     opt_res = minimize(f_opt, x0, method = 'Nelder-Mead', bounds = constraints, options = {'disp': True, 'maxiter': 500})
+
+#     # Output optimal parameters 
+#     print(f'Optimal parameters for {muscle}:')
+#     # print(f'    r_rec = {opt_res.x[0]}, K_adp = {opt_res.x[1]}, V_max_oxphos = {opt_res.x[2]}')
+#     # print(f'    r_rec = {opt_res.x[0]}, V_ck_f = {opt_res.x[1]}')
+#     print(f'    r_rec = {opt_res.x[0]}, nh = {opt_res.x[1]}')
+    
+#     # Update the value in the params file 
+#     params[muscle]['r_rec'] = opt_res.x[0]
+#     params[muscle]['nh'] = opt_res.x[1]
+
+#     model = Bioenergetics(params)
+#     sol = model.solveBioenergetics(t_span, params[params['muscle']]['c_atp_0'])
+#     # Compute the efficiency based on substrates + thermodynamics theory 
+#     n_atp = 38 # number of atp
+#     Gatp = 60e3 # J/mol 
+#     # r_rec is in units of J / mol
+#     r_rec_J = params[muscle]['r_rec'] 
+#     efficiency = n_atp * Gatp / (params[muscle]['r_rec'] + n_atp * Gatp)
+#     print(f'    efficiency: {efficiency}')
+
+#     # Plot the recovery heat for verification 
+#     fig, ax = plt.subplots(layout = 'constrained')
+#     recovery_heat_model_ = model.computeRecoveryEnergetics(sol.y[0,])
+#     scale_factor = params[muscle]['mass'] / params[muscle]['F_0'] / params[muscle]['l_0']
+#     recovery_heat_model = recovery_heat_model_ * scale_factor # Now in F0l0/s
+#     ax.plot(sol.t, recovery_heat_model, label = 'Mod rec')
+#     ax.plot(sol.t, rec_heat_exp(sol.t, params[muscle]['heat_exp_rec']), ls = ':', label = 'Exp rec')
+#     ax.plot(sol.t, (model.phi_atp(sol.t, sol.y[0,]) - model.phi_rest) * 10**-6 * scale_factor * Gatp, label = "Init" )
+#     ax.legend()
+#     ax.set_xlabel('Time (s)')
+#     ax.set_ylabel('Energy (F0l0/s)')    
+#     plt.show()
 
 
 
@@ -479,8 +487,9 @@ for muscle in ('SOL', 'EDL'):
     # the 1e-3 comes from scaling from mM to M
     scale =  params[muscle]['mass'] / params[muscle]['F_0'] / params[muscle]['l_0'] 
     # Plot initial
-    ax.plot(sol.t, model.phi_atp(sol.t, sol.y[0,]) * 60e3 * 1e-6 * scale , label = 'init')
+    ax.plot(sol.t, (model.phi_atp(sol.t, sol.y[0,]) - model.phi_rest) * 60e3 * 1e-6 * scale , label = 'init')
     # Plot recovery 
+    ax.plot(sol.t, rec_heat_exp(sol.t, params[muscle]['heat_exp_rec']), ls = ':', label = 'Exp rec')
     ax.plot(sol.t, model.computeRecoveryEnergetics(sol.y[0,]) * scale , label = 'rec')      
     ax.set_xlabel('Time (s) ')
     ax.set_ylabel('Energetic rate (F0l0/s)')

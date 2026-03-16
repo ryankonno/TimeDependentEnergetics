@@ -25,12 +25,13 @@ class Bioenergetics():
 
         # Initialise maximum rates 
         self.V_max_oxphos = params[self.muscle]['V_max_oxphos']
+        self.gamma_1 = params[self.muscle]['gamma']
 
         # ATP Consumption rates 
-        self.k_rest = params['k_rest']
-        self.k_stim = params['k_stim']
-        self.k_post = params['k_post']
-        self.atp_peak = params[self.muscle]['atp_peak']
+        # self.k_rest = params['k_rest']
+        # self.k_stim = params['k_stim']
+        # self.k_post = params['k_post']
+        # self.atp_peak = params[self.muscle]['atp_peak']
 
         self.K_adp = params[self.muscle]['K_adp']
         self.nh = params[self.muscle]['nh']
@@ -52,8 +53,17 @@ class Bioenergetics():
     def c_cr(self, c_pcr_): 
         return self.c_c_tot - c_pcr_
     
-    def phi_oxphos(self, c_adp_): 
-        return self.V_max_oxphos * (c_adp_ / self.K_adp) ** self.nh / (1 + (c_adp_ / self.K_adp)**self.nh)
+    def phi_oxphos(self, t, c_adp_, c_atp_):
+        # Add a scaling factor to account for different rates during recovery and rest
+        # Evaluate phi_atp (may be scalar or array) and form a boolean mask
+        phi_atp_val = self.phi_atp(t, c_atp_)
+        cond = np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-5
+        # If cond is scalar use scalar gamma, otherwise build elementwise gamma array
+        if np.isscalar(cond):
+            gamma = self.gamma_1 if cond else 1.0
+        else:
+            gamma = np.where(cond, self.gamma_1, 1.0)
+        return self.V_max_oxphos * gamma * (c_adp_ / self.K_adp) ** self.nh / (1 + (c_adp_ / self.K_adp)**self.nh)
 
     def phi_ck(self, c_atp, c_pcr): 
         c_adp = self.c_a_tot - c_atp 
@@ -119,7 +129,7 @@ class Bioenergetics():
         atp_curr = y[0,]
         adp_curr = self.c_a_tot - atp_curr
         pcr_curr = y[1,]
-        return -self.phi_atp(t, atp_curr) + self.phi_oxphos(adp_curr) + self.phi_ck(atp_curr, pcr_curr)
+        return -self.phi_atp(t, atp_curr) + self.phi_oxphos(t, adp_curr, atp_curr) + self.phi_ck(atp_curr, pcr_curr)
     
     def pcr_rhs(self, t, y): 
         atp_curr = y[0,]
@@ -142,7 +152,7 @@ class Bioenergetics():
 
         # Calculate the ICs assuming that c_pcr_0 is known
         c_adp_0 = c_atp_0 * (self.c_c_tot - self.c_pcr_0) / (self.K_eq * self.c_pcr_0)
-        self.k_rest = self.V_max_oxphos * (c_adp_0 / self.K_adp)**self.nh / c_atp_0 / (1 +(c_adp_0 / self.K_adp)**self.nh)
+        self.k_rest = self.V_max_oxphos * self.gamma_1 * (c_adp_0 / self.K_adp)**self.nh / c_atp_0 / (1 +(c_adp_0 / self.K_adp)**self.nh)
         # print(f'k_rest = {self.k_rest}')
 
         # Define resting rate 
@@ -156,18 +166,18 @@ class Bioenergetics():
 
         self.c_a_tot = c_atp_0 + c_adp_0
 
-        sol = solve_ivp(self.rhs, t_span, y_0, "BDF", max_step = 0.001, t_eval = t_eval)
+        sol = solve_ivp(self.rhs, t_span, y_0, "BDF", max_step = 0.01, t_eval = t_eval)
         
         return sol
     
-    def computeRecoveryEnergetics(self, c_atp): 
+    def computeRecoveryEnergetics(self, t, c_atp): 
 
         c_adp_ = self.c_a_tot - c_atp 
 
         # Here we assume self.r_rec is in units of J / mol
         # Converted phi_oxphos from umol/s/g to mol/s/g
-        energy_rate = self.r_rec * (self.phi_oxphos(c_adp_) - self.phi_rest) * 1e-6  # subtract resting rate
+        energy_rate = self.r_rec * 1e-6  * (self.phi_oxphos(t, c_adp_, c_atp) - self.phi_rest)  # subtract resting rate, times 1e6 to account for phi_oxphos in units of umol/s/g  
         # energy_rate = self.r_rec * self.phi_oxphos(c_adp_) * 1e-6 
 
-        return energy_rate # J / g / s
+        return energy_rate # was  J / g / s, changed optimisation to now be F0 L0/g/s
 

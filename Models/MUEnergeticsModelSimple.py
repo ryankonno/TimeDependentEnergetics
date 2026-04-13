@@ -48,17 +48,6 @@ class EnergeticsModel():
         # Valid if ca_vec is decreasing 
 
         # NOTE: This equation below assumes that pumping is fully buffered by PCr
-        R = 8.314 # J/mol/K
-        T = 310 # K, body temp
-        F = 96485 # C/mol
-        z = 2 # unitless, Charge of Ca ions
-        V = 0.05 # V, Membrane potential
-        C_cyto = (4000 - 0.05) * ca_vec + 0.05 # uMol, free Ca concentration in cytoplasm, Bakker et al. 2017 TODO correct for CaTn
-        C_sr = 4000 - C_cyto # uMol, Ca concentration in SR, Bakker et al. 2017
-        e_pot_sr = R * T * np.log(C_cyto / C_sr) + F * z * V # J/mol, Electrochemical potential
-        # q_a = 1e-3 * dcadt_vec * params['H_pcr'] / 2 / params['nu_sr'] #TODO: J/g, heat rate of pumping Ca back into SR (Barclay Laukonis 2021) 
-        # q_a = e_pot_sr * np.diff(C_cyto, prepend = 0) * 1e-6 * dcadt_vec # Energetic cost NOTE: here we do not use the experimentally measured values for the whole fibre bundle heat rates
-        # q_a = e_pot_sr * dcadt_vec * 3999.95 * 1e-6 # Energetic cost NOTE: here we do not use the experimentally measured values for the whole fibre bundle heat rates
         q_a = - r_a * dcadt_vec * (dcadt_vec < 0) # 1/s, Use measured quantity scaled based on Ca released
 
         # Compute cross-bridge energetics (maintenance)
@@ -70,7 +59,7 @@ class EnergeticsModel():
             # No length dependence
             q_m = q_m_0
             
-            return q_a, q_m # Reported in 1/s
+            return q_a, q_m # Reported in F0l0/s
         else:
             # Assume that we want to compute the length dependent aspects
             # Maintenance 
@@ -83,11 +72,10 @@ class EnergeticsModel():
             q_sl = - params['r_sl'] * catn_vec * mech_model.F_la(e_m) * dedt_m * (dedt_m < 0)
 
             # Work 
-            # NOTE: this force here should be the MU force??
             w = -force * dedt_m * (dedt_m < 0)
 
 
-            return q_a, q_m, q_sl, w # Reported in 1/s
+            return q_a, q_m, q_sl, w # Reported in F0l0/s
 
     
     def dHdt(self, act, t, e_ce, dedt_ce, F, r1, r2, params):

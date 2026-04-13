@@ -52,6 +52,7 @@ params = {
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
 
+            #__________
             # Values to match Ri/Rr = 1 and zero derivative 
             # 'V_max_oxphos': 3.47, # mM/s
             # 'V_max_oxphos': 6, # mM/s
@@ -62,17 +63,122 @@ params = {
             # 'K_adp': 0.058, # mM,
             # 'nh': 2.57, # unitless, 
             # 'r_rec': 0.152e6, # J / mol
+            #__________
             # Use values from Vicini + theoretical recovery heat
-            'V_max_oxphos': 3.47, # mM/s
-            'K_adp': 0.0615, # mM,
-            'nh': 0.873, # unitless, 
-            'r_rec': 43.3e3, # J / mol, Obtained from efficiency calculation 
+            # 'V_max_oxphos': 3.47, # mM/s
+            # # 'K_adp': 0.0615, # mM, # original
+            # 'K_adp': 0.1, # mM,
+            # 'nh': 0.873, # unitless, # original
+            # # 'nh': 0.1, # unitless, 
+            # 'r_rec': 43.3e3, # J / mol, Obtained from efficiency calculation 
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 1
+            # 'V_max_oxphos': 8.1429, # mM/s
+            # # 'K_adp': 0.0615, # mM, # original
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.1073, # unitless, # original
+            # # 'nh': 0.1, # unitless, 
+            # 'r_rec': 0.1921e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest
+            #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3
+            # 'V_max_oxphos': 0.5, # mM/s
+            # # 'K_adp': 0.0615, # mM, # original
+            # 'K_adp': 0.058, # mM,s
+            # 'nh': 1.0416, # unitless, # original
+            # # 'nh': 0.1, # unitless, 
+            # 'r_rec': 0.09221e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest
+            #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 2
+            # 'V_max_oxphos': 2.024, # mM/s
+            # # 'K_adp': 0.0615, # mM, # original
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.30775, # unitless, # original
+            # # 'nh': 0.1, # unitless, 
+            # 'r_rec': 0.07369e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 2, # Scaling factor for metabolic rates at rest
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 1.5
+            # 'V_max_oxphos': 0.6993, # mM/s
+            # # 'K_adp': 0.0615, # mM, # original
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 1.512, # unitless, # original
+            # # 'nh': 0.1, # unitless, 
+            # 'r_rec': 0.1467e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 1.5, # Scaling factor for metabolic rates at rest
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 4
+            # 'V_max_oxphos': 0.5, # mM/s
+            # # 'K_adp': 0.0615, # mM, # original
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.735, # unitless, # original
+            # # 'nh': 0.1, # unitless, 
+            # 'r_rec': 0.08663e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 4, # Scaling factor for metabolic rates at rest      
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 4, MEAN VALUE 
+            # 'V_max_oxphos': 0.9555, # mM/s
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.3520, # unitless, # original
+            # 'r_rec': 0.0624e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 4, # Scaling factor for metabolic rates at rest       
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE 
+            # 'V_max_oxphos': 2.01153, # mM/s
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.18835, # unitless, # original
+            # 'r_rec': 0.05107e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest       
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data
+            # # 'V_max_oxphos': 0.94548, # mM/s
+            # 'V_max_oxphos': 2 * 0.94548, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.49562, # unitless, # original
+            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 43.3e3, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest       
+            #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 2, MEAN VALUE, scaled input data
+            # # 'V_max_oxphos': 0.94548, # mM/s
+            # 'V_max_oxphos': 2 * 2.09633, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.311353, # unitless, # original
+            # # 'r_rec': 0.0656118e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 43.3e3, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 2, # Scaling factor for metabolic rates at rest       
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, no r_rec opt
+            # # 'V_max_oxphos': 1.65548, # mM/s
+            # 'V_max_oxphos': 1.5 * 1.65548, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.2729, # unitless, # original
+            # # 'r_rec': 0.0656118e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 43.3e3, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest 
 
-            
-            
-
-            'gamma': 1, # Scaling factor for metabolic rates at rest
-
+            #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            # Best simulations values gamma = 3 and gamma = 1
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # # 'V_max_oxphos': 0.94548, # mM/s
+            # 'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.3156, # unitless, # original
+            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest   
+            #__________
+            # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # 'V_max_oxphos': 0.94548, # mM/s
+            'V_max_oxphos': 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'K_adp': 0.058, # mM,
+            'nh': 0.61325, # unitless, # original
+            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            'r_rec': 0.16730e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 1, # Scaling factor for metabolic rates at rest   
+            #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
 
             # Values from Barclay and Weber 2004
             'F_0': 0, # N, 
@@ -89,16 +195,21 @@ params = {
             # "Tau_2": 0.125, # Scaling based on MCL (2023)
             "Tau_2": 0.057, #  BH 2012
             "K": 0.1025,
-            "n": 4, # Hill coefficient for act mdoel
+            "n": 3, # Hill coefficient for act mdoel
             
             # Mechanical parameters 
             'dedt_ce_max': 5, 
             'kappa': 0.18,
 
             # Initial energetics model 
-            'r_cxb': 0.25 *  0.3786, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.25 * 0.0662, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl': 0.25 * 0.239, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # No Q10
+            # 'r_cxb': 0.25 *  0.3786, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.25 * 0.0662, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_sl': 0.25 * 0.239, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # Q10
+            'r_cxb':  0.3786, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.0662, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_sl': 0.239, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
         }, 
         'EDL': { 
@@ -106,24 +217,90 @@ params = {
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
 
-            'gamma': 1, # Scaling factor for metabolic rates at rest
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest
 
+            #__________
             # Values to match recovery rate during initial contractoin
             # 'V_max_oxphos': 1.75, # mM/s
             # 'K_adp': 0.0615, # mM,
             # 'nh': 0.873, # unitless, 
             # 'r_rec': 2.41e5, # J / mol
-
+            #__________
             # Adjusted to match time course
             # 'V_max_oxphos': 3, # mM/s
             # 'K_adp': 0.0615, # mM,
             # 'nh': 0.873, # unitless, 
             # 'r_rec': 0.25 * 2.41e5, # J / mol
-            # Use values from Vicini + theoretical recovery heat
-            'V_max_oxphos': 1.75, # mM/s
-            'K_adp': 0.0615, # mM,
-            'nh': 0.873, # unitless, 
-            'r_rec': 38.8e3, # J / mol, Obtained from efficiency calculation 
+            # #__________
+            # # Use values from Vicini + theoretical recovery heat
+            # 'V_max_oxphos': 1.75, # mM/s
+            # 'K_adp': 0.0615, # mM,
+            # 'nh': 0.873, # unitless, 
+            # 'r_rec': 38.8e3, # J / mol, Obtained from efficiency calculation 
+            # #__________
+            # # Optimised values to SOL B1995 (rrec, nh, vmax), gamma = 4
+            # 'V_max_oxphos': 0.5, # mM/s
+            # # 'K_adp': 0.0615, # mM, # original
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.735, # unitless, # original
+            # # 'nh': 0.1, # unitless, 
+            # 'r_rec': 0.08663e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 4, # Scaling factor for metabolic rates at rest       
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, no r_rec opt
+            # # 'V_max_oxphos': 1.65548, # mM/s
+            # 'V_max_oxphos': 1.5 * 12.71738, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.56477, # unitless, # original
+            # # 'r_rec': 0.0656118e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 38.8e3, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest    
+
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # # 'V_max_oxphos': 0.94548, # mM/s
+            # 'V_max_oxphos': 2 * 1.49397 / 2, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 1.0593, # unitless, # original
+            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 0.146329095e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest            
+            #__________
+            # SOL VALUES WITH SCLAING Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # 'V_max_oxphos': 0.94548, # mM/s
+            'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'K_adp': 0.058, # mM,
+            'nh': 0.3156, # unitless, # original
+            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 3, # Scaling factor for metabolic rates at rest         
+
+            #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            # #__________
+            # # SOL VALUES Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # # 'V_max_oxphos': 0.94548, # mM/s
+            # 'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.3156, # unitless, # original
+            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest         
+
+            #__________
+            # SOL VALUES Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # 'V_max_oxphos': 0.94548, # mM/s
+            'V_max_oxphos': 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'K_adp': 0.058, # mM,
+            'nh': 0.61325, # unitless, # original
+            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            'r_rec': 0.16730e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 1, # Scaling factor for metabolic rates at rest   
+
+            #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 
             'F_0': 0, # N, 
             'l_0': 8.9e-3, # m,
@@ -131,8 +308,8 @@ params = {
 
             # Barclay and Weber 2004 experimental setup parameters 
             'velo_short': 2.8, # l0/s, Barclay and Weber 2004
-            # 'freq': 160, # Hz, Frequency of stimulation, BW2004
-            'freq': 250, # Hz, Frequency of stimulation, Adjusted for tetenanus
+            'freq': 160, # Hz, Frequency of stimulation, BW2004
+            # 'freq': 250, # Hz, Frequency of stimulation, Adjusted for tetenanus
             'max_dl': 0.2, # mm, Maximum length change
 
             # Activation model parameters 
@@ -140,16 +317,21 @@ params = {
             # "Tau_2": 0.125/2, # Decay constant for fast twitch Fibres assuming 1/2 rate (Baylor and Hollingworth, 2003)
             "Tau_2": 0.011, # BH 2012
             "K": 0.1025,
-            "n": 4, # Hill coefficient for activation model
+            "n": 3, # Hill coefficient for activation model
 
             # Mechanical parameters 
-            'dedt_ce_max': 10, 
-            'kappa': 0.29,
+            'dedt_ce_max': 11, 
+            'kappa': 0.25,
 
             # Energetics model 
-            'r_cxb': 0.25 *  2.439, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            'r_cat': 0.25 * 0.1497, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            'r_sl': 0.25 * 1.0146, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
+            # No Q10
+            # 'r_cxb': 0.25 *  2.439, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
+            # 'r_cat': 0.25 * 0.1497, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
+            # 'r_sl': 0.25 * 1.0146, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
+            # Q10
+            'r_cxb':  2.439, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
+            'r_cat': 0.1497, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
+            'r_sl': 1.0146, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
 
         },
 
@@ -198,15 +380,17 @@ def f_stim_length(t, params):
     # Time parameters edited to have a fixed stimulation time 
     if params['muscle'] == 'EDL':  
         t_stim_start = 0 
-        t_stim_end = 0.063
-        t_short_start = 0.03
+        t_stim_end = 0.063 # From paper 
+        # t_short_start = 0.03
+        t_short_start = 0.005
         t_length_start = 0.15
         t_length_end =  cycle_length # Assume return to initial lenght by the end of the cycle
     elif params['muscle'] == 'SOL': 
         t_stim_start = 0 
-        t_stim_end = 0.125
+        # t_stim_end = 0.125 # From paper
+        t_stim_end = 0.1 # From paper
         t_short_start = 0.03
-        t_length_start = 0.2
+        t_length_start = 0.24
         t_length_end =  cycle_length # Assume return to initial lenght by the end of the cycle
 
     # Get the optimal length of the muscle
@@ -366,6 +550,7 @@ for idx, freq in enumerate(freq_list):
     # Plot one-cycle force trace using time normalised by cycle length.
     t_cycle_norm = t_cycle / params['cycle_length']
     ax_force_cycle.plot(t_cycle_norm, force_direct[cycle_mask], color=palette[idx], label=f'{freq} Hz')
+    ax_force_cycle.plot(t_cycle_norm, catn_vec[cycle_mask], color=palette[idx], label = None, ls = ':')
 
     # Compute the force accounting for damping 
     # force_damped = mech_model.solveModel(t_vec, catn_vec, e_ce + 1, dedt_ce, params[muscle]['l_0'], \
@@ -444,7 +629,7 @@ for idx, freq in enumerate(freq_list):
     #######################
     # Compute the time constants from the data 
     total_energy_rate = (E_tot + q_r) * energy_unit_scaler
-    mask = t_vec >= params['cycle_length'] * params['N_cycles'] + 1000 * (t_vec[1] - t_vec[0])
+    mask = t_vec >= params['cycle_length'] * params['N_cycles'] + 3 # Add 3s buffer
     t_decay = t_vec[mask]
     y_decay = total_energy_rate[mask]
     t_rel = t_decay - t_decay[0]
@@ -484,7 +669,7 @@ for idx, freq in enumerate(freq_list):
 
 
 print(f'{params["muscle"]} efficiency table')
-print('freq_Hz | eta_init = W/E_tot | eta_total = W/(E_tot + E_rec) | E_rec / E_tot')
+print('freq_Hz | eta_init = W/E_init | eta_total = W/(E_init + E_rec) | E_init / E_tot')
 for freq, eta_init, eta_total, efficiency_ratio in efficiency_rows:
     print(f'{freq:7.2f} | {eta_init:19.6f} | {eta_total:29.6f} | {efficiency_ratio:14.6f}')
 

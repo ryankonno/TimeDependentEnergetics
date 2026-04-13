@@ -58,7 +58,7 @@ params = {
             # # Vicini eta l., Model 2
             # 'V_max_oxphos':  0.66, # mM/s, Vicini 2000... TBD
             # 'K_adp': 0.36, # mM, Vicini 2000.... TBD (may need to optimise for this parameter)
-            # 'nh': 3.43, # unitless, V/Icini 2000, .... TBD (may need to optimise for this parameter)
+            # 'nh': 3.43, # unitless, V/Icini 2000, .... TBD (may need to optimise for th is parameter)
 
             # Values from Barclay et al. 1995
             'F_0': 0, # N, 
@@ -69,8 +69,11 @@ params = {
             
             # Heat data used for optimisation 
             'heat_exp_rec': np.array((5.339988e-03, 5.726164e-02, 7.235249e-02, 7.009909e-02)), # J/F0l0, Slow, recovery heat 
-            # 'heat_exp_rec': np.array((5.339988e-03, 5.726164e-02, 7.235249e-02, 7.009909e-02)), # J/F0l0, Slow, recovery heat 
-            'heat_exp_init': np.array((0.225, 0.176, 0.166, 0.164)),  # J/F0l0, Slow, initial heat 
+            'heat_exp_init': np.array((0.225, 0.176, 0.166, 0.164)),  # J/F0l0, Slow, initial heat, ASSUME SAME REC RATE DURING CONTRACTION
+            # 'heat_exp_rec': np.array((4.478470e-03, 4.802343e-02, 6.067962e-02, 5.878977e-02)), # J/F0l0, Slow, recovery heat, ASSUME SAME 1/3 REC RATE DURING CONTRACTION
+            # 'heat_exp_init': np.array((2.362291e-01, 2.190962e-01, 2.193518e-01, 2.148170e-01)),  # J/F0l0, Slow, initial heat, ASSUME SAME 1/3 REC RATE DURING CONTRACTION
+            # 'heat_exp_rec': np.array((4.693850e-03, 5.033298e-02, 6.359784e-02, 6.161710e-02)), # J/F0l0, Slow, recovery heat, ASSUME SAME 1/2 REC RATE DURING CONTRACTION
+            # 'heat_exp_init': np.array((2.353391e-01, 2.095526e-01, 2.072931e-01, 2.031338e-01)),  # J/F0l0, Slow, initial heat, ASSUME SAME 1/2 REC RATE DURING CONTRACTION
 
             # Activation model parameters 
             "Tau_1": 0.3, # Assume constant value from MCL (2023)
@@ -94,12 +97,12 @@ params = {
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
             'Pi_0': 0, # mM,  Kushmerick et al. 1992 
 
-            'gamma': 1, # Scaling factor for metabolic rates at rest
+            'gamma': 3, # Scaling factor for metabolic rates at rest
 
             # # May need to tune these parameters...
             'K_adp': 0.058, # mM, Vicini 2000.... TBD (may need to optimise for this parameter)
             'nh': 2.57, # unitless, VIcini 2000, .... TBD (may need to optimise for this parameter)
-            'V_max_oxphos': 1.88/2, # mM/s, Vicini 2000... TBD
+            'V_max_oxphos': 0.5 * 1.4939, # mM/s, Vicini 2000... TBD
             # Vicini eta l., Model 2
             # 'V_max_oxphos':  3, # mM/s, Vicini 2000... TBD
             # 'K_adp': 0.36, # mM, Vicini 2000.... TBD (may need to optimise for this parameter)
@@ -114,8 +117,13 @@ params = {
             'r_rec': 38.8e3, # J / mol, Obtained from efficiency calculation 
             
             # Heat data used for optimisation 
-            'heat_exp_rec': np.array((2.518854e-02, 6.404227e-02, 6.903081e-02, 7.313249e-02)), # J/F0l0, Fast, recovery heat 
-            'heat_exp_init': np.array((0.667, 0.616, 0.606,0.606)), # J/F0l0, Fast, initial heat
+            # 'heat_exp_rec': np.array((2.518854e-02, 6.404227e-02, 6.903081e-02, 7.313249e-02)), # J/F0l0, Fast, recovery heat 
+            # 'heat_exp_init': np.array((0.667, 0.616, 0.606,0.606)), # J/F0l0, Fast, initial heat
+            'heat_exp_rec': np.array((2.385859e-02, 6.066084e-02, 6.538598e-02, 6.927110e-02)), # J/F0l0, Fast, recovery heat, ASSUME SAME 1/3 REC RATE DURING CONTRACTION
+            'heat_exp_init': np.array((6.821729e-01, 6.592259e-01, 6.575630e-01, 6.561958e-01)), # J/F0l0, Fast, initial heat, ASSUME SAME 1/3 REC RATE DURING CONTRACTION
+            # 'heat_exp_rec': np.array((2.419108e-02, 6.150620e-02, 6.629719e-02, 7.023644e-02)), # J/F0l0, Fast, recovery heat, ASSUME SAME 1/2 REC RATE DURING CONTRACTION
+            # 'heat_exp_init': np.array((6.779748e-01, 6.485522e-01, 6.460579e-01, 6.440071e-01)), # J/F0l0, Fast, initial heat, ASSUME SAME 1/2 REC RATE DURING CONTRACTION
+
 
             # Activation model parameters 
             "Tau_1": 0.0422, # Very little change between fibre type - assume constant (BH, 2003)
@@ -194,11 +202,15 @@ def E_init(t):
     t_cycle_length = 5 # s, Length of the cycle
     t_cycle = t%t_cycle_length
 
+    # ge the initial heat rates 
+    dHidt_vec = params[params['muscle']]['heat_exp_init']
+
     if params['muscle'] == 'SOL': 
         cycles = np.array((1,5,15,30)) # Cycle number
 
         # Assuming recovery maintains the same during the contraction period
-        dHidt_vec = np.array((0.225, 0.176, 0.166, 0.164))  # F_0 l_0 / s, slow, initial 
+        # dHidt_vec = np.array((0.225, 0.176, 0.166, 0.164))  # F_0 l_0 / s, slow, initial 
+        
         # dATPdt_vec = np.array((5.339988e-03, 5.726164e-02, 7.235249e-02, 7.009909e-02))   # umol/g, slow, recovery
 
         # Use an exponential fit 
@@ -221,7 +233,7 @@ def E_init(t):
         cycles = np.array((1,5,15,30)) # Cycle number
         #____
         # Assuming recovery maintains the same during the contraction period
-        dHidt_vec = np.array((0.667, 0.616, 0.606,0.606)) # umol/g, fast 
+        # dHidt_vec = np.array((0.667, 0.616, 0.606,0.606)) # umol/g, fast 
         # dATPdt_vec = np.array((2.518854e-02, 6.404227e-02, 6.903081e-02, 7.313249e-02)) * F_0 * l_0 / mass  / G_atp * 10**6 # umol/g, fast, recovery
 
         # Use an exponential fit 
@@ -307,9 +319,9 @@ def f_opt(x):
     # Define the bioenergetics model 
     model = Bioenergetics(params)
     model.r_rec = x[0] * 1e6
-    # model.nh = x[0]
-    # model.K_adp = x[1]
-    # model.V_max_oxphos = x[2]
+    model.nh = x[1]
+    # model.K_adp0-== = x[1]
+    model.V_max_oxphos = x[2]
     # print(f'r_rec = {model.r_rec}, nh = {model.nh}, K_adp = {model.K_adp}, V_max_oxphos = {model.V_max_oxphos}')
 
     #####
@@ -329,9 +341,21 @@ def f_opt(x):
     scale_factor_exp = params[params['muscle']]['F_0'] * params[params['muscle']]['l_0'] / params[params['muscle']]['mass']
     recovery_heat_exp = rec_heat_exp(sol.t, params[muscle]['heat_exp_rec'])  * scale_factor_exp # Units of W / g / s
 
-    # only fit over the times from t_cycle_start to t_cycle_end 
-    recovery_heat_model_crop = recovery_heat_model[(sol.t > params['t_cycle_start'] + 5) * (sol.t < params['t_cycle_end'])]
-    recovery_heat_exp_crop = recovery_heat_exp[(sol.t > params['t_cycle_start']+ 5) * (sol.t < params['t_cycle_end'])]
+    # # Fit the full trace 
+    # recovery_heat_model_crop = recovery_heat_model[(sol.t > params['t_cycle_start'] + 5) * (sol.t < params['t_cycle_end'])]
+    # recovery_heat_exp_crop = recovery_heat_exp[(sol.t > params['t_cycle_start']+ 5) * (sol.t < params['t_cycle_end'])]
+    
+    # Fit cycle-averaged recovery heat (one mean value per cycle) instead of
+    # using the full pointwise trace.
+    cycle_length = 5.0
+    fit_mask = (sol.t > params['t_cycle_start'] + cycle_length) * (sol.t < params['t_cycle_end'])
+    t_fit = sol.t[fit_mask]
+    model_fit = recovery_heat_model[fit_mask]
+    exp_fit = recovery_heat_exp[fit_mask]
+    cycle_idx = np.floor((t_fit - params['t_cycle_start']) / cycle_length).astype(int)
+    unique_cycles = np.unique(cycle_idx)
+    recovery_heat_model_crop = np.array([np.mean(model_fit[cycle_idx == cyc]) for cyc in unique_cycles])
+    recovery_heat_exp_crop = np.array([np.mean(exp_fit[cycle_idx == cyc]) for cyc in unique_cycles])
     
     ################################
     # Opt 1: just minimise over initial time period 
@@ -382,10 +406,13 @@ def callback_fun(xk):
 
     # Callkback for opt 1:
     # print(f'iter: {iter}, r_rec = {xk[0]}, nh = {xk[1]}, K_adp = {xk[2]}, V_max_oxphos = {xk[3]}')
-    print(f'iter: {iter}, r_rec = {xk[0]}')
+    print(f'iter: {iter}, r_rec = {xk[0]}, nh = {xk[1]}, V_max_oxphos = {xk[2]}')
+    # print(f'iter: {iter}, r_rec = {xk[0]}')
     # print(f'iter: {iter}, V_max_oxphos = {xk[0]}')
     # print(f'iter: {iter}, r_rec = {xk[0]}, V_max_oxphos = {xk[1]}')
+    # print(f'iter: {iter}, r_rec = {xk[0]}, nh = {xk[1]}')
     # print(f'iter: {iter}, nh = {xk[0]}, K_adp = {xk[1]}, V_max_oxphos = {xk[2]}')
+    # print(f'iter: {iter}, nh = {xk[0]}, V_max_oxphos = {xk[1]}')
     
 
     # Callback for opt 3:
@@ -408,15 +435,15 @@ def callback_fun(xk):
 # # update the parameter values , note multiplication factors
 # params[muscle]['r_rec'], params[muscle]['nh'], params[muscle]['K_adp'], params[muscle]['V_max_oxphos'] = x[0] * 1e6, x[1], x[2], x[3]
 
-# Opt1: only optimise the r_rec variable 
-x0 = (params[muscle]['r_rec'] / 1e6,)
-bounds_ = ((0.01,4),)
-# Perform the optimisation
-opt_res = minimize(f_opt, x0, callback= callback_fun, bounds = bounds_,  options = {'maxiter': 500, 'disp': True}, method='Nelder-Mead')
-# Print out the optimal solution 
-x = opt_res.x 
-print(f'r_rec = {x[0]}')
-params[muscle]['r_rec']= x[0] * 1e6
+# # Opt1: only optimise the r_rec variable 
+# x0 = (params[muscle]['r_rec'] / 1e6,)
+# bounds_ = ((0.01,4),)
+# # Perform the optimisation
+# opt_res = minimize(f_opt, x0, callback= callback_fun, bounds = bounds_,  options = {'maxiter': 500, 'disp': True}, method='Nelder-Mead')
+# # Print out the optimal solution 
+# x = opt_res.x 
+# print(f'r_rec = {x[0]}')
+# params[muscle]['r_rec']= x[0] * 1e6
 
 # # Opt only V_max 
 # x0 = (params[muscle]['V_max_oxphos'],)
@@ -487,15 +514,35 @@ params[muscle]['r_rec']= x[0] * 1e6
 # # update the parameter values , note multiplication factors
 # params[muscle]['nh'], params[muscle]['K_adp'], params[muscle]['V_max_oxphos'] = x[0], x[1], x[2]
 
-# # Opt r_rec and V_max 
-# x0 = (params[muscle]['r_rec'] / 1e6, 1.5)
-# bounds_ = ((0.01,4), (0.5,5))
+# Opt r_rec, nh, and V_max 
+x0 = (params[muscle]['r_rec'] / 1e6, 0.8, 1.5)
+bounds_ = ((0.01,4), (0.01, 4), (0.5,10))
+# Perform the optimisation
+opt_res = minimize(f_opt, x0, callback= callback_fun, bounds = bounds_,  options = {'maxiter': 500, 'disp': True}, method='Nelder-Mead')
+# Print out the optimal solution 
+x = opt_res.x 
+print(f'r_rec = {x[0]}, nh = {x[1]}, V_max_oxphos = {x[2]}')
+params[muscle]['r_rec'], params[muscle]['nh'], params[muscle]['V_max_oxphos'] = x[0] * 1e6, x[1], x[2]
+
+# # Opt r_rec and nh 
+# x0 = (params[muscle]['r_rec'] / 1e6, 0.8)
+# bounds_ = ((0.01,4), (0.01, 4))
 # # Perform the optimisation
 # opt_res = minimize(f_opt, x0, callback= callback_fun, bounds = bounds_,  options = {'maxiter': 500, 'disp': True}, method='Nelder-Mead')
 # # Print out the optimal solution 
 # x = opt_res.x 
-# print(f'r_rec = {x[0]}, V_max_oxphos = {x[1]}')
-# params[muscle]['r_rec'], params[muscle]['V_max_oxphos'] = x[0] * 1e6, x[1]
+# print(f'r_rec = {x[0]}, nh = {x[1]}')
+# params[muscle]['r_rec'], params[muscle]['nh']= x[0] * 1e6, x[1]
+
+# # Opt r_rec and V_max 
+# x0 = (0.8, 10)
+# bounds_ = ((0.01, 4), (0.5,20))
+# # Perform the optimisation
+# opt_res = minimize(f_opt, x0, callback= callback_fun, bounds = bounds_,  options = {'maxiter': 500, 'disp': True}, method='Nelder-Mead')
+# # Print out the optimal solution 
+# x = opt_res.x 
+# print(f'nh = {x[0]}, V_max_oxphos = {x[1]}')
+# params[muscle]['nh'], params[muscle]['V_max_oxphos'] = x[0], x[1]
 
 # For opt 3
 # w0_0, w1_0 = 1,1
@@ -520,6 +567,31 @@ scale = params[params['muscle']]['F_0'] * params[params['muscle']]['l_0'] / para
 q_r = q_r_unscaled / scale # F0l0 / s
 
 ##################################
+# Compare model and experimental recovery heat rates with same plots as optimisation 
+recovery_heat_exp = rec_heat_exp(sol.t, params[muscle]['heat_exp_rec'])
+# Per-cycle means over the same fitting window used in optimisation.
+cycle_length = 5.0
+fit_mask_plot = (sol.t > params['t_cycle_start'] + cycle_length) * (sol.t < params['t_cycle_end'])
+t_fit_plot = sol.t[fit_mask_plot]
+model_fit_plot = q_r[fit_mask_plot]
+exp_fit_plot = recovery_heat_exp[fit_mask_plot]
+cycle_idx_plot = np.floor((t_fit_plot - params['t_cycle_start']) / cycle_length).astype(int)
+unique_cycles_plot = np.unique(cycle_idx_plot)
+cycle_centers_plot = params['t_cycle_start'] + (unique_cycles_plot + 0.5) * cycle_length
+model_cycle_means = np.array([np.mean(model_fit_plot[cycle_idx_plot == cyc]) for cyc in unique_cycles_plot])
+exp_cycle_means = np.array([np.mean(exp_fit_plot[cycle_idx_plot == cyc]) for cyc in unique_cycles_plot])
+# Plot
+fig, ax = plt.subplots(layout = 'constrained')
+ax.plot(sol.t, q_r, label='Model recovery heat rate')
+ax.plot(sol.t, recovery_heat_exp, label='Experimental recovery heat rate (interp.)', linestyle='--')
+ax.plot(cycle_centers_plot, model_cycle_means, 's', ms=5, label='Model cycle mean')
+ax.plot(cycle_centers_plot, exp_cycle_means, 'd', ms=5, label='Experimental cycle mean')
+ax.plot(t_exp_rec, params[muscle]['heat_exp_rec'] * params['q10_heat'], 'o', label='Experimental data points')
+ax.set_xlabel('Time (s)')
+ax.set_ylabel('Recovery heat rate ($F_0 l_0 s^{-1}$)')
+ax.legend()
+ax.grid(True)
+
 # Compare model and experimental recovery heat rates
 recovery_heat_exp = rec_heat_exp(sol.t, params[muscle]['heat_exp_rec'])
 fig, ax = plt.subplots(layout = 'constrained')
@@ -530,6 +602,7 @@ ax.set_xlabel('Time (s)')
 ax.set_ylabel('Recovery heat rate ($F_0 l_0 s^{-1}$)')
 ax.legend()
 ax.grid(True)
+
 
 # Plot with units in F0l0/s
 fig, ax = plt.subplots(layout = 'constrained')

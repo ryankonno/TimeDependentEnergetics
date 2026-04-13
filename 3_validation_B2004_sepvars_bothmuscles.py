@@ -31,7 +31,7 @@ sys.path.append('./')
 params = {
     # Time parameters for setting up the protocol 
     't_start': 0, # s
-    't_end': 60, # s
+    't_end': 70, # s
     'cycle_length': 0.3, # s, Defines the length of the cycle (used to set frequency of the contractions)
     'N_cycles': 10, # unitless, Number of cycles to simulate (rest period after N_cycles contractions)
 
@@ -52,20 +52,15 @@ params = {
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
 
-            # # Values to match Ri/Rr = 1 and zero derivative 
-            # # 'V_max_oxphos': 3.47, # mM/s
-            # 'V_max_oxphos': 6, # mM/s
-            # 'K_adp': 0.0615, # mM,
-            # 'nh': 0.873, # unitless, 
-            # 'r_rec': 0.25 *  2.41e5, # J / mol
-            # Use values from Vicini + theoretical recovery heat
-            'V_max_oxphos': 3.47, # mM/s
-            'K_adp': 0.0615, # mM,
-            'nh': 0.873, # unitless, 
-            'r_rec': 43.3e3, # J / mol, Obtained from efficiency calculation 
-            
-
-            'gamma': 1, # Scaling factor for metabolic rates at rest
+            #__________
+            # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # 'V_max_oxphos': 0.94548, # mM/s
+            'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'K_adp': 0.058, # mM,
+            'nh': 0.3156, # unitless, # original
+            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 3, # Scaling factor for metabolic rates at rest   
 
 
             # Values from Barclay and Weber 2004
@@ -83,24 +78,22 @@ params = {
             # "Tau_2": 0.125, # Scaling based on MCL (2023)
             "Tau_2": 0.057, #  BH 2012
             "K": 0.1025,
-            "n": 4, # Hill coefficient for act mdoel
+            "n": 3, # Hill coefficient for act mdoel
             
             # Mechanical parameters 
             'dedt_ce_max': 5, 
             'kappa': 0.18,
 
             # Initial energetics model 
-            'r_cxb': 0.25 *  0.3786, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.25 * 0.0662, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl': 0.25 * 0.239, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            'r_cxb': 0.3786, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.0662, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_sl': 0.239, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
         }, 
         'EDL': { 
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
-
-            'gamma': 1, # Scaling factor for metabolic rates at rest
 
             # Values to match recovery rate during initial contractoin
             # 'V_max_oxphos': 1.75, # mM/s
@@ -114,11 +107,15 @@ params = {
             # 'nh': 0.873, # unitless, 
             # 'r_rec': 0.25 * 2.41e5, # J / mol
 
-            # Use values from Vicini + theoretical recovery heat
-            'V_max_oxphos': 3, # mM/s
-            'K_adp': 0.0615, # mM,
-            'nh': 0.873, # unitless, 
-            'r_rec': 38.8e3, # J / mol, Obtained from efficiency calculation 
+            #__________
+            # SOL VALUES WITH SCLAING Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # 'V_max_oxphos': 0.94548, # mM/s
+            'V_max_oxphos': 0.5 * 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'K_adp': 0.058, # mM,
+            'nh': 0.3156, # unitless, # original
+            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 3, # Scaling factor for metabolic rates at rest         
 
             'F_0': 0, # N, 
             'l_0': 8.9e-3, # m,
@@ -135,16 +132,16 @@ params = {
             # "Tau_2": 0.125/2, # Decay constant for fast twitch Fibres assuming 1/2 rate (Baylor and Hollingworth, 2003)
             "Tau_2": 0.011, # BH 2012
             "K": 0.1025,
-            "n": 4, # Hill coefficient for activation model
+            "n": 3, # Hill coefficient for activation model
 
             # Mechanical parameters 
             'dedt_ce_max': 10, 
             'kappa': 0.29,
 
             # Energetics model 
-            'r_cxb': 0.25 *  2.439, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            'r_cat': 0.25 * 0.1497, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            'r_sl': 0.25 * 1.0146, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
+            'r_cxb': 2.439, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
+            'r_cat': 0.1497, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
+            'r_sl': 1.0146, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
 
         },
 
@@ -190,19 +187,19 @@ def f_stim_length(t, params):
     # t_short_start = 0.05 * cycle_length
     # t_length_start = 0.15 * cycle_length
     # t_length_end =  cycle_length # Assume return to initial lenght by the end of the cycle
-    # Time parameters edited to have a fixed stimulation time
-    # 
+    # Time parameters edited to have a fixed stimulation time 
     if params['muscle'] == 'EDL':  
         t_stim_start = 0 
-        t_stim_end = 0.063
-        t_short_start = 0.03
-        t_length_start = 0.2
+        t_stim_end = 0.063 # From paper 
+        # t_short_start = 0.03
+        t_short_start = 0.005
+        t_length_start = 0.15
         t_length_end =  cycle_length # Assume return to initial lenght by the end of the cycle
     elif params['muscle'] == 'SOL': 
         t_stim_start = 0 
-        t_stim_end = 0.125
+        t_stim_end = 0.125 # From paper
         t_short_start = 0.03
-        t_length_start = 0.2
+        t_length_start = 0.24
         t_length_end =  cycle_length # Assume return to initial lenght by the end of the cycle
 
     # Get the optimal length of the muscle
@@ -277,7 +274,7 @@ def f_stim_length(t, params):
 # Plot to verify conditions 
 t_vec = np.linspace(params['t_start'], params['t_end'], int(10000 * params['t_end'])) 
 
-freq_list = (0.5, 1, 2, 3, 4, 5) # Hz, Frequencies for the cycles 
+freq_list = (0.5, 1, 2, 3, 4) # Hz, Frequencies for the cycles 
 
 component_names = ('q_a', 'q_m', 'q_sl', 'w', 'q_r')
 component_colors = ('#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e')
@@ -381,7 +378,7 @@ for muscle_name in ('SOL', 'EDL'):
         #######################
         # Compute the time constants from the data 
         total_energy_rate = (E_tot + q_r) * energy_unit_scaler
-        mask = t_vec >= params['cycle_length'] * params['N_cycles'] + 1000 * (t_vec[1] - t_vec[0])
+        mask = t_vec >= params['cycle_length'] * params['N_cycles'] + 3 # 3s buffer
         t_decay = t_vec[mask]
         y_decay = total_energy_rate[mask]
         t_rel = t_decay - t_decay[0]
@@ -504,15 +501,29 @@ for muscle_name in ('SOL', 'EDL'):
     for freq, eta_init, eta_total, efficiency_ratio in efficiency_rows:
         print(f'{freq:7.2f} | {eta_init:19.6f} | {eta_total:29.6f} | {efficiency_ratio:14.6f}')
 
+    efficiency_array = np.array(efficiency_rows, dtype=float)
+    mean_vals = np.nanmean(efficiency_array[:, 1:], axis=0)
+    sem_vals = np.nanstd(efficiency_array[:, 1:], axis=0, ddof=1) / np.sqrt(np.sum(~np.isnan(efficiency_array[:, 1:]), axis=0))
+    print(' mean±SEM | '
+          f'{mean_vals[0]:.6f} ± {sem_vals[0]:.6f} | '
+          f'{mean_vals[1]:.6f} ± {sem_vals[1]:.6f} | '
+          f'{mean_vals[2]:.6f} ± {sem_vals[2]:.6f}')
+
 # Plot peak recovery rate versus frequency for both muscles
 fig_peak_qr_compare, ax_peak_qr_compare = plt.subplots(layout = 'constrained')
 ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['SOL'], '-o', label='SOL', color='#1f77b4')
 ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['EDL'], '-o', label='EDL', color="#d62728")
 ax_peak_qr_compare.set_xlabel('Cycle frequency (Hz)')
 ax_peak_qr_compare.set_ylabel('Peak recovery rate ($mW g^{-1}$)')
-ax_peak_qr_compare.set_title('Peak Recovery Rate vs Frequency')
+
+exp_rrecmax_sol = np.genfromtxt('Data/BW2004_data_rrecmax_SOL.csv', delimiter=',', names=True)
+exp_rrecmax_edl = np.genfromtxt('Data/BW2004_data_rrecmax_EDL.csv', delimiter=',', names=True)
+ax_peak_qr_compare.plot(exp_rrecmax_sol['freq'][0:len(freq_list)], exp_rrecmax_sol['rrecmax'][0:len(freq_list)], 'k-o', lw=1.5, ms=4, label='EXP')
+ax_peak_qr_compare.plot(exp_rrecmax_edl['freq'][0:len(freq_list)], exp_rrecmax_edl['rrecmax'][0:len(freq_list)], 'k--s', lw=1.5, ms=4, label='_nolegend_')
+
 ax_peak_qr_compare.grid(True, alpha = 0.3)
 ax_peak_qr_compare.legend()
+fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp.jpg')
 
 # Plot fitted time constants versus frequency for both muscles
 fig_tau_freq_compare, ax_tau_freq_compare = plt.subplots(layout = 'constrained')
@@ -520,8 +531,15 @@ ax_tau_freq_compare.plot(freq_list, tau_by_muscle['SOL'], '-o', label='SOL', col
 ax_tau_freq_compare.plot(freq_list, tau_by_muscle['EDL'], '-o', label='EDL', color='#d62728')
 ax_tau_freq_compare.set_xlabel('Cycle frequency (Hz)')
 ax_tau_freq_compare.set_ylabel('Time constant $\\tau$ (s)')
-ax_tau_freq_compare.set_title('Recovery Time Constant vs Frequency')
+
+exp_tau_sol = np.genfromtxt('Data/BW2004_data_tau_SOL.csv', delimiter=',', names=True)
+exp_tau_edl = np.genfromtxt('Data/BW2004_data_tau_EDL.csv', delimiter=',', names=True)
+ax_tau_freq_compare.plot(exp_tau_sol['freq'][0:len(freq_list)], exp_tau_sol['tau'][0:len(freq_list)], 'k-o', lw=1.5, ms=4, label='EXP')
+ax_tau_freq_compare.plot(exp_tau_edl['freq'][0:len(freq_list)], exp_tau_edl['tau'][0:len(freq_list)], 'k--s', lw=1.5, ms=4, label='_nolegend_')
+
 ax_tau_freq_compare.grid(True, alpha = 0.3)
 ax_tau_freq_compare.legend()
+
+fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp.jpg')
 
 plt.show()

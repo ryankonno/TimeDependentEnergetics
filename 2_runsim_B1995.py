@@ -24,7 +24,7 @@ os.chdir('/mnt/c/Users/s4773677/uq_ws/TemporalEnergetics/Modelling/TimeDependent
 
 from Models.BioenergeticsSimple import Bioenergetics
 
-save_id = '_opt_rrec'
+save_id = '_gamma3_optedlsol'
 
 params = {
     # Time parameters for setting up the protocol 
@@ -39,7 +39,7 @@ params = {
     'rho0':  1e6,    # g/m^3, Density of muscle
     'max_iso_stress': 2.5e5, # N/m^2, Maximum isometric stress of the muscle
 
-    'muscle': 'SOL', # Specify muscle parameters to be used in simulation
+    'muscle': 'EDL', # Specify muscle parameters to be used in simulation
 
         # Mouse data 
         'SOL': {
@@ -48,7 +48,7 @@ params = {
             'c_atp_0': 3.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 11.4, # mM,  Kushmerick et al. 1992 
             # 'Pi_0': 6, # mM,  Kushmerick et al. 1992 
-            'gamma': 1, # Scaling factor for metabolic rates at rest
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest
             'atp_peak': 0.25,# 0.213, # mM/s 
 
             # # Values to match Ri/Rr = 1 and zero derivative 
@@ -69,11 +69,29 @@ params = {
             # 'nh': 1.00, # unitless,
             # 'r_rec': 43.3e3, # J / mol
 
-            # Values to match recovery rate during initial contractoin
-            'V_max_oxphos': 1.88, # mM/s
-            'K_adp': 0.058, # mM, 
-            'nh': 2.57, # unitless,
-            'r_rec': 0.1519e6, # J / mol
+            # # Values to match recovery rate during initial contractoin
+            # 'V_max_oxphos': 1.88, # mM/s
+            # 'K_adp': 0.058, # mM, 
+            # 'nh': 2.57, # unitless,
+            # 'r_rec': 0.1519e6, # J / mol
+
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, no r_rec opt
+            # 'V_max_oxphos': 1.65548, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.2729, # unitless, # original
+            # 'r_rec': 43.3e3, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest     
+
+            #__________
+            # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # 'V_max_oxphos': 0.94548, # mM/s
+            'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'K_adp': 0.058, # mM,
+            'nh': 0.3156, # unitless, # original
+            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 3, # Scaling factor for metabolic rates at rest        
 
             # Values from Barclay et al. 1995
             'F_0': 0, # N, 
@@ -83,8 +101,10 @@ params = {
             
             
             # Heat data used for optimisation 
-            'heat_exp_rec': np.array((5.339988e-03, 5.726164e-02, 7.235249e-02, 7.009909e-02)), # J/F0l0, Slow, recovery heat 
-            'heat_exp_init': np.array((0.225, 0.176, 0.166, 0.164)),  # J/F0l0, Slow, initial heat
+            # 'heat_exp_rec': np.array((5.339988e-03, 5.726164e-02, 7.235249e-02, 7.009909e-02)), # J/F0l0, Slow, recovery heat 
+            # 'heat_exp_init': np.array((0.225, 0.176, 0.166, 0.164)),  # J/F0l0, Slow, initial heat
+            'heat_exp_rec': np.array((4.478470e-03, 4.802343e-02, 6.067962e-02, 5.878977e-02)), # J/F0l0, Slow, recovery heat, ASSUME SAME 1/3 REC RATE DURING CONTRACTION
+            'heat_exp_init': np.array((2.362291e-01, 2.190962e-01, 2.193518e-01, 2.148170e-01)),  # J/F0l0, Slow, initial heat, ASSUME SAME 1/3 REC RATE DURING CONTRACTION
         }, 
         'EDL': { 
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
@@ -112,25 +132,44 @@ params = {
             # 'nh': 1.00, # unitless,
             # 'r_rec': 38.8e3, # J / mol
 
-            #  Values with opt recovery rate 
-            'V_max_oxphos': 1.88/2, # mM/s
-            'K_adp': 0.058, # mM, 
-            'nh': 2.57, # unitless,
-            'r_rec': 0.2165e6, # J / mol
+            # #  Values with opt recovery rate 
+            # 'V_max_oxphos': 1.88/2, # mM/s
+            # 'K_adp': 0.058, # mM, 
+            # 'nh': 2.57, # unitless,
+            # 'r_rec': 0.2165e6, # J / mol
 
-
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, no r_rec opt
+            # # 'V_max_oxphos': 12.71738, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees 1.65548
+            # 'V_max_oxphos': 0.5 * 1.65548 , # mM/s
+            # 'K_adp': 0.058, # mM,
+            # # 'nh': 0.56477, # unitless, # original
+            # 'nh': 0.2729,
+            # 'r_rec': 38.8e3, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest       
+            #__________
+            # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # 'V_max_oxphos': 0.94548, # mM/s
+            'V_max_oxphos': 0.5 * 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'K_adp': 0.058, # mM,
+            'nh': 1.0593, # unitless, # original
+            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            'r_rec': 0.146329095e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 3, # Scaling factor for metabolic rates at rest          
 
             # For Phillips Simulation 
             'atp_peak': 0.25,# 0.213, # mM/s Peak atp rate calculated based on initial heat rate and enthalpy of ATP from Phillips et al. 1993
-            'gamma': 1, # Scaling factor for metabolic rates at rest
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest
 
             'F_0': 0, # N, 
             'l_0': 8.9e-3, # m,
             'mass': 3.9e-3, # g, 
             
             # Heat data used for optimisation 
-            'heat_exp_rec': np.array((2.518854e-02, 6.404227e-02, 6.903081e-02, 7.313249e-02)), # J/F0l0, Fast, recovery heat 
-            'heat_exp_init': np.array((0.667, 0.616, 0.606,0.606)), # J/F0l0, Fast, initial heat
+            # 'heat_exp_rec': np.array((2.518854e-02, 6.404227e-02, 6.903081e-02, 7.313249e-02)), # J/F0l0, Fast, recovery heat 
+            # 'heat_exp_init': np.array((0.667, 0.616, 0.606,0.606)), # J/F0l0, Fast, initial heat
+            'heat_exp_rec': np.array((2.385859e-02, 6.066084e-02, 6.538598e-02, 6.927110e-02)), # J/F0l0, Fast, recovery heat, ASSUME SAME 1/3 REC RATE DURING CONTRACTION
+            'heat_exp_init': np.array((6.821729e-01, 6.592259e-01, 6.575630e-01, 6.561958e-01)), # J/F0l0, Fast, initial heat, ASSUME SAME 1/3 REC RATE DURING CONTRACTION
         },
 
         # Contraction dependent
@@ -179,12 +218,14 @@ def E_init(t):
     t_cycle_length = 5 # s, Length of the cycle
     t_cycle = t%t_cycle_length
 
+    # ge the initial heat rates 
+    dHidt_vec = params[params['muscle']]['heat_exp_init']
     
     if params['muscle'] == 'SOL': 
         cycles = np.array((1,5,15,30)) # Cycle number
 
         # Assuming recovery maintains the same during the contraction period
-        dHidt_vec = np.array((0.225, 0.176, 0.166, 0.164))  # F_0 l_0 / s, slow, initial 
+        # dHidt_vec = np.array((0.225, 0.176, 0.166, 0.164))  # F_0 l_0 / s, slow, initial 
 
         # Use an exponential fit 
         def f(x, a, b, c, d): 
@@ -203,7 +244,7 @@ def E_init(t):
         cycles = np.array((1,5,15,30)) # Cycle number
 
         # Assuming recovery maintains the same during the contraction period
-        dHidt_vec = np.array((0.667, 0.616, 0.606,0.606)) # umol/g, fast 
+        # dHidt_vec = np.array((0.667, 0.616, 0.606,0.606)) # umol/g, fast 
 
         # Use an exponential fit 
         def f(x, a, b, c, d): 
@@ -265,25 +306,51 @@ q_r_unscaled = bioenergetic_model.computeRecoveryEnergetics(sol.t, sol.y[0,]) # 
 scale = params[params['muscle']]['F_0'] * params[params['muscle']]['l_0'] / params[params['muscle']]['mass']
 q_r = q_r_unscaled / scale # In units of F0l0 / s
 
-# Plot with units in F0l0/s
-# Plot the rates 
-fig, ax = plt.subplots(layout = 'constrained')
-# e_init_scale = (params[params['muscle']]['F_0'] * params[params['muscle']]['l_0'] / params[params['muscle']]['mass'])
-# E_tot = E_tot * e_init_scale
-# energy_unit_scaler = params[params['muscle']]['F_0'] * params[params['muscle']]['l_0'] / params[params['muscle']]['mass'] * 1e3 # convert from W/F0l0 to mW/g 
+# # Plot with units in F0l0/s
+# # Plot the rates 
+# fig, ax = plt.subplots(layout = 'constrained')
+# # e_init_scale = (params[params['muscle']]['F_0'] * params[params['muscle']]['l_0'] / params[params['muscle']]['mass'])
+# # E_tot = E_tot * e_init_scale
+# # energy_unit_scaler = params[params['muscle']]['F_0'] * params[params['muscle']]['l_0'] / params[params['muscle']]['mass'] * 1e3 # convert from W/F0l0 to mW/g 
 energy_unit_scaler = 1 
-ax.plot(t_vec, E_tot_scaled * energy_unit_scaler , label = '$\dot e_{init}$') 
-ax.plot(t_vec, q_r * energy_unit_scaler, label = '$\dot q_r$') 
-ax.plot(t_vec, (E_tot_scaled + q_r) * energy_unit_scaler, label = '$\dot q_r + \dot e_{init}$') 
-ax.legend()
+# ax.plot(t_vec, E_tot_scaled * energy_unit_scaler , label = '$\dot e_{init}$') 
+# ax.plot(t_vec, q_r * energy_unit_scaler, label = '$\dot q_r$') 
+# ax.plot(t_vec, (E_tot_scaled + q_r) * energy_unit_scaler, label = '$\dot q_r + \dot e_{init}$') 
+# ax.legend()
+# ax.set_xlabel('Time (s)')
+# # ax.set_ylabel('Energy rate ($mW g^{-1}$)')
+# ax.set_ylabel('Energy rate ($F_0 l_0 s^{-1}$)')
+# Compare model and experimental recovery heat rates with same plots as optimisation 
+recovery_heat_exp = rec_heat_exp(sol.t, params[muscle]['heat_exp_rec'])
+# Per-cycle means over the same fitting window used in optimisation.
+cycle_length = 5.0
+fit_mask_plot = (sol.t > params['t_cycle_start'] + cycle_length) * (sol.t < params['t_cycle_end'])
+t_fit_plot = sol.t[fit_mask_plot]
+model_fit_plot = q_r[fit_mask_plot]
+exp_fit_plot = recovery_heat_exp[fit_mask_plot]
+cycle_idx_plot = np.floor((t_fit_plot - params['t_cycle_start']) / cycle_length).astype(int)
+unique_cycles_plot = np.unique(cycle_idx_plot)
+cycle_centers_plot = params['t_cycle_start'] + (unique_cycles_plot + 0.5) * cycle_length
+model_cycle_means = np.array([np.mean(model_fit_plot[cycle_idx_plot == cyc]) for cyc in unique_cycles_plot])
+exp_cycle_means = np.array([np.mean(exp_fit_plot[cycle_idx_plot == cyc]) for cyc in unique_cycles_plot])
+# Plot
+fig, ax = plt.subplots(layout = 'constrained', figsize = (7,5))
+ax.plot(sol.t, q_r, label='Mod rec heat rate')
+ax.plot(sol.t, recovery_heat_exp, label='Exp rec heat rate', linestyle='--')
+ax.plot(cycle_centers_plot, model_cycle_means, 's', ms=5, label='Mod cycle mean')
+# ax.plot(cycle_centers_plot, exp_cycle_means, 'd', ms=5, label='Exp cycle mean')
+cycle_rec = np.array((1, 5, 15, 30))
+t_exp_rec = params['t_cycle_start'] + 5 * cycle_rec
+ax.plot(t_exp_rec, params[muscle]['heat_exp_rec'] * params['q10_heat'], 'o', label='Experimental data points')
 ax.set_xlabel('Time (s)')
-# ax.set_ylabel('Energy rate ($mW g^{-1}$)')
-ax.set_ylabel('Energy rate ($F_0 l_0 s^{-1}$)')
-fig.savefig('Figures/B1995Opt_' + muscle + '_totalenergyrate' + save_id + '.jpg')
-fig.savefig('Figures/B1995Opt_' + muscle + '_totalenergyrate' + save_id + '.svg')
+ax.set_ylabel('Recovery heat rate ($F_0 l_0 s^{-1}$)')
+ax.legend()
+ax.grid(True)
+fig.savefig('Figures/B1995Opt_' + muscle + '__expdatacomp' + save_id + '.jpg')
+fig.savefig('Figures/B1995Opt_' + muscle + '__expdatacomp' + save_id + '.svg')
 
 # Plot the total energy over the cycle
-fig, ax = plt.subplots(layout = 'constrained')
+fig, ax = plt.subplots(layout = 'constrained', figsize = (7,5))
 ax.plot(t_vec, cumtrapz(E_tot_scaled, t_vec, initial = 0) * energy_unit_scaler, label = '$ e_{init}$') 
 ax.plot(t_vec, cumtrapz(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$') 
 ax.plot(t_vec, cumtrapz(E_tot_scaled + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$')
@@ -295,17 +362,17 @@ fig.savefig('Figures/B1995Opt_' + muscle + '_totalenergy' + save_id + '.jpg')
 fig.savefig('Figures/B1995Opt_' + muscle + '_totalenergy' + save_id + '.svg')
 
 # Compare model and experimental recovery heat rates
-recovery_heat_exp = rec_heat_exp(sol.t, params[muscle]['heat_exp_rec'])
-fig, ax = plt.subplots(layout = 'constrained')
-ax.plot(sol.t, q_r, label='Model recovery heat rate')
-ax.plot(sol.t, recovery_heat_exp, label='Experimental recovery heat rate (interp.)', linestyle='--')
-ax.plot(t_exp, params[muscle]['heat_exp_rec'] * params['q10_heat'], 'o', label='Experimental data points')
-ax.set_xlabel('Time (s)')
-ax.set_ylabel('Recovery heat rate ($F_0 l_0 s^{-1}$)')
-ax.legend()
-ax.grid(True)
-fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp' + save_id + '.jpg')
-fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp' + save_id + '.svg')
+# recovery_heat_exp = rec_heat_exp(sol.t, params[muscle]['heat_exp_rec'])
+# fig, ax = plt.subplots(layout = 'constrained', figsize = (7,5))
+# ax.plot(sol.t, q_r, label='Model recovery heat rate')
+# ax.plot(sol.t, recovery_heat_exp, label='Experimental recovery heat rate (interp.)', linestyle='--')
+# ax.plot(t_exp, params[muscle]['heat_exp_rec'] * params['q10_heat'], 'o', label='Experimental data points')
+# ax.set_xlabel('Time (s)')
+# ax.set_ylabel('Recovery heat rate ($F_0 l_0 s^{-1}$)')
+# ax.legend()
+# ax.grid(True)
+# fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp' + save_id + '.jpg')
+# fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp' + save_id + '.svg')
 
 # Compute the time constant from an exponential fit on post-contraction decay
 energy_unit_scaler = params[params['muscle']]['F_0'] * params[params['muscle']]['l_0'] / params[params['muscle']]['mass'] * 1e3 # convert from W/F0l0 to mW/g

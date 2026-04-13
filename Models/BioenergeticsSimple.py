@@ -61,7 +61,13 @@ class Bioenergetics():
         # Evaluate phi_atp (may be scalar or array) and form a boolean mask
         phi_atp_val = self.phi_atp(t, c_atp_)
         # print(f'phi_atp_val = {phi_atp_val}')
-        cond = np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-5
+
+        # Determine rest phase via concentration of ATP 
+        # cond = np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-5
+
+        # Determine rest phase via negative ATP drive or near-rest ATP usage.
+        cond = np.logical_or(phi_atp_val < 0, np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-6)
+        
         # If cond is scalar use scalar gamma, otherwise build elementwise gamma array
         if np.isscalar(cond):
             gamma = self.gamma_1 if cond else 1.0
@@ -87,51 +93,7 @@ class Bioenergetics():
         
         Modified to simulate the contractions from Barclay et al. 1995
         '''
-        # Constant atp_peak [we use variable atp usage now... see below]
-        # atp_peak = 0.75 # umol/s/(g wet wt) [computed using computeParametersBarclay1995.py]
-
         return (np.interp(t, self.t_vec, self.e_initial) / 60e-3) + self.k_rest * c_atp  # umol/g/s
-        # trampend = 1
-        # t_start_cycle = self.t_cycle_start
-        # t_end_cycle = self.t_cycle_end
-
-        # # Normalize time
-        # t_cycle_length = 5 # s, Length of the cycle
-        # t_cycle = t%t_cycle_length
-
-        
-        # if self.muscle == 'SOL': 
-        #     # Use variable ATP usage 
-        #     def f(x, a, b, c, d): 
-        #         ''' 
-        #         Function as defined in computeParametersBarclay1995.py 
-        #         *** Ensure its the same if any adjustments are made (e.g. fibre-type) ***
-        #         '''
-        #         # return a * np.exp(b * x - c) + d
-        #         return a * b ** x - c
-        #     popt = np.array((0.30521532,  0.65633996, -0.54965355 ,  1))
-        #     # popt = np.array((26.31884038, -0.42107639,  4.45702316,  0.54965355))
-        #     tstimend = 0.8 # s, Length of stimulation (B1995)
-        # elif self.muscle == 'EDL':
-        #     # Use variable ATP usage 
-        #     def f(x, a, b, c, d): 
-        #         ''' 
-        #         Function as defined in computeParametersBarclay1995.py 
-        #         *** Ensure its the same if any adjustments are made (e.g. fibre-type) ***
-        #         '''
-        #         return a * b ** x - c
-        #     # popt = np.array((0.3194931, 0.63699497, -2.01981868, 1.)) 
-        #     popt = np.array((0.3194931,   0.63699497, -2.0198186, 1.)) 
-            
-        #     tstimend = 0.2 # s, Length of stimulation (B1995)
-        
-        # cycle_count = np.floor(t/t_cycle_length) + 1
-        # # Compute the atp usage based on the cycle number
-        # atp_peak = f(cycle_count, *popt) # umol/s/(g wet wt) [computed using computeParametersBarclay1995.py]
-
-        # return  self.k_rest * c_atp *  (t <= t_start_cycle)\
-        #          + (self.k_rest * c_atp +( atp_peak) * (t_cycle < tstimend) + atp_peak * 0.5 * (np.sin((np.pi*(t_cycle-tstimend) / (trampend-tstimend) + np.pi/2)) + 1) * (t_cycle > tstimend) * (t_cycle < trampend)) * (t > t_start_cycle) * (t <= t_end_cycle)\
-        #          + self.k_rest * c_atp *  (t > t_end_cycle)
 
     def atp_rhs(self, t, y): 
         atp_curr = np.clip(y[0,], self._eps, self.c_a_tot - self._eps)
@@ -184,9 +146,19 @@ class Bioenergetics():
 
         c_adp_ = np.maximum(self.c_a_tot - c_atp, 0.0)
 
+        # Compute the resting energy rates during contraction and during rest 
+        phi_atp_vec = self.phi_atp(t, c_atp)
+        cond = np.logical_or(phi_atp_vec < 0, np.abs(phi_atp_vec - self.k_rest * c_atp) < 1e-6)
+        
+        # If cond is scalar use scalar gamma, otherwise build elementwise gamma array
+        # if np.isscalar(cond):
+        #     gamma_vec = 1 if cond else 1/self.gamma_1
+        # else:
+        gamma_scaler = np.where(cond, 1.0, 1/self.gamma_1)
+
         # Here we assume self.r_rec is in units of J / mol
         # Converted phi_oxphos from umol/s/g to mol/s/g
-        energy_rate = self.r_rec * 1e-6  * (self.phi_oxphos(t, c_adp_, c_atp) - self.phi_rest)  # subtract resting rate, times 1e6 to account for phi_oxphos in units of umol/s/g  
+        energy_rate = self.r_rec * 1e-6  * (self.phi_oxphos(t, c_adp_, c_atp) - gamma_scaler * self.phi_rest)  # subtract resting rate, times 1e6 to account for phi_oxphos in units of umol/s/g  
         # energy_rate = self.r_rec * self.phi_oxphos(c_adp_) * 1e-6 
 
         return energy_rate # W / g / s

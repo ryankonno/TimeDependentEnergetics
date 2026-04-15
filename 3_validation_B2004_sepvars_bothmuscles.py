@@ -89,6 +89,10 @@ params = {
             'r_cat': 0.0662, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             'r_sl': 0.239, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
+            # Konno et al., 2025 model parameters 
+            'r1': 0.6177,
+            'r2': 0.2342,
+
         }, 
         'EDL': { 
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
@@ -142,6 +146,11 @@ params = {
             'r_cxb': 2.439, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
             'r_cat': 0.1497, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
             'r_sl': 1.0146, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
+
+            # Konno et al., 2025 model parameters 
+            'r1': 2.7919,
+            'r2': 0.697,
+
 
         },
 
@@ -219,9 +228,9 @@ def f_stim_length(t, params):
     v_short = -params[params['muscle']]['velo_short'] * l_0
     dl_max =  v_short / (t_length_start - t_short_start)
     v_length = (- v_short * (t_length_start - t_short_start)) / (t_length_end - t_length_start) # lengthening velocity
-    print(f'v_short = {v_short / l_0} l0/s')
-    print(f'dl_max = {dl_max / l_0} l0')
-    print(f'v_length = {v_length / l_0} l0/s')
+    # print(f'v_short = {v_short / l_0} l0/s')
+    # print(f'dl_max = {dl_max / l_0} l0')
+    # print(f'v_length = {v_length / l_0} l0/s')
 
     # Change in length (mm)
     dl = ((t_cycle > t_short_start) * (t_cycle < t_length_start) * (v_short * (t_cycle - t_short_start))\
@@ -300,6 +309,7 @@ for muscle_name in ('SOL', 'EDL'):
 
     for idx, freq in enumerate(freq_list): 
         stim_length = 1/freq # s, stimulation time 
+        print(f'Frequency: {freq} Hz')
 
         
         params['cycle_length'] = stim_length
@@ -366,6 +376,11 @@ for muscle_name in ('SOL', 'EDL'):
         ax_energy.plot(t_vec, cumtrapz(E_tot + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$', color = palette[idx]) 
         ax_energy.set_xlabel('Time (s)')
         ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
+
+        # Compute the energetics using the previous model 
+        energy_rate_data, energy_data_ = energy_model.dHdt(catn_vec, t_vec, e_ce, dedt_ce, force_direct, params[muscle]['r1'], params[muscle]['r2'], params)
+        E_tot_konno2025 = energy_rate_data['dEdt'] # Initial + Recovery heat
+        ax_energy.plot(t_vec, cumtrapz(E_tot_konno2025, t_vec, initial = 0) / params[muscle]['mass'] * 1e3, label = 'KLD2025 Model', color = 'k') 
 
         # Store absolute end-of-trial energies for component contribution bar charts.
         e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler

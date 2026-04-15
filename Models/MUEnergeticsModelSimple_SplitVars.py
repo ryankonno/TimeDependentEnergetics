@@ -16,7 +16,7 @@ from matplotlib import cm
 # matplotlib.use('agg')
 
 # Import the force-length relationship for the mechanical model 
-from Models.MechanicsModel import MechModel
+from Models.MechanicsModelSimple import MechModel
 from lib.MUScalingFunctions import muCSADistr, varMUDist
 
 ################################################################################
@@ -81,11 +81,10 @@ class EnergeticsModel():
     def dHdt(self, act, t, e_ce, dedt_ce, F, r1, r2, params):
 
         # Define parameters
-        l_0 = params['l_0']
-        F_0 = params['F_0']
-        width = params['F_la_width']
+        l_0 = params[params['muscle']]['l_0']
+        F_0 = params[params['muscle']]['F_0']
 
-        mech_model = MechModel(params)
+        mech_model = MechModel(params[params['muscle']]['l_0'], params[params['muscle']]['dedt_ce_max'], params[params['muscle']]['kappa'],params['k_see'])
 
         dt = t[1]-t[0] # s, Assume constant spacing
 
@@ -127,7 +126,7 @@ class EnergeticsModel():
         Q_sl_tot = dQsldt_total(t, act, e_ce, dedt_ce, F) * F_0 * l_0 # W
         W_tot    = W(dedt_ce,F) * F_0 * l_0 # W
         E_init   = Q_tot + W_tot # W
-        Q_rec    = params['energetics_model']['recovery_ratio'] * E_init # W
+        Q_rec    = 1 * E_init # W, NOTE: set recovery ratio to 1
         dEdt = E_init + Q_rec# W
         # print(f'F0 = {F_0}')
         # print(f'l_0 = {l_0}')

@@ -523,6 +523,9 @@ for muscle_name in ('SOL', 'EDL'):
           f'{mean_vals[0]:.6f} ± {sem_vals[0]:.6f} | '
           f'{mean_vals[1]:.6f} ± {sem_vals[1]:.6f} | '
           f'{mean_vals[2]:.6f} ± {sem_vals[2]:.6f}')
+        
+    # Save the energetics figure 
+    fig_energy.savefig('Figures/B2004_energy_' + muscle + '.jpg')
 
 # Plot peak recovery rate versus frequency for both muscles
 fig_peak_qr_compare, ax_peak_qr_compare = plt.subplots(layout = 'constrained')

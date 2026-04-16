@@ -126,7 +126,7 @@ class EnergeticsModel():
         Q_sl_tot = dQsldt_total(t, act, e_ce, dedt_ce, F) * F_0 * l_0 # W
         W_tot    = W(dedt_ce,F) * F_0 * l_0 # W
         E_init   = Q_tot + W_tot # W
-        Q_rec    = 1 * E_init # W, NOTE: set recovery ratio to 1
+        Q_rec    = 2 * E_init # W, NOTE: set recovery ratio to 1
         dEdt = E_init + Q_rec# W
         # print(f'F0 = {F_0}')
         # print(f'l_0 = {l_0}')

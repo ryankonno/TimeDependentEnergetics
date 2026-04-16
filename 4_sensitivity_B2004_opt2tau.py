@@ -79,6 +79,10 @@ params = {
             'r_cat': 0.0662, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             'r_sl': 0.239, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
+            # Konno et al., 2025 model parameters 
+            'r1': 0.6177,
+            'r2': 0.2342,
+
         }, 
         'EDL': { 
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
@@ -132,6 +136,11 @@ params = {
             'r_cxb': 2.439, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
             'r_cat': 0.1497, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
             'r_sl': 1.0146, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
+
+            
+            # Konno et al., 2025 model parameters 
+            'r1': 2.7919,
+            'r2': 0.697,
 
         },
 
@@ -408,6 +417,7 @@ opt_res = minimize(f_opt, x0, callback= callback_fun, bounds = bounds_,  options
 
 # Print out the optimal solution 
 x = opt_res.x 
+x = (1.8613, 1)
 print(f'q10_oxphos = {x[0]}, s_edl = {x[1]}')
 
 # First set the q10 scale 
@@ -507,6 +517,11 @@ for muscle_name in ('SOL', 'EDL'):
         ax_energy.plot(t_vec, cumtrapz(E_tot + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$', color = palette[idx]) 
         ax_energy.set_xlabel('Time (s)')
         ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
+
+        # Compute the energetics using the previous model 
+        energy_rate_data, energy_data_ = energy_model.dHdt(catn_vec, t_vec, e_ce, dedt_ce, force_direct, params[muscle]['r1'], params[muscle]['r2'], params)
+        E_tot_konno2025 = energy_rate_data['dEdt'] # Initial + Recovery heat
+        ax_energy.plot(t_vec, cumtrapz(E_tot_konno2025, t_vec, initial = 0) / params[muscle]['mass'] * 1e3, label = 'KLD2025 Model', color = 'k') 
 
         # Store absolute end-of-trial energies for component contribution bar charts.
         e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
@@ -649,6 +664,9 @@ for muscle_name in ('SOL', 'EDL'):
           f'{mean_vals[0]:.6f} ± {sem_vals[0]:.6f} | '
           f'{mean_vals[1]:.6f} ± {sem_vals[1]:.6f} | '
           f'{mean_vals[2]:.6f} ± {sem_vals[2]:.6f}')
+
+    # Save the energetics figure 
+    fig_energy.savefig('Figures/B2004_tauopt_energy_' + muscle + '.jpg')
 
 # Plot peak recovery rate versus frequency for both muscles
 fig_peak_qr_compare, ax_peak_qr_compare = plt.subplots(layout = 'constrained')

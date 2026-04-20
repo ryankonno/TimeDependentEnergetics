@@ -45,8 +45,10 @@ params = {
 
             # Activation model parameters 
             "Tau_1": 0.0422, # Assume constant value from MCL (2023)
+            "Tau_1": 0.038, # BH2012
             # "Tau_2": 0.125, # Scaling based on MCL (2023)
-            "Tau_2": 0.057, #  BH 2012            # "Tau_2": 0.02,
+            # "Tau_2": 0.057, #  BH 2012           
+            "Tau_2": 0.057 * 2 * 1.5, #  BH 2012 @ 20deg
             "K": 0.1025,
             "n": 4, # Hill coefficient for act mdoel
 
@@ -56,20 +58,21 @@ params = {
 
             # Initial energetics model 
             # 'r_am': 0.6177, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cxb': 0.6 * 0.6177, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.4 * 0.6177, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl': 0.234, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            'r_cxb': 0.6 * 0.6177/ 4, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.4 * 0.6177/ 4, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_sl': 0.234/ 4, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
             # Heat rate parameters Barclay 1996
-            'r_am_b1996': 0.6177, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl_b1996': 0.234, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            'r_am_b1996': 0.6177 / 4, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_sl_b1996': 0.234 / 4, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
         }, 
         'EDL': { 
             'freq': 125, # Hz, Frequency of stimulation 
 
             # Activation model parameters 
-            "Tau_1": 0.0422, # Very little change between fibre type - assume constant (BH, 2003)
+            # "Tau_1": 0.0422, # Very little change between fibre type - assume constant (BH, 2003)
+            "Tau_1": 0.011, # bh 2012
             # "Tau_2": 0.125/2, # Decay constant for fast twitch Fibres assuming 1/2 rate (Baylor and Hollingworth, 2003)
             "Tau_2": 0.011, # BH 2012
             "K": 0.1025,

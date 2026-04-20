@@ -66,7 +66,7 @@ class Bioenergetics():
         # cond = np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-5
 
         # Determine rest phase via negative ATP drive or near-rest ATP usage.
-        cond = np.logical_or(phi_atp_val < 0, np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-6)
+        cond = np.logical_or(phi_atp_val < 0.001, np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-6)
         
         # If cond is scalar use scalar gamma, otherwise build elementwise gamma array
         if np.isscalar(cond):
@@ -148,7 +148,7 @@ class Bioenergetics():
 
         # Compute the resting energy rates during contraction and during rest 
         phi_atp_vec = self.phi_atp(t, c_atp)
-        cond = np.logical_or(phi_atp_vec < 0, np.abs(phi_atp_vec - self.k_rest * c_atp) < 1e-6)
+        cond = np.logical_or(phi_atp_vec < 0.1, np.abs(phi_atp_vec - self.k_rest * c_atp) < 1e-6)
         
         # If cond is scalar use scalar gamma, otherwise build elementwise gamma array
         # if np.isscalar(cond):

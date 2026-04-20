@@ -27,7 +27,7 @@ from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
 params = {
     # Time parameters for setting up the protocol 
     't_start': 0, # s
-    't_end': 200, # s
+    't_end': 150, # s
     'cycle_length': 0.3, # s, Defines the length of the cycle (used to set frequency of the contractions)
     'N_cycles': 10, # unitless, Number of cycles to simulate (rest period after N_cycles contractions)
 
@@ -46,39 +46,50 @@ params = {
 
             #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             # Best simulations values gamma = 3 and gamma = 1
-            # #__________
-            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
-            # # 'V_max_oxphos': 0.94548, # mM/s
-            # 'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
-            # 'K_adp': 0.058, # mM,
-            # 'nh': 0.3156, # unitless, # original
-            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
-            # 'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
-            # 'gamma': 3, # Scaling factor for metabolic rates at rest   
             #__________
             # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
             # 'V_max_oxphos': 0.94548, # mM/s
-            'V_max_oxphos': 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
             'K_adp': 0.058, # mM,
-            'nh': 0.61325, # unitless, # original
+            'nh': 0.3156, # unitless, # original
             # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
-            'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
-            'gamma': 1, # Scaling factor for metabolic rates at rest   
+            'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 3, # Scaling factor for metabolic rates at rest   
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # # 'V_max_oxphos': 0.94548, # mM/s
+            # 'V_max_oxphos': 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.61325, # unitless, # original
+            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest   
             #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
 
             # Values from Barclay and Weber 2004
             'F_0': 0, # N, 
             'l_0': 11e-3, # m, 
             'mass': 4.1e-3, # g, 
+            'max_iso_stress': 2.88e5, # N/m^2, B2012
 
             # Activation model parameters 
-            "Tau_1": 0.0422 / 2, # Assume constant value from MCL (2023)
-            # "Tau_1": 0.038* 2 * 1.5, # BH 2012
+            # "Tau_1": 0.0422 / 2, # Assume constant value from MCL (2023)
+            # # "Tau_1": 0.038* 2 * 1.5, # BH 2012
+            # # "Tau_2": 0.125, # Scaling based on MCL (2023)
+            # "Tau_2": 0.057 * 4 * 2, #  BH 2012
+            
+            
+            # "Tau_1": 0.0422, # Assume constant value from MCL (2023)
+            "Tau_1": 0.038, # BH2012 @ 30deg
+            # "Tau_1":  0.011 * 0.5, # BH2012 @ 20deg (assuming half release with tem (B2012))
             # "Tau_2": 0.125, # Scaling based on MCL (2023)
-            "Tau_2": 0.057 * 4 * 2, #  BH 2012
+            # "Tau_2": 0.057, #  BH 2012        
+            # "Tau_2": 0.065, # B2012 20deg
+            "Tau_2": 0.055, # B2012 30deg
             # "Tau_2": 0.5, #  BH 2012
-            "K": 0.1025  / 2,
-            "n": 3 / 1.5, # Hill coefficient for act mdoel
+            
+            "K": 0.1025,
+            "n": 3, # Hill coefficient for act mdoel
             
             # Mechanical parameters 
             'dedt_ce_max': 5, 
@@ -94,10 +105,18 @@ params = {
             # 'r_cxb':  0.37656, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'r_cat': 0.0614, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'r_sl': 0.23774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # Values accounting for temperature at 20degrees 
-            'r_cxb':  0.092766, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.024266, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl': 0.05857, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Values accounting for temperature at 20degrees 
+            # 'r_cxb':  0.092766, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.024266, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_sl': 0.05857, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Based on twitch data ( 0.004ms twitch)
+            # 'r_cxb': 0.4283, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.05439, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_sl': 0.2342, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # Based on twitch data ( 0.001ms twitch)
+            'r_cxb': 179.31489, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.4647, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_sl': 0.2342, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
         }, 
         'EDL': { 
@@ -131,6 +150,7 @@ params = {
             'F_0': 0, # N, 
             'l_0': 8.9e-3, # m,
             'mass': 3.9e-3, # g, 
+            'max_iso_stress': 3.60e5, # N/m^2, B2012
 
             # Barclay and Weber 2004 experimental setup parameters 
             'velo_short': 2.8, # l0/s, Barclay and Weber 2004
@@ -184,7 +204,7 @@ Compute necessary parameters from data
 
 for muscle in ('SOL', 'EDL'):
     # Maximum isometric force (Assuming fixed max_iso_stress for now)    
-    params[muscle]['F_0'] = params[muscle]['mass'] / params['rho0'] / params[muscle]['l_0'] * params['max_iso_stress']
+    params[muscle]['F_0'] = params[muscle]['mass'] / params['rho0'] / params[muscle]['l_0'] * params[muscle]['max_iso_stress']
     print(f'{muscle}: Maximum isometric stress: {params[muscle]["F_0"]}')
 
 '''

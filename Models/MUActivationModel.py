@@ -42,16 +42,16 @@ class ActivationModel():
     Input: 
         t_stim_idx: index of stimulation times
     '''
-    def runExcAct(self, t_stim_idx):
+    def runExcAct(self, t_stim_idx, w_0 = 0.0048):
 
         # Now compute the Ca concentrations 
-        ca_vec = self.computeCaConvolution(self.tau_1, self.tau_2, t_stim_idx) 
+        ca_vec = self.computeCaConvolution(self.tau_1, self.tau_2, t_stim_idx, w_0 = w_0) 
 
         # Compute the bound Ca 
         catn_vec = self.hillEquation(ca_vec)
 
         # Compute the stimulation values 
-        stim_vec = self.stim(t_stim_idx)
+        stim_vec = self.stim(t_stim_idx, w_0 = w_0)
 
         return stim_vec, ca_vec, catn_vec
 
@@ -59,9 +59,10 @@ class ActivationModel():
     # Stimulus function from the pulses obtained from the MU data
     # This function needs to convert the single instantaneous pulses into the times at which the Ca
     # is released from the SR. This should take into account the attenuation of the pulse width 
-    def stim(self, t_stim_idx):
-        t_n_1 = 0
+    def stim(self, t_stim_idx, w_0 = 0.0048):
+        t_n_1 = None
         stims = np.zeros(np.size(self.t)) # Get the the stimulus
+        dt = self.t[1] - self.t[0]
 
         # Loop over MU firings
         # for MUn in self.MUAP_idx:
@@ -70,13 +71,18 @@ class ActivationModel():
             t_n = self.t[stim_idx]
             # print(t_n)
             # Compute the stimulus values for the action potential 
-            t_isi = t_n - t_n_1
             A = 0.2 # Values from Mayfield et al. 2022
             r = 0.35 # s, from Mayfield et al. 2022a
-            w_0 = 0.0048
-            width = w_0 * (1 - A * np.exp(-t_isi/r)) # Compute the pulse width based on isi
+            if t_n_1 is None:
+                # Use full base width for the first pulse (no prior ISI).
+                width = w_0
+            else:
+                t_isi = t_n - t_n_1
+                width = w_0 * (1 - A * np.exp(-t_isi/r)) # Compute the pulse width based on isi
 
-            stims = stims + (self.t > t_n) * (self.t < t_n + width)
+            # Keep onset after t_n while ensuring at least one sample-wide pulse.
+            width_eff = max(width, dt)
+            stims = stims + (self.t > t_n) * (self.t <= t_n + width_eff)
 
             # Update previous firing time 
             t_n_1 = t_n
@@ -96,7 +102,7 @@ class ActivationModel():
 
         return (stimval > thresh)
     
-    def computeCaConvolution(self, tau_1_, tau_2_, MUAP_idx):
+    def computeCaConvolution(self, tau_1_, tau_2_, MUAP_idx, w_0 = 0.0048):
         """
         Computes calcium levels using a convolution-based approach to match the analytic implementation.
         
@@ -152,10 +158,11 @@ class ActivationModel():
             # Check if in stimulation region
             A = 0.2  # Values from Mayfield et al. 2022
             r = 0.35  # s, from Mayfield et al. 2022a
-            w_0 = 0.0048
+            # w_0 = 0.0048
             width = w_0 * (1 - A * np.exp(-t_isi / r))
+            width_eff = max(width, dt)
 
-            if (t_ < stim_times[prev_idx] + width) and (t_ > stim_times[prev_idx]):
+            if (t_ <= stim_times[prev_idx] + width_eff) and (t_ > stim_times[prev_idx]):
                 # If in stimulation region, update activation
                 a_curr = 1 - (1 - a_curr) * np.exp(-dt / tau_1_)
             else:
@@ -190,8 +197,10 @@ class ActivationModel():
             r = 0.35 # s, from Mayfield et al. 2022a
             w_0 = 0.0048
             width = w_0 * (1 - A * np.exp(-t_isi/r))
+            dt = self.t[1] - self.t[0]
+            width_eff = max(width, dt)
 
-            if (t_n < width + t_stim) and (t_n > t_stim):
+            if (t_n <= width_eff + t_stim) and (t_n > t_stim):
                 return True
             else: 
                 return False

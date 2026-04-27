@@ -58,7 +58,7 @@ params = {
             # 'r_am': 0.6177, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
             'r_cxb': 0.6 * 0.6177/ 4, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             'r_cat': 0.4 * 0.6177/ 4, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl': 0.234/ 4, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            'r_sl': 0.234, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
             # Heat rate parameters Barclay 1996
             'r_am_b1996': 0.6177, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
@@ -163,7 +163,7 @@ for muscle_type in ['SOL', 'EDL']:
     #####
     # Perform the optimisation
     # Define the shortening values for the optimisation
-    v_short_vals = -np.arange(0, 5, 0.5)  # s^{-1}
+    v_short_vals = -np.arange(0, 5, 1)  # s^{-1}
 
     # Compute the experimental energetics
     coeff = (params[muscle]['r_sl_b1996'], params[muscle]['r_am_b1996'])
@@ -174,7 +174,6 @@ for muscle_type in ['SOL', 'EDL']:
         # Update values for parameters
         params[muscle]['r_cxb'] = x[0]
         params[muscle]['r_cat'] = x[1]
-        params[muscle]['r_sl'] = x[2]
 
         # Loop over the shortening values
         mean_heat_tot = np.empty_like(v_short_vals, dtype=float)
@@ -225,42 +224,14 @@ for muscle_type in ['SOL', 'EDL']:
         # return np.abs(q_exp_cat - q_cat_mean[-1]) + np.abs(q_exp_cxb - q_cxb_mean[-1]) + np.linalg.norm(q_exp_short - q_sl_mean)
 
     # Perform basic optimisation 
-    opt_res = minimize(fun_opt, x0=(params[muscle]['r_cxb'], params[muscle]['r_cat'], params[muscle]['r_sl']))
-
-    # # Perform optimisation with random multi-start initialisation only.
-    # bounds_ = ((0, 100), (0, 100), (0, 10), (1, 1))
-    # n_starts = 20
-    # rng = np.random.default_rng(42)
-
-    # # Generate random initial guesses inside bounds.
-    # x0_list = []
-    # for _ in range(n_starts):
-    #     x0_list.append(tuple(rng.uniform(low=b[0], high=b[1]) for b in bounds_))
-
-    # best_res = None
-    # for i_start, x0 in enumerate(x0_list, start=1):
-    #     res = minimize(
-    #         fun_opt,
-    #         x0=x0,
-    #         bounds=bounds_,
-    #         options={'maxiter': 500, 'disp': False},
-    #         method='Nelder-Mead'
-    #     )
-
-    #     if best_res is None or res.fun < best_res.fun:
-    #         best_res = res
-
-    #     print(f'start {i_start:02d}/{n_starts}: f = {res.fun:.6f}, x = {res.x}')
-
-    # opt_res = best_res
+    opt_res = minimize(fun_opt, x0=(params[muscle]['r_cxb'], params[muscle]['r_cat']))
 
     print(opt_res)
     params[muscle]['r_cxb'] = opt_res.x[0]
     params[muscle]['r_cat'] = opt_res.x[1]
-    params[muscle]['r_sl'] = opt_res.x[2]
 
     print('Optimised parameters:')
-    print(f'r_cxb = {params[muscle]["r_cxb"]}, r_cat = {params[muscle]["r_cat"]}, r_sl = {params[muscle]["r_sl"]}')
+    print(f'r_cxb = {params[muscle]["r_cxb"]}, r_cat = {params[muscle]["r_cat"]}')
 
     #######
     # Plot a comparison of the optimised energetic rates and force traces
@@ -271,13 +242,14 @@ for muscle_type in ['SOL', 'EDL']:
     
     # Figure for time-varying energy components
     fig_energy_components, axs_energy_comp = plt.subplots(
-        4, 1, layout='constrained', figsize=(10, 10),
+        5, 1, layout='constrained', figsize=(10, 12),
         sharex=True
     )
     
     component_colors = (
         '#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e'
     )
+    velocity_colors = plt.cm.viridis(np.linspace(0, 1, len(v_short_vals)))
     for idx_v, v_short in enumerate(v_short_vals):
         dedt_ce = np.zeros_like(t_vec) + v_short * (t_vec >= 1) * (t_vec < 1.1)
         # e_ce = cumtrapz(dedt_ce, t_vec, initial=1.05)
@@ -291,52 +263,53 @@ for muscle_type in ['SOL', 'EDL']:
 
         q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
 
-        # Plot energy components for first shortening velocity
-        if idx_v == 0:
-            # Compute cumulative energy for each component
-            q_a_cum = cumtrapz(q_a, t_vec, initial=0)
-            q_m_cum = cumtrapz(q_m, t_vec, initial=0)
-            q_sl_cum = cumtrapz(q_sl, t_vec, initial=0)
-            w_cum = cumtrapz(w, t_vec, initial=0)
-            
-            # Plot on separate subplots
-            axs_energy_comp[0].plot(
-                t_vec, q_a_cum,
-                label='$q_a$ (activation)',
-                color=component_colors[0], linewidth=2
-            )
-            axs_energy_comp[1].plot(
-                t_vec, q_m_cum,
-                label='$q_m$ (maintenance)',
-                color=component_colors[1], linewidth=2
-            )
-            axs_energy_comp[2].plot(
-                t_vec, q_sl_cum,
-                label='$q_{sl}$ (shortening)',
-                color=component_colors[2], linewidth=2
-            )
-            axs_energy_comp[3].plot(
-                t_vec, w_cum,
-                label='$w$ (mechanical work)',
-                color=component_colors[3], linewidth=2
-            )
-            
-            # Add labels and formatting
-            for i, (ax, label) in enumerate(zip(
-                axs_energy_comp,
-                ['Activation Heat', 'Maintenance Heat',
-                 'Shortening Heat', 'Mechanical Work']
-            )):
-                ax.set_ylabel('Energy (F$_0$l$_0$/s)')
-                ax.legend(loc='upper left', fontsize=10)
-                ax.grid(True, alpha=0.3)
-            
-            axs_energy_comp[-1].set_xlabel('Time (s)')
-            fig_energy_components.suptitle(
-                f'{muscle_type}: '\
-                f'v_short = {v_short} l$_0$/s',
-                fontsize=12, fontweight='bold'
-            )
+        # Compute cumulative energy for each component
+        q_a_cum = cumtrapz(q_a, t_vec, initial=0)
+        q_m_cum = cumtrapz(q_m, t_vec, initial=0)
+        q_sl_cum = cumtrapz(q_sl, t_vec, initial=0)
+        w_cum = cumtrapz(w, t_vec, initial=0)
+        total_cum = cumtrapz(q_a + q_m + q_sl + w, t_vec, initial=0)
+
+        # Overlay each shortening value on the same 5-panel figure
+        axs_energy_comp[0].plot(
+            t_vec, q_a_cum,
+            label=f'$v_{{short}}$ = {v_short} l$_0$/s',
+            color=velocity_colors[idx_v], linewidth=2
+        )
+        axs_energy_comp[1].plot(
+            t_vec, q_m_cum,
+            label=f'$v_{{short}}$ = {v_short} l$_0$/s',
+            color=velocity_colors[idx_v], linewidth=2
+        )
+        axs_energy_comp[2].plot(
+            t_vec, q_sl_cum,
+            label=f'$v_{{short}}$ = {v_short} l$_0$/s',
+            color=velocity_colors[idx_v], linewidth=2
+        )
+        axs_energy_comp[3].plot(
+            t_vec, w_cum,
+            label=f'$v_{{short}}$ = {v_short} l$_0$/s',
+            color=velocity_colors[idx_v], linewidth=2
+        )
+        axs_energy_comp[4].plot(
+            t_vec, total_cum,
+            label=f'$v_{{short}}$ = {v_short} l$_0$/s',
+            color=velocity_colors[idx_v], linewidth=2
+        )
+
+        # Add labels and formatting once after all curves are drawn
+        axs_energy_comp[0].set_ylabel('Activation\nEnergy (F$_0$l$_0$)')
+        axs_energy_comp[1].set_ylabel('Maintenance\nEnergy (F$_0$l$_0$)')
+        axs_energy_comp[2].set_ylabel('Shortening\nEnergy (F$_0$l$_0$)')
+        axs_energy_comp[3].set_ylabel('Work\n(F$_0$l$_0$)')
+        axs_energy_comp[4].set_ylabel('Total\nEnergy (F$_0$l$_0$)')
+        for ax in axs_energy_comp:
+            ax.grid(True, alpha=0.3)
+        axs_energy_comp[-1].set_xlabel('Time (s)')
+        fig_energy_components.suptitle(
+            f'{muscle_type}: cumulative energy components',
+            fontsize=12, fontweight='bold'
+        )
 
         t_range = (t_vec >= 1) * (t_vec < 1.1)
         mean_heat_tot[idx_v] = np.mean(q_a[t_range] + q_m[t_range] + q_sl[t_range])
@@ -366,6 +339,9 @@ for muscle_type in ['SOL', 'EDL']:
     # Save energy components figure
     fig_energy_components.savefig(
         f'Figures/1_cxbcatmech_energy_components_{muscle}.jpg'
+    )
+    fig_energy_components.savefig(
+        f'Figures/1_cxbcatmech_energy_components_{muscle}.svg'
     )
 
 fig_hr.savefig('Figures/1_cxbcatmech_fit.jpg')

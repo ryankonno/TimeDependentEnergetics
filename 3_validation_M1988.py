@@ -26,8 +26,8 @@ from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
 # Parameters
 params = {
     # Time parameters for setting up the protocol 
-    't_start': 0, # s
-    't_end': 150, # s
+    't_start': -10, # s, 10 s pre-stimulation buffer
+    't_end': 100, # s
     'cycle_length': 0.3, # s, Defines the length of the cycle (used to set frequency of the contractions)
     'N_cycles': 10, # unitless, Number of cycles to simulate (rest period after N_cycles contractions)
 
@@ -86,10 +86,13 @@ params = {
             # "Tau_2": 0.057, #  BH 2012        
             # "Tau_2": 0.065, # B2012 20deg
             "Tau_2": 0.055, # B2012 30deg
-            # "Tau_2": 0.5, #  BH 2012
+            # # "Tau_2": 0.5, #  BH 2012
+            # 'Tau_1': 0.096,# BH 2012 mouse 20deg
+            # 'Tau_2': 0.130,# BH 2012 mouse 20deg
             
-            "K": 0.1025,
-            "n": 3, # Hill coefficient for act mdoel
+            # "K": 0.1025, # Mayfield
+            "K": 0.035,
+            "n": 1.99 , # Hill coefficient for act mdoel
             
             # Mechanical parameters 
             'dedt_ce_max': 5, 
@@ -113,74 +116,17 @@ params = {
             # 'r_cxb': 0.4283, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'r_cat': 0.05439, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'r_sl': 0.2342, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # Based on twitch data ( 0.001ms twitch)
-            'r_cxb': 179.31489, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # # Based on twitch data ( 0.001ms twitch)
+            # 'r_cxb': 179.31489, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.4647, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_sl': 0.2342, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # Based on twitch data ( 0.001ms twitch), new K
+            'r_cxb': 2.783, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             'r_cat': 0.4647, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             'r_sl': 0.2342, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            
 
         }, 
-        'EDL': { 
-            'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
-            'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
-            'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
-
-            #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            #__________
-            # SOL VALUES Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
-            # 'V_max_oxphos': 0.94548, # mM/s
-            'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
-            'K_adp': 0.058, # mM,
-            'nh': 0.3156, # unitless, # original
-            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
-            'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
-            'gamma': 3, # Scaling factor for metabolic rates at rest         
-
-            # #__________
-            # # SOL VALUES Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
-            # # 'V_max_oxphos': 0.94548, # mM/s
-            # 'V_max_oxphos': 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
-            # 'K_adp': 0.058, # mM,
-            # 'nh': 0.61325, # unitless, # original
-            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
-            # 'r_rec': 0.16730e6, # J / mol, Obtained from efficiency calculation 
-            # 'gamma': 1, # Scaling factor for metabolic rates at rest   
-
-            #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-            'F_0': 0, # N, 
-            'l_0': 8.9e-3, # m,
-            'mass': 3.9e-3, # g, 
-            'max_iso_stress': 3.60e5, # N/m^2, B2012
-
-            # Barclay and Weber 2004 experimental setup parameters 
-            'velo_short': 2.8, # l0/s, Barclay and Weber 2004
-            'freq': 160, # Hz, Frequency of stimulation, BW2004
-            'max_dl': 0.2, # mm, Maximum length change
-
-            # Activation model parameters 
-            # "Tau_1": 0.0422, # Very little change between fibre type - assume constant (BH, 2003)
-            "Tau_1": 0.011, # BH2012
-            # "Tau_2": 0.125/2, # Decay constant for fast twitch Fibres assuming 1/2 rate (Baylor and Hollingworth, 2003)
-            "Tau_2": 0.011, # BH 2012
-            "K": 0.1025,
-            "n": 3, # Hill coefficient for activation model
-
-            # Mechanical parameters 
-            'dedt_ce_max': 11, 
-            'kappa': 0.25,
-
-            # Energetics model 
-            # Q10
-            # 'r_cxb':  2.439, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            # 'r_cat': 0.1497, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            # 'r_sl': 1.0146, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
-            # Values using tau_1 = 0.011
-            'r_cxb':  1.7136, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            'r_cat': 0.0544, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            'r_sl': 0.71299, # W/F_0/l_0, Maximum shortening heat rate (fast-type fibre)
-
-
-        },
 
         # Assume constant across all species and muscle fibre-types
         'V_ck_f': 100,# 100, # mM/s, Kushmerick 1998
@@ -202,7 +148,7 @@ params = {
 Compute necessary parameters from data 
 '''
 
-for muscle in ('SOL', 'EDL'):
+for muscle in ('SOL',):
     # Maximum isometric force (Assuming fixed max_iso_stress for now)    
     params[muscle]['F_0'] = params[muscle]['mass'] / params['rho0'] / params[muscle]['l_0'] * params[muscle]['max_iso_stress']
     print(f'{muscle}: Maximum isometric stress: {params[muscle]["F_0"]}')
@@ -245,7 +191,7 @@ Run the model
 '''
 
 # Plot to verify conditions 
-t_vec = np.linspace(params['t_start'], params['t_end'], int(10000 * params['t_end'])) 
+t_vec = np.linspace(params['t_start'], params['t_end'], int(10000 * (params['t_end'] - params['t_start']))) 
 
 # Compute the stimulation times
 stim_protocol_vec, stim_times_vec,  dl_vec = f_stim_length(t_vec, params)
@@ -260,7 +206,7 @@ efficiency_rows = []
 # Ca dynamics
 act_model = ActivationModel(params[params['muscle']], t_vec, True)
 idx_stims = np.nonzero(stim_times_vec)[0]
-stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
+stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims, w_0 = 0.001)
 # Plot the results 
 fig, ax = plt.subplots(layout = 'constrained')
 ax.plot(t_vec, ca_vec, label = 'Free Ca') 
@@ -327,6 +273,30 @@ t_span = (t_vec[0], t_vec[-1])
 c_atp_0 = params[muscle]['c_atp_0']
 # Solve the model
 sol = bioenergetic_model.solveBioenergetics(t_span, c_atp_0, t_vec, E_initial_converted)
+
+# Plot ATP and PCR concentrations in separate panels.
+fig_atp_pcr_conc, axs_atp_pcr_conc = plt.subplots(2, 1, layout='constrained', sharex=True)
+axs_atp_pcr_conc[0].plot(sol.t, sol.y[0,], color=palette[0], label='ATP')
+axs_atp_pcr_conc[0].set_ylabel('ATP (mM)')
+axs_atp_pcr_conc[0].set_title('ATP concentration')
+axs_atp_pcr_conc[0].legend(loc='upper right')
+axs_atp_pcr_conc[1].plot(sol.t, sol.y[1,], color=palette[1], label='PCR')
+axs_atp_pcr_conc[1].set_xlabel('Time (s)')
+axs_atp_pcr_conc[1].set_ylabel('PCR (mM)')
+axs_atp_pcr_conc[1].set_title('PCR concentration')
+axs_atp_pcr_conc[1].legend(loc='upper right')
+
+# Plot ATP and PCR derivatives over time.
+d_atp_dt = bioenergetic_model.atp_rhs(sol.t, sol.y)
+d_pcr_dt = bioenergetic_model.pcr_rhs(sol.t, sol.y)
+fig_atp_pcr, ax_atp_pcr = plt.subplots(layout='constrained')
+ax_atp_pcr.plot(sol.t, d_atp_dt, label='dATP/dt', color=palette[0])
+ax_atp_pcr.plot(sol.t, d_pcr_dt, label='dPCR/dt', color=palette[1])
+ax_atp_pcr.set_xlabel('Time (s)')
+ax_atp_pcr.set_ylabel('Rate (mM/s)')
+ax_atp_pcr.set_title('ATP and PCR derivatives')
+ax_atp_pcr.legend(loc='upper right')
+
 # Compute the energetic rates 
 scale =  params[muscle]['mass'] / params[muscle]['F_0'] / params[muscle]['l_0'] 
 q_r = bioenergetic_model.computeRecoveryEnergetics(sol.t, sol.y[0,]) * scale # F0l0/s = J/g/s * g/F0l0

@@ -79,6 +79,7 @@ class ActivationModel():
             else:
                 t_isi = t_n - t_n_1
                 width = w_0 * (1 - A * np.exp(-t_isi/r)) # Compute the pulse width based on isi
+                # width = w_0  # Compute the pulse width based on isi
 
             # Keep onset after t_n while ensuring at least one sample-wide pulse.
             width_eff = max(width, dt)
@@ -159,7 +160,8 @@ class ActivationModel():
             A = 0.2  # Values from Mayfield et al. 2022
             r = 0.35  # s, from Mayfield et al. 2022a
             # w_0 = 0.0048
-            width = w_0 * (1 - A * np.exp(-t_isi / r))
+            width = w_0 * (1 - A * np.exp(-t_isi / r)) # Width decayse with successive pulses (mu firing)
+            # width = w_0 # Fixed width (for stimulation studies)
             width_eff = max(width, dt)
 
             if (t_ <= stim_times[prev_idx] + width_eff) and (t_ > stim_times[prev_idx]):
@@ -197,6 +199,7 @@ class ActivationModel():
             r = 0.35 # s, from Mayfield et al. 2022a
             w_0 = 0.0048
             width = w_0 * (1 - A * np.exp(-t_isi/r))
+            # width = w_0 
             dt = self.t[1] - self.t[0]
             width_eff = max(width, dt)
 

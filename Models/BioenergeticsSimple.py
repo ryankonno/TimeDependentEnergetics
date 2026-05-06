@@ -56,8 +56,9 @@ class Bioenergetics():
     def c_cr(self, c_pcr_): 
         return self.c_c_tot - c_pcr_
     
-    def phi_oxphos(self, t, c_adp_, c_atp_):
-        # Add a scaling factor to account for different rates during recovery and rest
+    def gamma_fun(self, t, c_adp_, c_atp_):
+        # Function to compute gamma 
+
         # Evaluate phi_atp (may be scalar or array) and form a boolean mask
         phi_atp_val = self.phi_atp(t, c_atp_)
         # print(f'phi_atp_val = {phi_atp_val}')
@@ -65,14 +66,30 @@ class Bioenergetics():
         # Determine rest phase via concentration of ATP 
         # cond = np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-5
 
-        # Determine rest phase via negative ATP drive or near-rest ATP usage.
-        cond = np.logical_or(phi_atp_val < 0.001, np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-6)
+        if self.gamma_1 > 0:
+            # Use a constant gamma value
+
+            # Determine rest phase via negative ATP drive or near-rest ATP usage.
+            cond = np.logical_or(phi_atp_val < 0.001, np.abs(phi_atp_val - self.k_rest * c_atp_) < 1e-6)
+            
+            # If cond is scalar use scalar gamma, otherwise build elementwise gamma array
+            if np.isscalar(cond):
+                gamma_val = self.gamma_1 if cond else 1.0
+            else:
+                gamma_val = np.where(cond, self.gamma_1, 1.0)
         
-        # If cond is scalar use scalar gamma, otherwise build elementwise gamma array
-        if np.isscalar(cond):
-            gamma = self.gamma_1 if cond else 1.0
-        else:
-            gamma = np.where(cond, self.gamma_1, 1.0)
+        else: 
+            # Use a sigmoidal gamm value
+            gamma_val = 1 / (1 + np.exp(2 * (phi_atp_val - self.k_rest * c_atp_ - 1.5)))
+
+        return gamma_val
+    
+    def phi_oxphos(self, t, c_adp_, c_atp_):
+        # Add a scaling factor to account for different rates during recovery and rest
+
+        # Compute gamma
+        gamma = self.gamma_fun(t, c_adp_, c_atp_)
+
 
         c_adp_safe = np.maximum(c_adp_, 0.0)
         ratio = np.maximum(c_adp_safe / self.K_adp, 0.0)
@@ -124,7 +141,12 @@ class Bioenergetics():
 
         # Calculate the ICs assuming that c_pcr_0 is known
         c_adp_0 = c_atp_0 * (self.c_c_tot - self.c_pcr_0) / (self.K_eq * self.c_pcr_0)
-        self.k_rest = self.V_max_oxphos * self.gamma_1 * (c_adp_0 / self.K_adp)**self.nh / c_atp_0 / (1 +(c_adp_0 / self.K_adp)**self.nh)
+        if self.gamma_1 == 0:
+            gamma_0 = 1
+        else: 
+            gamma_0 = self.gamma_1
+
+        self.k_rest = self.V_max_oxphos * gamma_0 * (c_adp_0 / self.K_adp)**self.nh / c_atp_0 / (1 +(c_adp_0 / self.K_adp)**self.nh)
         # print(f'k_rest = {self.k_rest}')
     
         # Define resting rate 
@@ -146,15 +168,7 @@ class Bioenergetics():
 
         c_adp_ = np.maximum(self.c_a_tot - c_atp, 0.0)
 
-        # Compute the resting energy rates during contraction and during rest 
-        phi_atp_vec = self.phi_atp(t, c_atp)
-        cond = np.logical_or(phi_atp_vec < 0.1, np.abs(phi_atp_vec - self.k_rest * c_atp) < 1e-6)
-        
-        # If cond is scalar use scalar gamma, otherwise build elementwise gamma array
-        # if np.isscalar(cond):
-        #     gamma_vec = 1 if cond else 1/self.gamma_1
-        # else:
-        gamma_scaler = np.where(cond, 1.0, 1/self.gamma_1)
+        gamma_scaler = self.gamma_fun(t, c_adp_, c_atp)
 
         # Here we assume self.r_rec is in units of J / mol
         # Converted phi_oxphos from umol/s/g to mol/s/g

@@ -17,7 +17,6 @@ from matplotlib import cm
 
 # Import the force-length relationship for the mechanical model 
 from Models.MechanicsModelSimple import MechModel
-from lib.MUScalingFunctions import muCSADistr, varMUDist
 
 ################################################################################
 class EnergeticsModel():
@@ -42,6 +41,7 @@ class EnergeticsModel():
         r_a = params['r_cat']
         r_m = params['r_cxb']
         cxb_scale = params.get('cxb_scale', 1)
+        cat_scale = params.get('cat_scale', 2)
 
         # Compute rate of ca transport for later calculation
         # Compute time differences, prepend first value to match dimensions
@@ -54,10 +54,10 @@ class EnergeticsModel():
         # Compute heat of Ca transport (valid if ca_vec is decreasing)
         # NOTE: Equation assumes pumping is fully buffered by PCr
         # 1/s, Use measured quantity scaled based on Ca released
-        q_a = -r_a * dcadt_vec * (dcadt_vec < 0) # No scaling based on Ca concentration 
+        # q_a = -r_a * dcadt_vec * (dcadt_vec < 0) # No scaling based on Ca concentration 
         # Use a scaled version with ca_vec dependence
-        # ca_vec_clipped = np.clip(ca_vec, 1e-12, 2 - 1e-12)
-        # q_a = -r_a * -np.minimum(np.log(ca_vec_clipped / (2 - ca_vec_clipped)), np.ones_like(ca_vec)) * dcadt_vec * (dcadt_vec < 0)
+        ca_vec_clipped = np.clip(ca_vec, 1e-12, 2 - 1e-12)
+        q_a = -r_a * np.minimum(-np.log(ca_vec_clipped / (cat_scale - ca_vec_clipped)), np.ones_like(ca_vec)) * dcadt_vec * (dcadt_vec < 0)
 
         # Compute cross-bridge energetics (maintenance)
         # This will be scaled based on catn_vec

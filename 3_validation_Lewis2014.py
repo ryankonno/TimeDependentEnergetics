@@ -20,7 +20,7 @@ from scipy.integrate import solve_ivp, cumtrapz
 from scipy.interpolate import CubicSpline, PchipInterpolator
 from scipy.optimize import minimize, minimize_scalar,curve_fit
 import matplotlib.pyplot as plt 
-font = {'size'   : 14}
+font = {'size'   : 10}
 plt.rc('font', **font)
 import matplotlib.cm as cmap
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
@@ -40,6 +40,7 @@ params = {
     'max_iso_stress': 2.5e5, # N/m^2, Maximum isometric stress of the muscle
 
     'muscle': 'SOL', # Specify muscle parameters to be used in simulation
+
 
         # Mouse data 
         'SOL': {
@@ -76,13 +77,13 @@ params = {
 
             # Values from Barclay and Weber 2004
             'F_0': 0, # N, 
-            'l_0': 11e-3, # m, 
-            'mass': 4.1e-3, # g, 
+            'l_0': 8.42e-3, # m, 
+            'mass': 4.35, # g, 
 
             # Barclay and Weber 2004 experimental setup parameters 
             'velo_short': 1.3, # l0/s, Barclay and Weber 2004
             # 'freq': 80, # Hz, Frequency of stimulation 
-            'freq': 200, # Hz, Frequency of stimulation 
+            'freq': 150, # Hz, Frequency of stimulation 
             'max_dl': 0.1, # mm, Maximum length change
 
             # Activation model parameters 
@@ -105,11 +106,16 @@ params = {
             # 'r_cat': 0.0479003, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'cxb_scale':  0.566683, # unitless, cxb scale factor
             # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # Optimisation with a submax scaling factor, Cat NO scaling, B2010 data
-            'r_cxb':  0.2473242, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.029479, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'cxb_scale':  0.5665, # unitless, cxb scale factor
-            'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Optimisation with a submax scaling factor, Cat NO scaling, B2010 data
+            # 'r_cxb':  0.2473242, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.029479, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.5665, # unitless, cxb scale factor
+            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # Optimisation with a submax scaling factor, Cat NO scaling, B2010 data, r_s optimisation
+            'r_cxb':   0.25843, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.03540646954815866, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'cxb_scale':  0.51669189931185, # unitless, cxb scale factor
+            'r_sl':  0.12584005987468994, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
             # Konno et al., 2025 model parameters 
             'r1': 0.6177,
@@ -157,13 +163,13 @@ params = {
             'gamma': 1, # Scaling factor for metabolic rates at rest    
 
             'F_0': 0, # N, 
-            'l_0': 8.9e-3, # m,
-            'mass': 3.9e-3, # g, 
+            'l_0': 9.69e-3, # m,
+            'mass': 5.20e-3, # g, 
 
             # Barclay and Weber 2004 experimental setup parameters 
             'velo_short': 2.8, # l0/s, Barclay and Weber 2004
-            'freq': 160, # Hz, Frequency of stimulation, BW2004
-            # 'freq': 250, # Hz, Frequency of stimulation, Adjusted for tetenanus
+            # 'freq': 160, # Hz, Frequency of stimulation, BW2004
+            'freq': 200, # Hz, Frequency of stimulation, Adjusted for tetenanus
             'max_dl': 0.2, # mm, Maximum length change
 
             # Activation model parameters 
@@ -185,11 +191,16 @@ params = {
             # 'r_cat': 0.04779, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'cxb_scale':  0.2536262, # unitless, cxb scale factor
             # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # Optimisation with a submax scaling factor , Cat NO scaling, B2010 FIT
-            'r_cxb':  0.76267727, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.01992, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'cxb_scale':  0.2565930, # unitless, cxb scale factor
-            'r_sl':  0.697, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Optimisation with a submax scaling factor , Cat NO scaling, B2010 FIT
+            # 'r_cxb':  0.76267727, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.01992, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.2565930, # unitless, cxb scale factor
+            # 'r_sl':  0.697, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # Optimisation with a submax scaling factor , Cat NO scaling, B2010 FIT, r_s optimisation
+            'r_cxb':  0.761209, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.0216, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'cxb_scale':  0.23276, # unitless, cxb scale factor
+            'r_sl':  0.105056, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
             # Konno et al., 2025 model parameters 
             'r1': 2.7919,
@@ -197,6 +208,7 @@ params = {
 
 
         },
+
 
         # Assume constant across all species and muscle fibre-types
         'V_ck_f': 100,# 100, # mM/s, Kushmerick 1998
@@ -346,15 +358,20 @@ for muscle_name in ('SOL', 'EDL'):
     params['muscle'] = muscle_name
     
     # Initialise plots 
-    fig_energy, ax_energy = plt.subplots(layout = 'constrained')
-    fig_tau, ax_tau = plt.subplots(layout = 'constrained')
-    fig_strain_cycle, axs_strain_cycle = plt.subplots(2, 1, layout='constrained', sharex=False)
-    fig_force_cycle, ax_force_cycle = plt.subplots(layout='constrained')
+    fig_energy, ax_energy = plt.subplots(figsize=(4, 3))
+    fig_energy.subplots_adjust(left=0.15)
+    fig_tau, ax_tau = plt.subplots(figsize=(4, 3))
+    fig_tau.subplots_adjust(left=0.15)
+    fig_strain_cycle, axs_strain_cycle = plt.subplots(2, 1, figsize=(4, 3), sharex=False)
+    fig_strain_cycle.subplots_adjust(left=0.15)
+    fig_force_cycle, ax_force_cycle = plt.subplots(figsize=(4, 3))
+    fig_force_cycle.subplots_adjust(left=0.15)
     
     # Figure for time-varying energy components during one cycle
     fig_energy_components, ax_energy_comp = plt.subplots(
-        layout='constrained', figsize=(10, 6)
+        figsize=(4, 3)
     )
+    fig_energy_components.subplots_adjust(left=0.15)
 
     component_energy_abs = []
     peak_qr_vs_freq = []
@@ -495,15 +512,15 @@ for muscle_name in ('SOL', 'EDL'):
             )
             
             # Add labels and formatting
-            ax_energy_comp.set_xlabel('Time (s)', fontsize=12)
-            ax_energy_comp.set_ylabel('Cumulative Energy (mJ/g)', fontsize=12)
-            ax_energy_comp.legend(loc='upper left', fontsize=11)
+            ax_energy_comp.set_xlabel('Time (s)')
+            ax_energy_comp.set_ylabel('Cumulative Energy (mJ/g)')
+            ax_energy_comp.legend(loc='upper left')
             ax_energy_comp.grid(True, alpha=0.3)
-            fig_energy_components.suptitle(
-                f'{muscle_name}: Time-varying energy components '\
-                f'({stim_freq_list[0]} Hz)',
-                fontsize=12, fontweight='bold'
-            )
+            # fig_energy_components.suptitle(
+            #     f'{muscle_name}: Time-varying energy components '\
+            #     f'({stim_freq_list[0]} Hz)',
+            #     fontsize=12, fontweight='bold'
+            # )
 
         # Plot total energy
         ax_energy.plot(
@@ -661,7 +678,8 @@ for muscle_name in ('SOL', 'EDL'):
     n_comp = len(component_names)
     bar_width = 0.15
 
-    fig_comp_abs, ax_comp_abs = plt.subplots(layout = 'constrained')
+    fig_comp_abs, ax_comp_abs = plt.subplots(figsize=(4, 3))
+    fig_comp_abs.subplots_adjust(left=0.15)
     for comp_idx, comp_name in enumerate(component_names):
         offset = (comp_idx - (n_comp - 1) / 2) * bar_width
         ax_comp_abs.bar(
@@ -682,7 +700,8 @@ for muscle_name in ('SOL', 'EDL'):
     row_totals = np.sum(component_energy_abs, axis = 1)
     component_energy_rel = component_energy_abs / row_totals[:, None]
 
-    fig_comp_rel, ax_comp_rel = plt.subplots(layout = 'constrained')
+    fig_comp_rel, ax_comp_rel = plt.subplots(figsize=(4, 3))
+    fig_comp_rel.subplots_adjust(left=0.15)
     bar_width_rel = 0.35
     x_qi = x - bar_width_rel / 2
     x_qr = x + bar_width_rel / 2
@@ -758,14 +777,19 @@ for muscle_name in ('SOL', 'EDL'):
     total_energy_rate_output_by_muscle[muscle_name] = efficiency_array[:, 7]
     power_output_by_muscle[muscle_name] = efficiency_array[:, 8]
         
-    # # Save the energetics figure 
-    # fig_energy.savefig('Figures/B2004_energy_' + muscle + '.jpg')
-    # fig_energy_components.savefig(
-    #     'Figures/B2004_energy_components_' + muscle + '.jpg'
-    # )
+    # Save the energetics figure 
+    fig_energy.savefig('Figures/L2014_energy_' + muscle + '.jpg')
+    fig_energy.savefig('Figures/L2014_energy_' + muscle + '.svg')
+    fig_energy_components.savefig(
+        'Figures/L2014_energy_components_' + muscle + '.jpg'
+    )
+    fig_energy_components.savefig(
+        'Figures/L2014_energy_components_' + muscle + '.svg'
+    )
 
 # Plot peak recovery rate versus frequency for both muscles
-fig_peak_qr_compare, ax_peak_qr_compare = plt.subplots(layout = 'constrained')
+fig_peak_qr_compare, ax_peak_qr_compare = plt.subplots(figsize=(4, 3))
+fig_peak_qr_compare.subplots_adjust(left=0.15)
 ax_peak_qr_compare.plot(stim_freq_list, peak_qr_by_muscle['SOL'], '-o', label='SOL', color='#1f77b4')
 ax_peak_qr_compare.plot(stim_freq_list, peak_qr_by_muscle['EDL'], '-o', label='EDL', color="#d62728")
 ax_peak_qr_compare.set_xlabel('Stimulation frequency (Hz)')
@@ -786,10 +810,12 @@ ax_peak_qr_compare.plot(
 
 ax_peak_qr_compare.grid(True, alpha = 0.3)
 ax_peak_qr_compare.legend(loc = 'upper right')
-# fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp.jpg')
+fig_peak_qr_compare.savefig('Figures/L2014_peak_qr_comp.jpg')
+fig_peak_qr_compare.savefig('Figures/L2014_peak_qr_comp.svg')
 
 # Plot initial and total energy-rate output against power output for both muscles.
-fig_energy_power_compare, ax_energy_power_compare = plt.subplots(layout = 'constrained')
+fig_energy_power_compare, ax_energy_power_compare = plt.subplots(figsize=(4, 3))
+fig_energy_power_compare.subplots_adjust(left=0.15)
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
     initial_energy_rate_output_by_muscle['SOL'],
@@ -814,10 +840,12 @@ ax_energy_power_compare.set_xlabel('Power output ($mW g^{-1}$)')
 ax_energy_power_compare.set_ylabel('Total energy rate output ($mW g^{-1}$)')
 ax_energy_power_compare.grid(True, alpha = 0.3)
 ax_energy_power_compare.legend(loc = 'upper right')
-# fig_energy_power_compare.savefig('Figures/B2004_energy_vs_power_comp.jpg')
+fig_energy_power_compare.savefig('Figures/L2014_energy_vs_power_comp.jpg')
+fig_energy_power_compare.savefig('Figures/L2014_energy_vs_power_comp.svg')
 
 # Plot total energy output normalised to F_0 l_0 for both muscles.
-fig_total_energy_compare, ax_total_energy_compare = plt.subplots(layout = 'constrained')
+fig_total_energy_compare, ax_total_energy_compare = plt.subplots(figsize=(4, 3))
+fig_total_energy_compare.subplots_adjust(left=0.15)
 ax_total_energy_compare.plot(
     stim_freq_list, total_energy_output_by_muscle['SOL'],
     '-o', label='SOL', color='#1f77b4'
@@ -830,10 +858,12 @@ ax_total_energy_compare.set_xlabel('Stimulation frequency (Hz)')
 ax_total_energy_compare.set_ylabel('Total energy ($F_0 l_0$)')
 ax_total_energy_compare.grid(True, alpha = 0.3)
 ax_total_energy_compare.legend(loc = 'upper right')
-# fig_total_energy_compare.savefig('Figures/B2004_total_energy_F0l0_comp.jpg')
+fig_total_energy_compare.savefig('Figures/L2014_total_energy_F0l0_comp.jpg')
+fig_total_energy_compare.savefig('Figures/L2014_total_energy_F0l0_comp.svg')
 
 # Plot total energy output in mJ g^-1 for both muscles.
-fig_total_energy_mJg_compare, ax_total_energy_mJg_compare = plt.subplots(layout = 'constrained')
+fig_total_energy_mJg_compare, ax_total_energy_mJg_compare = plt.subplots(figsize=(4, 3))
+fig_total_energy_mJg_compare.subplots_adjust(left=0.15)
 ax_total_energy_mJg_compare.plot(
     stim_freq_list, total_energy_output_mJg_by_muscle['SOL'],
     '-o', label='SOL', color='#1f77b4'
@@ -842,14 +872,44 @@ ax_total_energy_mJg_compare.plot(
     stim_freq_list, total_energy_output_mJg_by_muscle['EDL'],
     '-o', label='EDL', color='#d62728'
 )
+
+exp_energy_sol = np.genfromtxt('Data/L2014_data_stimfreq_energy_SOL.csv', delimiter=',', names=True)
+exp_energy_edl = np.genfromtxt('Data/L2014_data_stimfreq_energy_EDL.csv', delimiter=',', names=True)
+ax_total_energy_mJg_compare.plot(
+    exp_energy_sol['freq'], exp_energy_sol['E'],
+    '--o', lw=1.5, ms=4, label='EXP SOL', color='#1f77b4'
+)
+ax_total_energy_mJg_compare.plot(
+    exp_energy_edl['freq'], exp_energy_edl['E'],
+    '--o', lw=1.5, ms=4, label='EXP EDL', color='#d62728'
+)
+
 ax_total_energy_mJg_compare.set_xlabel('Stimulation frequency (Hz)')
 ax_total_energy_mJg_compare.set_ylabel('Total energy ($mJ g^{-1}$)')
 ax_total_energy_mJg_compare.grid(True, alpha = 0.3)
 ax_total_energy_mJg_compare.legend(loc = 'upper right')
-# fig_total_energy_mJg_compare.savefig('Figures/B2004_total_energy_mJg_comp.jpg')
+fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.jpg')
+fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.svg')
+
+# Compute the r^2 values of the fit 
+from lib.model_metrics import r2_score 
+# Interpolate 
+mod_vals_interp_sol = np.interp(exp_energy_sol['freq'], stim_freq_list, total_energy_output_mJg_by_muscle['SOL'])
+mod_vals_interp_edl = np.interp(exp_energy_edl['freq'], stim_freq_list, total_energy_output_mJg_by_muscle['EDL'])
+# Compute values 
+r2_sol = r2_score(mod_vals_interp_sol, exp_energy_sol['E'])
+r2_edl = r2_score(mod_vals_interp_edl, exp_energy_edl['E'])
+print(f'SOL: r2 = {r2_sol}')
+print(f'EDL: r2 = {r2_edl}')
+# Compute normalised r2 values 
+r2_sol = r2_score(mod_vals_interp_sol/max(mod_vals_interp_sol), exp_energy_sol['E']/max( exp_energy_sol['E']))
+r2_edl = r2_score(mod_vals_interp_edl/max(mod_vals_interp_edl), exp_energy_edl['E']/max(exp_energy_edl['E']))
+print(f'SOL: r2 norm = {r2_sol}')
+print(f'EDL: r2 norm = {r2_edl}')
 
 # Plot fitted time constants versus frequency for both muscles
-fig_tau_freq_compare, ax_tau_freq_compare = plt.subplots(layout = 'constrained')
+fig_tau_freq_compare, ax_tau_freq_compare = plt.subplots(figsize=(4, 3))
+fig_tau_freq_compare.subplots_adjust(left=0.15)
 ax_tau_freq_compare.plot(stim_freq_list, tau_by_muscle['SOL'], '-o', label='SOL', color='#1f77b4')
 ax_tau_freq_compare.plot(stim_freq_list, tau_by_muscle['EDL'], '-o', label='EDL', color='#d62728')
 ax_tau_freq_compare.set_xlabel('Stimulation frequency (Hz)')
@@ -861,6 +921,7 @@ exp_tau_edl = np.genfromtxt('Data/BW2004_data_tau_EDL.csv', delimiter=',', names
 ax_tau_freq_compare.grid(True, alpha = 0.3)
 ax_tau_freq_compare.legend(loc = 'upper right')
 
-# fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp.jpg')
+fig_tau_freq_compare.savefig('Figures/L2014_tau_comp.jpg')
+fig_tau_freq_compare.savefig('Figures/L2014_tau_comp.svg')
 
 plt.show()

@@ -156,6 +156,7 @@ for muscle_type in ['SOL',]:
         params[muscle]['r_cxb'] = x[0]
         params[muscle]['r_cat'] = x[1]
         params[muscle]['cxb_scale'] = x[2]
+        params[muscle]['r_sl'] = x[3]
 
         # Loop over the shortening values
         mean_heat_tot = np.empty_like(v_short_vals, dtype=float)
@@ -290,7 +291,7 @@ for muscle_type in ['SOL',]:
             q_a_int = np.trapz(q_a, t_vec)
             q_tot_int = np.trapz(q_tot, t_vec)
         
-            # Compute the error in the ratio of recovery to cross-bridge heat
+            # Compute the error in the ratio of  cross-bridge heat to initial energy
             error_ratio += (q_a_int / q_tot_int - 0.4)**2
 
         err_cat_mse = np.mean(err_cat**2)
@@ -322,14 +323,14 @@ for muscle_type in ['SOL',]:
             print(
                 f"[{muscle_type}] Iter {it:04d} | "
                 f"r_cxb={xk[0]:.6g}, r_cat={xk[1]:.6g}, "
-                f"cxb_scale={xk[2]:.6g}"
+                f"cxb_scale={xk[2]:.6g}, r_sl={xk[3]:.6g}"
             )
             return
 
         print(
             f"[{muscle_type}] Iter {it:04d} | "
             f"r_cxb={xk[0]:.6g}, r_cat={xk[1]:.6g}, "
-            f"cxb_scale={xk[2]:.6g} | "
+            f"cxb_scale={xk[2]:.6g}, r_sl={xk[3]:.6g} | "
             f"err_cat={last['err_cat_mse']:.3e}, "
             f"err_cxb={last['err_cxb_mse']:.3e}, "
             f"err_short={last['err_short_mse']:.3e}, "
@@ -339,17 +340,19 @@ for muscle_type in ['SOL',]:
         )
 
     # Perform basic optimisation (no bounds)
-    # opt_res = minimize(fun_opt, x0=(params[muscle]['r_cxb'], params[muscle]['r_cat'], params[muscle]['cxb_scale']))
+    # opt_res = minimize(fun_opt, x0=(params[muscle]['r_cxb'], params[muscle]['r_cat'], params[muscle]['cxb_scale'], params[muscle]['r_sl']))
 
     # perform a bounded optimisation 
     cxb_scale_0 = np.clip(params[muscle]['cxb_scale'], 0.55, 0.95)
-    x0 = (params[muscle]['r_cxb'], params[muscle]['r_cat'], cxb_scale_0)
-    bounds_ = ((0.001,4), (0.0001, 4), (0.01,1))
+    r_sl_0 = np.clip(params[muscle]['r_sl'], 0.01, 0.5)
+    x0 = (params[muscle]['r_cxb'], params[muscle]['r_cat'], cxb_scale_0, r_sl_0)
+    bounds_ = ((0.001,4), (0.0001, 4), (0.01,1), (0.0001, 2))
     initial_simplex = np.array([
-        [x0[0], x0[1], x0[2]],
-        [min(x0[0] + 0.1, bounds_[0][1]), x0[1], x0[2]],
-        [x0[0], min(x0[1] + 0.1, bounds_[1][1]), x0[2]],
-        [x0[0], x0[1], min(x0[2] + 0.05, bounds_[2][1])],
+        [x0[0], x0[1], x0[2], x0[3]],
+        [min(x0[0] + 0.1, bounds_[0][1]), x0[1], x0[2], x0[3]],
+        [x0[0], min(x0[1] + 0.1, bounds_[1][1]), x0[2], x0[3]],
+        [x0[0], x0[1], min(x0[2] + 0.05, bounds_[2][1]), x0[3]],
+        [x0[0], x0[1], x0[2], min(x0[3] + 0.05, bounds_[3][1])],
     ])
     # Perform the optimisation
     opt_res = minimize(
@@ -362,17 +365,18 @@ for muscle_type in ['SOL',]:
     )
     # Print out the optimal solution 
     x = opt_res.x 
-    print(f'r_cxb = {x[0]}, r_cat = {x[1]}, cxb_scale = {x[2]}')
-    params[muscle]['r_cxb'], params[muscle]['r_cat'], params[muscle]['cxb_scale'] = x[0], x[1], x[2]
+    print(f'r_cxb = {x[0]}, r_cat = {x[1]}, cxb_scale = {x[2]}, r_sl = {x[3]}')
+    params[muscle]['r_cxb'], params[muscle]['r_cat'], params[muscle]['cxb_scale'], params[muscle]['r_sl'] = x[0], x[1], x[2], x[3]
 
 
     print(opt_res)
     params[muscle]['r_cxb'] = opt_res.x[0]
     params[muscle]['r_cat'] = opt_res.x[1]
     params[muscle]['cxb_scale'] = opt_res.x[2]
+    params[muscle]['r_sl'] = opt_res.x[3]
 
     print('Optimised parameters:')
-    print(f'r_cxb = {params[muscle]["r_cxb"]}, r_cat = {params[muscle]["r_cat"]}, cxb_scale = { params[muscle]["cxb_scale"]}')
+    print(f'r_cxb = {params[muscle]["r_cxb"]}, r_cat = {params[muscle]["r_cat"]}, cxb_scale = { params[muscle]["cxb_scale"]}, r_sl = { params[muscle]["r_sl"]}')
 
     #######
     # Plot a comparison of the optimised energetic rates and force traces

@@ -39,6 +39,10 @@ params = {
 
         # Mouse data 
         'SOL': {
+            # Slow data
+            # 'c_c_tot': 25.9, # mM, Kushmerick et al. 1992 
+            # 'c_atp_0': 3.3, # mM,  Kushmerick et al. 1992 
+            # 'c_pcr_0': 11.4, # mM,  Kushmerick et al. 1992 
             # Fast data 
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
@@ -74,7 +78,7 @@ params = {
             # Barclay and Weber 2004 experimental setup parameters 
             'velo_short': 1.3, # l0/s, Barclay and Weber 2004
             # 'freq': 80, # Hz, Frequency of stimulation 
-            'freq': 150, # Hz, Frequency of stimulation 
+            'freq': 200, # Hz, Frequency of stimulation 
             'max_dl': 0.1, # mm, Maximum length change
 
             # Activation model parameters 
@@ -85,30 +89,23 @@ params = {
 
             
             # Mechanical parameters 
-            'dedt_ce_max': 5, 
+            'dedt_ce_max': 6, 
             'kappa': 0.18,
 
-            # Initial energetics model 
-            # # Tetanic 
+            # # Initial energetics model 
             # 'r_cxb':  0.42406, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'r_cat': 0.04845, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # # Twitch
-            # 'r_cxb':  1.95563, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_cat': 0.0742558, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # # Optimisation with a submax scaling factor, Cat NO scaling
+            # 'r_cxb':  0.40197, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.0479003, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.566683, # unitless, cxb scale factor
             # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # # Optimisation with a submax scaling factor, Cat scaling
-            # 'r_cxb':  0.41673, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_cat': 0.04697, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'cxb_scale':  0.2423433641, # unitless, cxb scale factor
-            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # Optimisation with a submax scaling factor, Cat NO scaling
-            'r_cxb':  0.40197, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.0479003, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'cxb_scale':  0.566683, # unitless, cxb scale factor
+            # Optimisation with a submax scaling factor, Cat NO scaling, B2010 data
+            'r_cxb':  0.2473242, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.029479, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'cxb_scale':  0.5665, # unitless, cxb scale factor
             'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-
-
 
             # Konno et al., 2025 model parameters 
             'r1': 0.6177,
@@ -121,6 +118,20 @@ params = {
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
 
             'max_iso_stress': 3.01e5, # N/m^2, B1996
+            # 'max_iso_stress': 2.5e5, # N/m^2, B1996
+            
+
+            # Values to match recovery rate during initial contractoin
+            # 'V_max_oxphos': 1.75, # mM/s
+            # 'K_adp': 0.0615, # mM,
+            # 'nh': 0.873, # unitless, 
+            # 'r_rec': 2.41e5, # J / mol
+
+            # Adjusted to match time course
+            # 'V_max_oxphos': 3, # mM/s
+            # 'K_adp': 0.0615, # mM,
+            # 'nh': 0.873, # unitless, 
+            # 'r_rec': 0.25 * 2.41e5, # J / mol
 
             # #__________
             # # SOL VALUES WITH SCLAING Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
@@ -147,8 +158,8 @@ params = {
 
             # Barclay and Weber 2004 experimental setup parameters 
             'velo_short': 2.8, # l0/s, Barclay and Weber 2004
-            # 'freq': 160, # Hz, Frequency of stimulation, BW2004
-            'freq': 250, # Hz, Frequency of stimulation, Adjusted for tetenanus
+            'freq': 160, # Hz, Frequency of stimulation, BW2004
+            # 'freq': 250, # Hz, Frequency of stimulation, Adjusted for tetenanus
             'max_dl': 0.2, # mm, Maximum length change
 
             # Activation model parameters 
@@ -158,23 +169,23 @@ params = {
             "n": 2.89, # Hill coefficient for activation model
 
             # Mechanical parameters 
-            'dedt_ce_max': 10, 
+            'dedt_ce_max': 15, 
             'kappa': 0.29,
 
-            # Energetics model 
-            # # Tetanic
+            # # Energetics model 
             # 'r_cxb': 1.86285, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'r_cat': 0.320083, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             # 'r_sl':  0.77495, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # # Twitch
-            # 'r_cxb': 8.7268, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_cat': 0.03447, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_sl':  0.77495, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # Optimisation with a submax scaling factor , Cat NO scaling
-            'r_cxb':  1.8131448, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.04779, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'cxb_scale':  0.2536262, # unitless, cxb scale factor
-            'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Optimisation with a submax scaling factor , Cat NO scaling
+            # 'r_cxb':  1.8131448, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.04779, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.2536262, # unitless, cxb scale factor
+            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # Optimisation with a submax scaling factor , Cat NO scaling, B2010 FIT
+            'r_cxb':  0.76267727, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.01992, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'cxb_scale':  0.2565930, # unitless, cxb scale factor
+            'r_sl':  0.697, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
             # Konno et al., 2025 model parameters 
             'r1': 2.7919,
@@ -253,6 +264,7 @@ freq_list = (1.0, 2.0, 4, 8, 16, 32, 64, 128, 256, 512)
 
 results = []
 peak_qr_vs_freq = []
+peak_phi_atp_vs_freq = []
 heat_time_series = []
 component_heat_rows = []
 component_cum_time_series = []
@@ -299,6 +311,10 @@ for idx, stim_freq_hz in enumerate(freq_list):
     t_span = (t_vec[0], t_vec[-1])
     c_atp_0 = params[muscle]['c_atp_0']
     sol = bioenergetic_model.solveBioenergetics(t_span, c_atp_0, t_vec, E_initial_converted)
+
+    # Maximum ATP consumption rate (umol/g/s) at this stimulation frequency.
+    phi_atp_vec = bioenergetic_model.phi_atp(sol.t, sol.y[0,])
+    peak_phi_atp_vs_freq.append((stim_freq_hz, float(np.max(phi_atp_vec))))
 
     # Recovery energetics
     scale = params[muscle]['mass'] / params[muscle]['F_0'] / params[muscle]['l_0']
@@ -424,5 +440,12 @@ print('freq_Hz | q_a | q_m | q_sl | w | q_r')
 print('--------+-----+-----+------+---+-----')
 for row in component_heat_rows:
     print(f'{row[0]:7.2f} | {row[1]:5.3f} | {row[2]:5.3f} | {row[3]:6.3f} | {row[4]:3.3f} | {row[5]:5.3f}')
+
+print('')
+print('Maximum ATP consumption rate phi_atp (umol/g/s)')
+print('freq_Hz | max_phi_atp')
+print('--------+------------')
+for stim_freq_hz, max_phi_atp in peak_phi_atp_vs_freq:
+    print(f'{stim_freq_hz:7.2f} | {max_phi_atp:10.4f}')
 
 plt.show()

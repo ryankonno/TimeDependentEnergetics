@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 plt.rcParams['font.size'] = 14
 
 # Import parameters for the activation
-from lib.MUScalingFunctions import muCSADistr, varMUDist
 from matplotlib import cm
 
 import multiprocessing

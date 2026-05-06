@@ -36,97 +36,188 @@ params = {
     'max_iso_stress': 2.5e5, # N/m^2, Maximum isometric stress of the muscle
 
     'muscle': 'SOL', # Specify muscle parameters to be used in simulation
-
         # Mouse data 
         'SOL': {
-
+            # Slow data
+            # 'c_c_tot': 25.9, # mM, Kushmerick et al. 1992 
+            # 'c_atp_0': 3.3, # mM,  Kushmerick et al. 1992 
+            # 'c_pcr_0': 11.4, # mM,  Kushmerick et al. 1992 
+            # Fast data 
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
 
-            #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            # Best simulations values gamma = 3 and gamma = 1
-            #__________
-            # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
-            # 'V_max_oxphos': 0.94548, # mM/s
-            'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
-            'K_adp': 0.058, # mM,
-            'nh': 0.3156, # unitless, # original
-            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
-            'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
-            'gamma': 3, # Scaling factor for metabolic rates at rest   
+            'max_iso_stress': 2.37e5, # N/m^2, B1996
+
             # #__________
             # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
             # # 'V_max_oxphos': 0.94548, # mM/s
-            # 'V_max_oxphos': 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.3156, # unitless, # original
+            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest   
+            #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # 'V_max_oxphos': 0.94548, # mM/s
+            'V_max_oxphos': 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'K_adp': 0.058, # mM,
+            'nh': 0.61325, # unitless, # original
+            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 1, # Scaling factor for metabolic rates at rest    
+            #__________
+            # # Corrected values
+            # 'V_max_oxphos': 2 * 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
             # 'K_adp': 0.058, # mM,
             # 'nh': 0.61325, # unitless, # original
             # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
-            # 'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
-            # 'gamma': 1, # Scaling factor for metabolic rates at rest   
-            #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
+            # 'r_rec': 0.0433e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest    
+
 
             # Values from Barclay and Weber 2004
             'F_0': 0, # N, 
             'l_0': 11e-3, # m, 
             'mass': 4.1e-3, # g, 
-            'max_iso_stress': 2.88e5, # N/m^2, B2012
+
+            # Barclay and Weber 2004 experimental setup parameters 
+            'velo_short': 1.3, # l0/s, Barclay and Weber 2004
+            # 'freq': 80, # Hz, Frequency of stimulation 
+            'freq': 150, # Hz, Frequency of stimulation 
+            'max_dl': 0.1, # mm, Maximum length change
 
             # Activation model parameters 
-            # "Tau_1": 0.0422 / 2, # Assume constant value from MCL (2023)
-            # # "Tau_1": 0.038* 2 * 1.5, # BH 2012
-            # # "Tau_2": 0.125, # Scaling based on MCL (2023)
-            # "Tau_2": 0.057 * 4 * 2, #  BH 2012
-            
-            
-            # "Tau_1": 0.0422, # Assume constant value from MCL (2023)
-            "Tau_1": 0.038, # BH2012 @ 30deg
-            # "Tau_1":  0.011 * 0.5, # BH2012 @ 20deg (assuming half release with tem (B2012))
-            # "Tau_2": 0.125, # Scaling based on MCL (2023)
-            # "Tau_2": 0.057, #  BH 2012        
-            # "Tau_2": 0.065, # B2012 20deg
-            "Tau_2": 0.055, # B2012 30deg
-            # # "Tau_2": 0.5, #  BH 2012
-            # 'Tau_1': 0.096,# BH 2012 mouse 20deg
-            # 'Tau_2': 0.130,# BH 2012 mouse 20deg
-            
-            # "K": 0.1025, # Mayfield
-            "K": 0.035,
-            "n": 1.99 , # Hill coefficient for act mdoel
+            'Tau_1': 0.038,  # requested
+            'Tau_2': 0.055,  # B2012 30deg
+            "K": 0.25,
+            "n": 1.99, # Hill coefficient for act mdoel
+
             
             # Mechanical parameters 
-            'dedt_ce_max': 5, 
+            'dedt_ce_max': 6, 
             'kappa': 0.18,
 
-            # Initial energetics model 
-            # Q10
-            # 
-            # 'r_cxb':  0.3786, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_cat': 0.0662, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_sl': 0.239, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # # Values using tau_1 = 0.038
-            # 'r_cxb':  0.37656, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_cat': 0.0614, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_sl': 0.23774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # # Values accounting for temperature at 20degrees 
-            # 'r_cxb':  0.092766, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_cat': 0.024266, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_sl': 0.05857, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # # Based on twitch data ( 0.004ms twitch)
-            # 'r_cxb': 0.4283, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_cat': 0.05439, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_sl': 0.2342, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # # Based on twitch data ( 0.001ms twitch)
-            # 'r_cxb': 179.31489, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_cat': 0.4647, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_sl': 0.2342, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # Based on twitch data ( 0.001ms twitch), new K
-            'r_cxb': 2.783, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.4647, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl': 0.2342, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            
+            # # Initial energetics model 
+            # 'r_cxb':  0.42406, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.04845, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Optimisation with a submax scaling factor, Cat NO scaling
+            # 'r_cxb':  0.40197, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.0479003, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.566683, # unitless, cxb scale factor
+            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Optimisation with a submax scaling factor, Cat NO scaling, B2010 data
+            # 'r_cxb':  0.2473242, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.029479, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.5665, # unitless, cxb scale factor
+            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # Optimisation with a submax scaling factor, Cat NO scaling, B2010 data, r_s optimisation
+            'r_cxb':   0.25843, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.03540646954815866, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'cxb_scale':  0.51669189931185, # unitless, cxb scale factor
+            'r_sl':  0.12584005987468994, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+
+            # Konno et al., 2025 model parameters 
+            'r1': 0.6177,
+            'r2': 0.2342,
 
         }, 
+        'EDL': { 
+            'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
+            'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
+            'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
+
+            'max_iso_stress': 3.01e5, # N/m^2, B1996
+            # 'max_iso_stress': 2.5e5, # N/m^2, B1996
+            
+
+            # Values to match recovery rate during initial contractoin
+            # 'V_max_oxphos': 1.75, # mM/s
+            # 'K_adp': 0.0615, # mM,
+            # 'nh': 0.873, # unitless, 
+            # 'r_rec': 2.41e5, # J / mol
+
+            # Adjusted to match time course
+            # 'V_max_oxphos': 3, # mM/s
+            # 'K_adp': 0.0615, # mM,
+            # 'nh': 0.873, # unitless, 
+            # 'r_rec': 0.25 * 2.41e5, # J / mol
+
+            # #__________
+            # # SOL VALUES WITH SCLAING Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # # 'V_max_oxphos': 0.94548, # mM/s
+            # 'V_max_oxphos': 2 * 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.3156, # unitless, # original
+            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest         
+            # __________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # 'V_max_oxphos': 0.94548, # mM/s
+            'V_max_oxphos': 2 * 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'K_adp': 0.058, # mM,
+            'nh': 0.61325, # unitless, # original
+            # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 1, # Scaling factor for metabolic rates at rest    
+            # #__________
+            # # Corrected values
+            # 'V_max_oxphos': 2 * 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.61325, # unitless, # original
+            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 0.0433e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest    
+
+            'F_0': 0, # N, 
+            'l_0': 8.9e-3, # m,
+            'mass': 3.9e-3, # g, 
+
+            # Barclay and Weber 2004 experimental setup parameters 
+            'velo_short': 2.8, # l0/s, Barclay and Weber 2004
+            # 'freq': 160, # Hz, Frequency of stimulation, BW2004
+            'freq': 200, # Hz, Frequency of stimulation, Adjusted for tetenanus
+            'max_dl': 0.2, # mm, Maximum length change
+
+            # Activation model parameters 
+            'Tau_1': 0.011,  # requested
+            'Tau_2': 0.011,  # BH 2003, fibre bundle data
+            "K": 0.45,
+            "n": 2.89, # Hill coefficient for activation model
+
+            # Mechanical parameters 
+            'dedt_ce_max': 12, 
+            'kappa': 0.29,
+
+            # # Energetics model 
+            # 'r_cxb': 1.86285, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.320083, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_sl':  0.77495, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Optimisation with a submax scaling factor , Cat NO scaling
+            # 'r_cxb':  1.8131448, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.04779, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.2536262, # unitless, cxb scale factor
+            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Optimisation with a submax scaling factor , Cat NO scaling, B2010 FIT
+            # 'r_cxb':  0.76267727, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.01992, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.2565930, # unitless, cxb scale factor
+            # 'r_sl':  0.697, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # Optimisation with a submax scaling factor , Cat NO scaling, B2010 FIT, r_s optimisation
+            'r_cxb':  0.761209, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.0216, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'cxb_scale':  0.23276, # unitless, cxb scale factor
+            'r_sl':  0.105056, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+
+            # Konno et al., 2025 model parameters 
+            'r1': 2.7919,
+            'r2': 0.697,
+
+
+        },
 
         # Assume constant across all species and muscle fibre-types
         'V_ck_f': 100,# 100, # mM/s, Kushmerick 1998
@@ -334,6 +425,7 @@ ax_heat_rate.plot(t_vec, E_tot * energy_unit_scaler, color = palette[single_run_
 ax_heat_rate.plot(t_vec, q_r * energy_unit_scaler, color = palette[single_run_idx], ls = '--', label = 'Recovery heat rate')
 ax_heat_rate.set_xlabel('Time (s)')
 ax_heat_rate.set_ylabel('Heat rate ($mW g^{-1}$)')
+ax_heat_rate.set_ylim((0,0.75))
 ax_heat_rate.legend()
 
 mask = t_vec >= 50 + 3 # Add 3s buffer

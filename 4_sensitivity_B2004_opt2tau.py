@@ -32,6 +32,7 @@ params = {
     'muscle': 'SOL', # Specify muscle parameters to be used in simulation
 
         # Mouse data 
+        # Mouse data 
         'SOL': {
             # Slow data
             # 'c_c_tot': 25.9, # mM, Kushmerick et al. 1992 
@@ -42,15 +43,26 @@ params = {
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
 
+            'max_iso_stress': 2.37e5, # N/m^2, B1996
+
+            # #__________
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # # 'V_max_oxphos': 0.94548, # mM/s
+            # 'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.3156, # unitless, # original
+            # # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
+            # 'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 3, # Scaling factor for metabolic rates at rest   
             #__________
-            # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
+            # # Optimised values to B1995 (rrec, nh, vmax), gamma = 3, MEAN VALUE, scaled input data, BUGFIXED!
             # 'V_max_oxphos': 0.94548, # mM/s
-            'V_max_oxphos': 1.49397, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            'V_max_oxphos': 2 * 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
             'K_adp': 0.058, # mM,
-            'nh': 0.3156, # unitless, # original
+            'nh': 0.61325, # unitless, # original
             # 'r_rec': 0.06787e6, # J / mol, Obtained from efficiency calculation 
-            'r_rec': 0.045887e6, # J / mol, Obtained from efficiency calculation 
-            'gamma': 3, # Scaling factor for metabolic rates at rest   
+            'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 1, # Scaling factor for metabolic rates at rest    
 
 
             # Values from Barclay and Weber 2004
@@ -60,24 +72,40 @@ params = {
 
             # Barclay and Weber 2004 experimental setup parameters 
             'velo_short': 1.3, # l0/s, Barclay and Weber 2004
-            'freq': 80, # Hz, Frequency of stimulation 
+            # 'freq': 80, # Hz, Frequency of stimulation 
+            'freq': 150, # Hz, Frequency of stimulation 
             'max_dl': 0.1, # mm, Maximum length change
 
             # Activation model parameters 
-            "Tau_1": 0.0422, # Assume constant value from MCL (2023)
-            # "Tau_2": 0.125, # Scaling based on MCL (2023)
-            "Tau_2": 0.057, #  BH 2012
-            "K": 0.1025,
-            "n": 3, # Hill coefficient for act mdoel
+            'Tau_1': 0.038,  # requested
+            'Tau_2': 0.055,  # B2012 30deg
+            "K": 0.25,
+            "n": 1.99, # Hill coefficient for act mdoel
+
             
             # Mechanical parameters 
-            'dedt_ce_max': 5, 
+            'dedt_ce_max': 6, 
             'kappa': 0.18,
 
-            # Initial energetics model 
-            'r_cxb': 0.3786, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.0662, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl': 0.239, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Initial energetics model 
+            # 'r_cxb':  0.42406, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.04845, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Optimisation with a submax scaling factor, Cat NO scaling
+            # 'r_cxb':  0.40197, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.0479003, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.566683, # unitless, cxb scale factor
+            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # # Optimisation with a submax scaling factor, Cat NO scaling, B2010 data
+            # 'r_cxb':  0.2473242, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.029479, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.5665, # unitless, cxb scale factor
+            # 'r_sl':  0.26774, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # Optimisation with a submax scaling factor, Cat NO scaling, B2010 data, r_s optimisation
+            'r_cxb':   0.25843, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.03540646954815866, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'cxb_scale':  0.51669189931185, # unitless, cxb scale factor
+            'r_sl':  0.12584005987468994, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
             # Konno et al., 2025 model parameters 
             'r1': 0.6177,
@@ -299,7 +327,7 @@ def f_opt(x):
     for muscle_name in ('SOL', 'EDL'):
         params[muscle_name]['V_max_oxphos'] = params[muscle_name]['V_max_oxphos_orig'] * x[0]
     # Set the edl scaling 
-    params['EDL']['V_max_oxphos'] *= x[1]
+    # params['EDL']['V_max_oxphos'] *= x[1]
 
     # Compute the time constant tau for the soleus and edl curves 
         
@@ -403,28 +431,28 @@ iter = 0
 def callback_fun(xk):
     global iter 
     iter += 1
-    print(f'iter: {iter}, q10_oxphos = {xk[0]}, s_edl = {xk[1]}')
+    print(f'iter: {iter}, q10_oxphos = {xk[0]}')
     return 0 
 
 # Initial guess 
-x0 = (1, 1) # Initial guess of no scaling
+x0 = (1.75,) # Initial guess of no scaling
 
 # Define bounds 
-bounds_ = ((1,10), (0.1,1))
+bounds_ = ((1,10),)
 
 # Perform the optimisation
 opt_res = minimize(f_opt, x0, callback= callback_fun, bounds = bounds_,  options = {'maxiter': 500, 'disp': True}, method='Nelder-Mead')
 
 # Print out the optimal solution 
 x = opt_res.x 
-x = (1.8613, 1)
-print(f'q10_oxphos = {x[0]}, s_edl = {x[1]}')
+# x = (1.8613)
+print(f'q10_oxphos = {x[0]}')
 
 # First set the q10 scale 
 for muscle_name in ('SOL', 'EDL'):
     params[muscle_name]['V_max_oxphos'] = params[muscle_name]['V_max_oxphos_orig'] * x[0]
 # Set the edl scaling 
-params['EDL']['V_max_oxphos'] *= x[1]
+# params['EDL']['V_max_oxphos'] *= x[1]
 
 
 

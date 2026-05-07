@@ -12,7 +12,7 @@ params = {
             # Excitation-activation parameters
             'Tau_1': 0.038,  # s, Close et al., 1967
             'Tau_2': 0.055,  # s, Close et al., 1967
-            "K": 0.25, # 
+            "K": 0.25, # mM, Concentration of ATP at 50% activation
             "n": 1.99, # Hill coefficient for act mdoel
 
             # Mechanical parameters 
@@ -33,18 +33,12 @@ params = {
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
-            # Optimised values 
+            # Corrected values 
             'V_max_oxphos': 2 * 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
             'K_adp': 0.058, # mM,
             'nh': 0.61325, # unitless, # original
             'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
             'gamma': 1, # Scaling factor for metabolic rates at rest    
-            # # Corrected values 
-            # 'V_max_oxphos': 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
-            # 'K_adp': 0.058, # mM,
-            # 'nh': 0.61325, # unitless, # original
-            # 'r_rec': 0.16730e6, # J / mol, Obtained from efficiency calculation 
-            # 'gamma': 1, # Scaling factor for metabolic rates at rest  
 
             # Other model parameters
             # Konno et al., 2025 model parameters 
@@ -83,19 +77,12 @@ params = {
             'K_adp': 0.058, # mM,
             'nh': 0.61325, # unitless, # original
             'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
-            'gamma': 1, # Scaling factor for metabolic rates at rest    
-            # # Corrected values 
-            # 'V_max_oxphos': 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
-            # 'K_adp': 0.058, # mM,
-            # 'nh': 0.61325, # unitless, # original
-            # 'r_rec': 0.16730e6, # J / mol, Obtained from efficiency calculation 
-            # 'gamma': 1, # Scaling factor for metabolic rates at rest  
+            'gamma': 1, # Scaling factor for metabolic rates at rest     
 
             # Other model parameters
             # Konno et al., 2025 model parameters
             'r1': 2.7919,
             'r2': 0.697,
-
         },
 
         # Other bioenergetics parameters

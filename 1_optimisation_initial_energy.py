@@ -50,7 +50,6 @@ params = {
             'kappa': 0.18,
 
             # Initial energetics model 
-            # 'r_am': 0.6177, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
             'r_cxb': 0.6 * 0.38, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             'r_cat': 0.4 * 0.38, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
             'r_sl': 0.11, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)

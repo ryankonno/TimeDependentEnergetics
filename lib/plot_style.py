@@ -4,7 +4,7 @@ import matplotlib as mpl
 # Adjust figure size, DPI and font settings here
 mpl.rcParams.update({
     'figure.figsize': (4,3),
-    'figure.dpi': 200,
+    'figure.dpi': 150,
     'font.size': 10,
     'font.family': 'DejaVu Sans',
     'axes.titlesize': 10,

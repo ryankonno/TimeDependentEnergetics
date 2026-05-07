@@ -25,7 +25,7 @@ from Models.MechanicsModel import MechModel
 from Models.InitialEnergeticsModel import EnergeticsModel
 
 # Import parameters 
-from parameters_valid import params as params_muscle
+from parameters_muscle import params as params_muscle
 
 '''
 Define protocol specific parmeters 

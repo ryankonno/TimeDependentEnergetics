@@ -23,7 +23,7 @@ sys.path.append('./')
 from lib.recursive_merge import recursive_merge
 
 # Import parameters 
-from parameters_valid import params as params_muscle
+from parameters_muscle import params as params_muscle
 
 '''
 Define protocol specific parmeters 

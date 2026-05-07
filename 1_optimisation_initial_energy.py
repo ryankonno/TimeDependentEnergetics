@@ -15,6 +15,46 @@ import lib.plot_style
 import pandas as pd
 import sys 
 sys.path.append('./')
+from lib.recursive_merge import recursive_merge
+
+# Import muscle parameters 
+from parameters_muscle import params as params_muscle
+
+# Define parameter values 
+params_protocol = {
+    # Time parameters for setting up the protocol 
+    't_start': 0, # s
+    't_end': 2, # s
+
+    # General muscle parameters
+    'rho0':  1e6, # g/m^3, Density of muscle
+
+    'muscle': 'SOL', # Specify muscle parameters to be used in simulation
+        # Mouse data 
+        'SOL': {
+            'freq': 150, # Hz, Frequency of stimulation , 
+            # Heat rate parameters Barclay 1996
+            # 'r_am_exp': 0.6177, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_sl_exp': 0.234, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # heat parameters from Barclay 2010
+            'r_am_exp': 0.38, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_sl_exp': 0.11, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+
+        }, 
+        'EDL': {
+            'freq': 150, # Hz, Frequency of stimulation 
+            #  # Heat parameters from Barclay 1996
+            # 'r_am_exp': 2.792, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
+            # 'r_sl_exp': 0.697, # F0l0/s, Maximum shortening heat rate (fast-type fibre)
+            # heat parameters from Barclay 2010
+            'r_am_exp': 1.13, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_sl_exp': 0.07, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+
+        },
+}
+
+# Combine the dictionaries
+params = recursive_merge(params_protocol, params_muscle)
 
 # Data files for each muscle type (SOL = soleus/slow, EDL = fast)
 data_files = {
@@ -22,99 +62,18 @@ data_files = {
     'EDL': 'Data/Barclay1996_edl_heatrates_data.txt',
 }
 
-# Define the model parameters
-params = {
-    # Time parameters for setting up the protocol 
-    't_start': 0, # s
-    't_end': 2, # s
-
-    # General muscle parameters
-    'rho0':  1e6,    # g/m^3, Density of muscle
-    'max_iso_stress': 2.5e5, # N/m^2, Maximum isometric stress of the muscle
-
-    'muscle': 'SOL', # Specify muscle parameters to be used in simulation
-
-        # Mouse data 
-        'SOL': {
-            # 'freq': 75, # Hz, Frequency of stimulation , B1996
-            'freq': 150, # Hz, Frequency of stimulation , 
-
-            # Activation model parameters 
-            'Tau_1': 0.038,  # requested
-            'Tau_2': 0.055,  # B2012 30deg
-            "K": 0.25,
-            "n": 1.99, # Hill coefficient for act mdoel
-
-            # Mechanical parameters 
-            'dedt_ce_max': 5, 
-            'kappa': 0.18,
-
-            # Initial energetics model 
-            'r_cxb': 0.6 * 0.38, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.4 * 0.38, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl': 0.11, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-
-            'cxb_scale': 1, 
-
-            # Heat rate parameters Barclay 1996
-            # 'r_am_b1996': 0.6177, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
-            # 'r_sl_b1996': 0.234, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-            # heat parameters from Barclay 2010
-            'r_am_b1996': 0.38, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl_b1996': 0.11, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-
-        }, 
-        'EDL': { 
-            # 'freq': 125, # Hz, Frequency of stimulation, B1996
-            'freq': 150, # Hz, Frequency of stimulation 
-
-            #Original values
-            'Tau_1': 0.011,  # requested
-            'Tau_2': 0.011,  # BH 2003, fibre bundle data
-            "K": 0.45,
-            "n": 2.89, # Hill coefficient for activation model
-
-            # Mechanical parameters 
-            'dedt_ce_max': 10, 
-            'kappa': 0.25,
-
-            # Energetics model 
-            # 'r_am': 2.792, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            'r_cxb': 0.6 * 1.13, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            'r_cat': 0.4 * 1.13, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            'r_sl': 0.07, # F0l0/s, Maximum shortening heat rate (fast-type fibre)
-
-            'cxb_scale': 0.25, 
-
-            #  # Heat parameters from Barclay 1996
-            # 'r_am_b1996': 2.792, # F0l0/s, Maximum heat rate of isometric contraction (fast-type fibre)
-            # 'r_sl_b1996': 0.697, # F0l0/s, Maximum shortening heat rate (fast-type fibre)
-            # heat parameters from Barclay 2010
-            'r_am_b1996': 1.13, # W/F_0/l_0, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_sl_b1996': 0.07, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
-
-        },
-
-        # Mechanical parameters (may not be used)
-        'k_see': 0, # Unused
-    
-}
-
-#####
 # Load the models
 from Models.ActivationModel import ActivationModel
 from Models.MechanicsModel import MechModel 
 from Models.InitialEnergeticsModel import EnergeticsModel
-
 
 # Initialise plots for the model 
 fig_hr, ax_hr = plt.subplots(layout='constrained')
 
 
 ########
-# Loop over both muscle types: SOL (soleus/slow) and EDL (fast)
-# for muscle_type in ['SOL', 'EDL']:
-for muscle_type in ['SOL',]:
+# Loop over both muscles: SOL (soleus/slow) and EDL (fast)
+for muscle_type in ['SOL','EDL']:
     params['muscle'] = muscle_type
     muscle = muscle_type
 
@@ -133,18 +92,19 @@ for muscle_type in ['SOL',]:
     #####
     # Perform the optimisation
     # Define the shortening values for the optimisation
-    v_short_vals = -np.arange(0, 5, 1)  # s^{-1}
+    v_short_vals = -np.arange(0, 5, 1)  # 1/s
 
     # Compute the experimental energetics
-    coeff = (params[muscle]['r_sl_b1996'], params[muscle]['r_am_b1996'])
+    coeff = (params[muscle]['r_sl_exp'], params[muscle]['r_am_exp'])
     tot_heat_exp = np.polyval(coeff, -v_short_vals) # F0l0/s
 
-    # Define the optimisation function
+    # Define dictionary to keep track of optimiser progress
     progress_state = {
         'iter': 0,
         'last': None,
     }
 
+    # Define the optimisation function
     def fun_opt(x):
         # Update values for parameters
         params[muscle]['r_cxb'] = x[0]
@@ -162,7 +122,7 @@ for muscle_type in ['SOL',]:
         # Simulate the Ca dynamics and mechanics (constant for all shortening rates)
         # compute the ca dynamics for all contractions (same across conditions)
         
-        act_model = ActivationModel(params[muscle], t_vec, True)
+        act_model = ActivationModel(params[muscle], t_vec)
         # Compute the stimulus times
         period = 1.0 / params[muscle]['freq']
         # Get the firing times (accumulate into a Python list then convert)
@@ -218,9 +178,6 @@ for muscle_type in ['SOL',]:
 
             mean_heat_tot[idx_v] = np.mean(q_a[t_range] + q_m[t_range] + q_sl[t_range])
 
-        # Return error with lagrange multiplier constrain implementation
-        # return np.linalg.norm(tot_heat_exp - mean_heat_tot) / np.linalg.norm(tot_heat_exp)  + lambda_0 * (q_cxb_mean / q_cat_mean - 0.6 / 0.4) / (0.6 / 0.4)
-
         # Require that we match 60/40 split of cxb and cat heat 
         #   first two terms are the intercept 
         #   second term is the slope
@@ -236,9 +193,13 @@ for muscle_type in ['SOL',]:
         err_short = (q_sl_mean - q_exp_short) / scale
         
         #________________________________________
-        # NOTE: We may want to do this with shortening as well...
         # Calculation enforcing the dependence on frequency 
+        # We only look at the isometric condition
+
+        # Define the frequencies
         freq_opt_list = np.linspace(1,160,5) # Similar to Lewis and Barclay 2014
+
+        # Initialise the error in the ratio
         error_ratio = 0
 
         for idx_v, freq_stim in enumerate(freq_opt_list):
@@ -270,8 +231,7 @@ for muscle_type in ['SOL',]:
             
             # set up the mechanical conditions
             dedt_ce = np.zeros_like(t_vec)
-            # e_ce = cumtrapz(dedt_ce, t_vec, initial=1.05)
-            e_ce = np.zeros_like(dedt_ce) # NOTE: We choose no strain since we are at steady state and shortening over plateau 
+            e_ce = np.zeros_like(dedt_ce) # We choose no strain since we are at steady state and shortening over plateau 
 
             # Get the force
             force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce + 1)
@@ -279,7 +239,7 @@ for muscle_type in ['SOL',]:
             # Compute the energy use 
             q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
             assert sum(w) == 0 # enforce no work condition
-            q_tot = q_a + q_m + q_sl +  w
+            q_tot = q_a + q_m
             
             # Integrate 
             q_a_int = np.trapz(q_a, t_vec)
@@ -294,6 +254,7 @@ for muscle_type in ['SOL',]:
         err_ratio_penalty = np.mean(error_ratio)
         objective = err_cat_mse + err_cxb_mse + err_short_mse + err_ratio_penalty
 
+        # Save the progress in the optimiser
         progress_state['last'] = {
             'x': np.array(x, dtype=float).copy(),
             'err_cat_mse': float(err_cat_mse),
@@ -305,8 +266,8 @@ for muscle_type in ['SOL',]:
         }
 
         return objective
-        # return np.abs(q_exp_cat - q_cat_mean[-1]) + np.abs(q_exp_cxb - q_cxb_mean[-1]) + np.linalg.norm(q_exp_short - q_sl_mean)
 
+    # Define the callback function
     def callback_fun(xk):
         progress_state['iter'] += 1
         it = progress_state['iter']
@@ -333,14 +294,12 @@ for muscle_type in ['SOL',]:
             f"obj={last['objective']:.3e}"
         )
 
-    # Perform basic optimisation (no bounds)
-    # opt_res = minimize(fun_opt, x0=(params[muscle]['r_cxb'], params[muscle]['r_cat'], params[muscle]['cxb_scale'], params[muscle]['r_sl']))
-
-    # perform a bounded optimisation 
+    # Perform a bounded optimisation 
     cxb_scale_0 = np.clip(params[muscle]['cxb_scale'], 0.55, 0.95)
     r_sl_0 = np.clip(params[muscle]['r_sl'], 0.01, 0.5)
     x0 = (params[muscle]['r_cxb'], params[muscle]['r_cat'], cxb_scale_0, r_sl_0)
     bounds_ = ((0.001,4), (0.0001, 4), (0.01,1), (0.0001, 2))
+    # Define the initial simplex
     initial_simplex = np.array([
         [x0[0], x0[1], x0[2], x0[3]],
         [min(x0[0] + 0.1, bounds_[0][1]), x0[1], x0[2], x0[3]],
@@ -348,20 +307,21 @@ for muscle_type in ['SOL',]:
         [x0[0], x0[1], min(x0[2] + 0.05, bounds_[2][1]), x0[3]],
         [x0[0], x0[1], x0[2], min(x0[3] + 0.05, bounds_[3][1])],
     ])
+
     # Perform the optimisation
     opt_res = minimize(
         fun_opt,
         x0,
         callback=callback_fun,
         bounds=bounds_,
-        options={'maxiter': 500, 'disp': True, 'initial_simplex': initial_simplex},
+        options={'maxiter': 500, 'disp': True, 'initial_simplex': initial_simplex, 'xatol': 1e-4, 'fatol': 1e-4},
         method='Nelder-Mead'
     )
+
     # Print out the optimal solution 
     x = opt_res.x 
     print(f'r_cxb = {x[0]}, r_cat = {x[1]}, cxb_scale = {x[2]}, r_sl = {x[3]}')
     params[muscle]['r_cxb'], params[muscle]['r_cat'], params[muscle]['cxb_scale'], params[muscle]['r_sl'] = x[0], x[1], x[2], x[3]
-
 
     print(opt_res)
     params[muscle]['r_cxb'] = opt_res.x[0]
@@ -375,33 +335,30 @@ for muscle_type in ['SOL',]:
     #######
     # Plot a comparison of the optimised energetic rates and force traces
 
+    # Create array to store mean heat values 
     mean_heat_tot = np.empty_like(v_short_vals, dtype=float)
+
+    # Initialise figures 
     fig_force, ax_force = plt.subplots(layout='constrained')
     fig_force.suptitle(f'{muscle_type} - Force vs Time')
-    
-    # Figure for time-varying energy components
     fig_energy_components, axs_energy_comp = plt.subplots(
-        5, 1, layout='constrained', figsize=(10, 12),
-        sharex=True
+        5, 1, layout='constrained', figsize=(10, 12)
     )
-    
-    component_colors = (
-        '#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e'
-    )
+
+    # Loop over the velocities and re compute the model energy predictions + plot
     velocity_colors = plt.cm.viridis(np.linspace(0, 1, len(v_short_vals)))
     for idx_v, v_short in enumerate(v_short_vals):
+
+        # Get the mechanical state
         dedt_ce = np.zeros_like(t_vec) + v_short * (t_vec >= 1) * (t_vec < 1.1)
-        # e_ce = cumtrapz(dedt_ce, t_vec, initial=1.05)
         e_ce = np.zeros_like(dedt_ce) # NOTE: We choose no strain since we are at steady state and shortening over plateau 
-
-        # axs_strain[0].plot(t_vec, e_ce, label='$v_{short}$ = ' + str(v_short))
-        # axs_strain[1].plot(t_vec, dedt_ce, label='$v_{short}$ = ' + str(v_short))
-
-                
+        
+        # INitialise activation model 
         act_model = ActivationModel(params[params['muscle']], t_vec)
+
         # Compute the stimulus times
         period = 1.0 / params[params['muscle']]['freq']
-        # Get the firing times (accumulate into a Python list then convert)
+        # Get the firing times
         t_fire_vec = []
         if t_vec.size > 0:
             t_fire_prev = t_vec[0]
@@ -419,14 +376,16 @@ for muscle_type in ['SOL',]:
             for st in t_fire_vec:
                 idx = int(np.argmin(np.abs(t_arr - st)))
                 stim_times[idx] = 1
+
         # Solve the activation model with the computed stim values
         idx_stims = np.nonzero(stim_times)[0]
         stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
         
-
+        # Compute the muscle force
         force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce + 1)
         ax_force.plot(t_vec, force, label='$v_{short}$ = ' + str(v_short))
 
+        # Solve the intitial energetics model 
         q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
 
         # Compute cumulative energy for each component
@@ -479,14 +438,8 @@ for muscle_type in ['SOL',]:
 
         t_range = (t_vec >= 1) * (t_vec < 1.1)
         mean_heat_tot[idx_v] = np.mean(q_a[t_range] + q_m[t_range] + q_sl[t_range])
-
-    # axs_strain[0].set_ylabel('$e_{ce}$')
-    # axs_strain[0].grid()
-    # axs_strain[1].set_xlabel('Time ($s$)')
-    # axs_strain[1].set_ylabel('$\dot e_{ce}$ ($s^{-1}$)')
-    # axs_strain[1].grid()
-    # axs_strain[0].legend(loc='best')
-
+    
+    # Plot the comparison to experimental results
     ax_hr.plot(v_short_vals, mean_heat_tot, label='Model: ' + muscle)
     ax_hr.plot(v_short_vals, tot_heat_exp, label='Experiment: ' + muscle)
     ax_hr.legend()
@@ -495,6 +448,7 @@ for muscle_type in ['SOL',]:
     ax_hr.set_xlabel('Shortening rate ($s^{-1}$)')
     ax_hr.set_ylabel('Mean energetic rate ($W (F_0 l_0)^{-1}$)')
 
+    # Update force labels and save 
     ax_force.set_xlabel('Time ($s$)')
     ax_force.set_ylabel('Force (N)')
     ax_force.grid(True, alpha=0.3)
@@ -511,13 +465,17 @@ for muscle_type in ['SOL',]:
     )
 
     # Plot activation-to-total heat ratio across frequencies
+    #   need to recompute the energetics for a range of frequencies
+    # Initialise the plot
     fig_ratio, ax_ratio = plt.subplots(layout='constrained')
     fig_ratio.suptitle(f'{muscle_type}: activation/total heat ratio vs frequency')
     freq_plot_vec = np.linspace(40, 160, 25)
     ratio_plot_vec = np.zeros_like(freq_plot_vec, dtype=float)
     for idx_f, freq_stim in enumerate(freq_plot_vec):
+        # Re initialise activation model
         act_model = ActivationModel(params[params['muscle']], t_vec)
 
+        # Get the stimulation times for the frequency
         period = 1.0 / freq_stim
         t_fire_vec = []
         if t_vec.size > 0:
@@ -536,20 +494,27 @@ for muscle_type in ['SOL',]:
                 idx = int(np.argmin(np.abs(t_arr - st)))
                 stim_times[idx] = 1
 
+        # Solve the activation model
         idx_stims = np.nonzero(stim_times)[0]
         stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
 
+        # Compute the mechanics
         dedt_ce = np.zeros_like(t_vec)
         e_ce = np.zeros_like(dedt_ce)
         force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce + 1)
+
+        # Compute the energetics
         q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(
             t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model
         )
 
         q_a_int = np.trapz(q_a, t_vec)
         q_tot_int = np.trapz(q_a + q_m + q_sl + w, t_vec)
-        ratio_plot_vec[idx_f] = q_a_int / max(q_tot_int, 1e-12)
 
+        # Save the ratio
+        ratio_plot_vec[idx_f] = q_a_int / q_tot_int
+
+    # Plot and save
     ax_ratio.plot(freq_plot_vec, ratio_plot_vec, linewidth=2, label=f'Model: {muscle}')
     ax_ratio.set_xlabel('Stimulation frequency (Hz)')
     ax_ratio.set_ylabel('Activation/Total heat ratio')

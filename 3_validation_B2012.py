@@ -26,7 +26,7 @@ from Models.InitialEnergeticsModel import EnergeticsModel
 from lib.model_metrics import r2_score, mse_calc
 
 # Import parameters 
-from parameters_valid import params as params_muscle
+from parameters_muscle import params as params_muscle
 
 '''
 Define protocol specific parmeters 

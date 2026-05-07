@@ -349,13 +349,13 @@ def f_opt(x):
             stim_vec, stim_times_vec,  dl_vec = f_stim_length(t_vec, params)
 
             # Ca dynamics
-            from Models.MUActivationModel import ActivationModel
+            from Models.ActivationModel import ActivationModel
             act_model = ActivationModel(params[params['muscle']], t_vec, True)
             idx_stims = np.nonzero(stim_times_vec)[0]
             stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
 
             # Mechanics 
-            from Models.MechanicsModelSimple import MechModel 
+            from Models.MechanicsModel import MechModel 
             muscle = params['muscle']
             mech_model = MechModel(params[muscle]['l_0'], params[muscle]['dedt_ce_max'], params[muscle]['kappa'],params['k_see'])
             # Compute the strain and strain rates in the muscle 
@@ -369,7 +369,7 @@ def f_opt(x):
             force_direct =  mech_model.computeForce(catn_vec, e_ce + 1, dedt_ce)
 
             # Compute the initial energetics 
-            from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
+            from Models.InitialEnergeticsModel import EnergeticsModel
             energy_model = EnergeticsModel()
             q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
             E_tot = q_a + q_m + q_sl + w  # F0l0/s, Total energy 
@@ -378,7 +378,7 @@ def f_opt(x):
             E_initial_converted = E_tot * params[muscle]['F_0'] * params[muscle]['l_0'] / params[muscle]['mass'] # W/g
 
             # Run bioenergetics
-            from Models.BioenergeticsSimple import Bioenergetics
+            from Models.BioenergeticsModel import Bioenergetics
             bioenergetic_model = Bioenergetics(params) 
             t_span = (t_vec[0], t_vec[-1]) 
             c_atp_0 = params[muscle]['c_atp_0']
@@ -491,13 +491,13 @@ for muscle_name in ('SOL', 'EDL'):
         '''
 
         # Ca dynamics
-        from Models.MUActivationModel import ActivationModel
+        from Models.ActivationModel import ActivationModel
         act_model = ActivationModel(params[params['muscle']], t_vec, True)
         idx_stims = np.nonzero(stim_times_vec)[0]
         stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
 
         # Mechanics 
-        from Models.MechanicsModelSimple import MechModel 
+        from Models.MechanicsModel import MechModel 
         muscle = params['muscle']
         mech_model = MechModel(params[muscle]['l_0'], params[muscle]['dedt_ce_max'], params[muscle]['kappa'],params['k_see'])
         # Compute the strain and strain rates in the muscle 
@@ -517,7 +517,7 @@ for muscle_name in ('SOL', 'EDL'):
         force_direct =  mech_model.computeForce(catn_vec, e_ce + 1, dedt_ce)
 
         # Compute the initial energetics 
-        from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
+        from Models.InitialEnergeticsModel import EnergeticsModel
         energy_model = EnergeticsModel()
         q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
         E_tot = q_a + q_m + q_sl + w  # F0l0/s, Total energy 
@@ -526,7 +526,7 @@ for muscle_name in ('SOL', 'EDL'):
         E_initial_converted = E_tot * params[muscle]['F_0'] * params[muscle]['l_0'] / params[muscle]['mass'] # W/g
 
         # Run bioenergetics
-        from Models.BioenergeticsSimple import Bioenergetics
+        from Models.BioenergeticsModel import Bioenergetics
         bioenergetic_model = Bioenergetics(params) 
         t_span = (t_vec[0], t_vec[-1]) 
         c_atp_0 = params[muscle]['c_atp_0']

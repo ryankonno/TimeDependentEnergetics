@@ -10,7 +10,6 @@ The University of Queensland
 
 # Import
 import numpy as np
-from scipy.integrate import cumtrapz
 import matplotlib.pyplot as plt
 
 font = {'size': 14}
@@ -20,9 +19,9 @@ palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
 import sys
 sys.path.append('./')
 
-from Models.MUActivationModel import ActivationModel
-from Models.MechanicsModelSimple import MechModel
-from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
+from Models.ActivationModel import ActivationModel
+from Models.MechanicsModel import MechModel
+from Models.InitialEnergeticsModel import EnergeticsModel
 
 from lib.model_metrics import r2_score, mse_calc
 
@@ -148,7 +147,9 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
 
 # Run the model
 # Plot to verify conditions
-t_vec = np.linspace(params['t_start'], params['t_end'], int(10000 * (params['t_end'] - params['t_start'])))
+dt = 0.0001
+t_vec = np.linspace(params['t_start'], params['t_end'], int((params['t_end'] - params['t_start']) / dt)) 
+
 freq_list = (2.0, 4, 8, 16, 32, 64, 128, 256, 512)
 
 sol_act_rows, sol_ca_rows = analyze_muscle('SOL', t_vec, freq_list, n_twitches=2)

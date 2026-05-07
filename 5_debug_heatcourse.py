@@ -20,9 +20,9 @@ import itertools
 import sys 
 sys.path.append('./')
 
-from Models.MUActivationModel import ActivationModel
-from Models.MechanicsModelSimple import MechModel 
-from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
+from Models.ActivationModel import ActivationModel
+from Models.MechanicsModel import MechModel 
+from Models.InitialEnergeticsModel import EnergeticsModel
 # Parameters
 params = {
     # Time parameters for setting up the protocol 
@@ -306,7 +306,7 @@ for idx, stim_freq_hz in enumerate(freq_list):
     E_initial_converted = E_tot * params[muscle]['F_0'] * params[muscle]['l_0'] / params[muscle]['mass']
 
     # Bioenergetics solve
-    from Models.BioenergeticsSimple import Bioenergetics
+    from Models.BioenergeticsModel import Bioenergetics
     bioenergetic_model = Bioenergetics(params)
     t_span = (t_vec[0], t_vec[-1])
     c_atp_0 = params[muscle]['c_atp_0']

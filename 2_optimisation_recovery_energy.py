@@ -1,28 +1,21 @@
 '''
-This is a code to simulate bioenergetics of muscle contraction
-Within this code the modelling is limited to the amount of PCr within the muscle, 
-based on a prescribed use of ATP. 
-The full contraction is not simulated within this code 
-
-This version will optimise to the B1995 dataset while ensuring the correct ratio of initial to recovery heat after sufficient time
+Code to determine the bioenergetics model recovery parameters.
 
 Ryan Konno
-School of Biomedical Sciences 
-The University of Queensland
+r.konno@uq.edu.au
+The University of Queensland 
 '''
 
 # Import 
 import numpy as np 
 from scipy.integrate import cumtrapz
-from scipy.optimize import minimize, curve_fit, differential_evolution
+from scipy.optimize import minimize, curve_fit
 import matplotlib.pyplot as plt 
 plt.rcParams['font.size'] = 14
-import matplotlib.cm as cmap
 import sys 
 sys.path.append('./')
 
-from Models.BioenergeticsSimple import Bioenergetics
-from scipy.interpolate import PchipInterpolator
+from Models.BioenergeticsModel import Bioenergetics
 
 params = {
     # Time parameters for setting up the protocol 

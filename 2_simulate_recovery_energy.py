@@ -1,20 +1,19 @@
 '''
 This is a code to simulate bioenergetics of muscle contraction from the conditions in Barclay et al., 1995
 
-This version does not run the optimisation of the code, but just the simulation with given parameters (see barclay1995OptimiseParams.py for the code with the optimisation)
+This version does not run the optimisation of the code, but just the simulation with given parameters (see 2_optimisation_recovery_energy.py for the code with the optimisation)
 
 Ryan Konno
-School of Biomedical Sciences 
-The University of Queensland
+r.konno@uq.edu.au
+The University of Queensland 
 '''
 
 # Import 
 import numpy as np 
 from scipy.integrate import cumtrapz
-from scipy.optimize import minimize, curve_fit
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 plt.rcParams['font.size'] = 14
-import matplotlib.cm as cmap
 import sys 
 sys.path.append('./')
 
@@ -22,7 +21,7 @@ sys.path.append('./')
 import os 
 os.chdir('/mnt/c/Users/s4773677/uq_ws/TemporalEnergetics/Modelling/TimeDependentEnergy')
 
-from Models.BioenergeticsSimple import Bioenergetics
+from Models.BioenergeticsModel import Bioenergetics
 
 save_id = '_gamma3_optedlsol'
 

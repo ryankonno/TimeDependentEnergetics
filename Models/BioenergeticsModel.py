@@ -1,3 +1,11 @@
+'''
+Bioenergetics model code 
+
+Ryan Konno
+r.konno@uq.edu.au
+The University of Queensland 
+'''
+
 ### 
 import numpy as np 
 from scipy.integrate import solve_ivp, cumtrapz

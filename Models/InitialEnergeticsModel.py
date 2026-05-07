@@ -1,11 +1,9 @@
 '''
-Energetics model for a single MU/fibre
-
-Heat rates are computed first using unitless quantities, then scaled to W.
+Initial energetics model code.
 
 Ryan Konno
-The University of Queensland
 r.konno@uq.edu.au
+The University of Queensland 
 '''
 ################################################################################
 # Import
@@ -16,7 +14,7 @@ from matplotlib import cm
 # matplotlib.use('agg')
 
 # Import the force-length relationship for the mechanical model 
-from Models.MechanicsModelSimple import MechModel
+from Models.MechanicsModel import MechModel
 
 ################################################################################
 class EnergeticsModel():

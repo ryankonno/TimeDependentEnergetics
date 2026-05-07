@@ -1,35 +1,32 @@
 '''
-This code implements the model as designed in Kushmerick 1999, and adapted in Vicini 2000
+This code simulates protocol from the Barclay and Weber 2004 experiments. 
 
-This version of the code has been adapted such that the initial resting rate of the model will altered based of Vmax. This allows for a fixed c_pcr_0 while othere parameters are varied... I do not believe it is expected that if rate constants vary then there shoulld be an alteratation in steady-state metabolism
-
-This code fits the recovery heat parameter + ATP Pcr mdoel parameters to the Barclay 1995 dataset
-
-Adapted to plot the model results from teh Barclay 2004 experiments with varying frequencies
-
-Adapted to use separate variables for the cat and cxb heat terms.
-
-Dual-muscle version looping over SOL and EDL with cross-muscle comparison plots.
+Both SOL and EDL data are used and results are compared to the experimental data. 
 
 Ryan Konno
+r.konno@uq.edu.au
+The University of Queensland
 '''
 
 # Import 
 import numpy as np 
-from scipy.integrate import solve_ivp, cumtrapz
-from scipy.interpolate import CubicSpline, PchipInterpolator
-from scipy.optimize import minimize, minimize_scalar,curve_fit
+from scipy.integrate import cumtrapz
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 font = {'size'   : 10}
 plt.rc('font', **font)
-import matplotlib.cm as cmap
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
-import itertools
+
 import sys 
 sys.path.append('./')
 
-# Import library 
 from lib.recursive_merge import recursive_merge
+
+# Import models
+from Models.BioenergeticsModel import Bioenergetics
+from Models.MechanicsModel import MechModel
+from Models.ActivationModel import ActivationModel
+from Models.InitialEnergeticsModel import EnergeticsModel
 
 # Import parameters 
 from parameters_valid import params as params_muscle
@@ -65,7 +62,7 @@ params_protocol = {
 # Combine the dictionaries
 params = recursive_merge(params_protocol, params_muscle)
 
-# Compute additional parameters
+# Compute parameter values not in the dictionaries
 for muscle in ('SOL', 'EDL'):
     # Maximum isometric force
     params[muscle]['F_0'] = (
@@ -73,9 +70,11 @@ for muscle in ('SOL', 'EDL'):
         params[muscle]['l_0'] *
         params[muscle]['max_iso_stress']
     )
-    print(f'{muscle}: Maximum isometric stress: {params[muscle]["F_0"]}')
+    print(f'{muscle}: Maximum isometric force: {params[muscle]["F_0"]}')
 
-
+'''
+Setup the simulation 
+'''
 def f_stim_length(t, params): 
     # Function to compute the length changes in the muscle 
     # returns both simulation times and lengths 
@@ -133,7 +132,7 @@ def f_stim_length(t, params):
     # Get stimulation frequency from params for the active muscle
     freq = params[params['muscle']]['freq']
 
-    # Get the stimulation times 
+    # Get teh stimulation times 
     if freq > 0:
         period = 1.0 / freq
 
@@ -163,15 +162,15 @@ def f_stim_length(t, params):
     return stim, stim_times, dl
 
 
-# Plot to verify conditions 
+# Define the time vector 
 dt = 0.0005
 t_vec = np.linspace(params['t_start'], params['t_end'], int((params['t_end'] - params['t_start']) / dt)) 
 
-# Keep cycle frequency fixed at 1 Hz and sweep stimulation frequencies.
-cycle_freq_hz = 1.0
-stim_freq_list = (40, 80, 120, 160) # Hz, Stimulation frequencies
+# Define frequencies for the cycles, Hz
+freq_list = (0.5, 1, 2, 3, 4) 
 
-component_names = ('q_a', 'q_m', 'q_sl', 'w', 'q_r')
+# Define plotting properties 
+component_names = ('q_{cat}', 'q_{cxb}', 'q_{sl}', 'w', 'q_r')
 component_colors = ('#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e')
 
 # Storage for cross-muscle comparison
@@ -181,7 +180,7 @@ power_output_by_muscle = {}
 initial_energy_rate_output_by_muscle = {}
 total_energy_rate_output_by_muscle = {}
 total_energy_output_by_muscle = {}
-total_energy_output_mJg_by_muscle = {}
+trace_plot_data_by_muscle = {}
 
 # Loop over muscles
 for muscle_name in ('SOL', 'EDL'):
@@ -189,36 +188,42 @@ for muscle_name in ('SOL', 'EDL'):
     params['muscle'] = muscle_name
     
     # Initialise plots 
-    fig_energy, ax_energy = plt.subplots(figsize=(4, 3))
+    fig_energy, ax_energy = plt.subplots(figsize = (4,3))
     fig_energy.subplots_adjust(left=0.15)
-    fig_force_cycle, ax_force_cycle = plt.subplots(figsize=(4, 3))
+    fig_tau, ax_tau = plt.subplots(figsize = (4,3))
+    fig_tau.subplots_adjust(left=0.15)
+    fig_strain_cycle, axs_strain_cycle = plt.subplots(2, 1, figsize = (4,3),sharex=False)
+    fig_strain_cycle.subplots_adjust(left=0.15)
+    fig_force_cycle, ax_force_cycle = plt.subplots(figsize = (4,3))
     fig_force_cycle.subplots_adjust(left=0.15)
+
+    
+    # Figure for time-varying energy components during one cycle
+    fig_energy_components, ax_energy_comp = plt.subplots(
+        figsize=(4, 3)
+    )
+    fig_energy_components.subplots_adjust(left=0.15)
 
     component_energy_abs = []
     peak_qr_vs_freq = []
     tau_vs_freq = []
     efficiency_rows = []
     total_energy_out_f0l0_vs_freq = []
-    total_energy_out_mJg_vs_freq = []
 
-    for idx, stim_freq in enumerate(stim_freq_list): 
-        cycle_length = 1.0 / cycle_freq_hz
-        print(f'Stimulation frequency: {stim_freq} Hz')
+    for idx, freq in enumerate(freq_list):
+        print(f'Frequency: {freq} Hz')
 
-        
-        params['cycle_length'] = cycle_length
-        params[muscle_name]['freq'] = stim_freq
+        stim_length = 1/freq # s, stimulation time         
+        params['cycle_length'] = stim_length
         params['N_cycles'] = 10 # Fixed number of cycles (matches experimental conditions)
         stim_vec, stim_times_vec,  dl_vec = f_stim_length(t_vec, params)
 
         # Ca dynamics
-        from Models.MUActivationModel import ActivationModel
         act_model = ActivationModel(params[params['muscle']], t_vec, True)
         idx_stims = np.nonzero(stim_times_vec)[0]
         stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims, w_0 = 0.004)
 
         # Mechanics 
-        from Models.MechanicsModelSimple import MechModel 
         muscle = params['muscle']
         mech_model = MechModel(
             params[muscle]['l_0'],
@@ -226,22 +231,34 @@ for muscle_name in ('SOL', 'EDL'):
             params[muscle]['kappa'],
             params['k_see']
         )
+
         # Compute strain and strain rates in muscle
         e_ce = dl_vec / params[muscle]['l_0'] + 0.1
         dedt_ce = np.diff(e_ce, prepend = 0) / np.diff(t_vec, prepend = 1)
 
-        # Get the time for one cycle
+        # Plot one cycle for the current frequency condition.
         cycle_mask = (t_vec >= 0) * (t_vec < params['cycle_length'])
+        t_cycle = t_vec[cycle_mask]
+        e_ce_cycle = e_ce[cycle_mask]
+        dedt_ce_cycle = dedt_ce[cycle_mask]
+        axs_strain_cycle[0].plot(t_cycle, e_ce_cycle, color=palette[idx], label=f'{freq} Hz')
+        axs_strain_cycle[1].plot(t_cycle, dedt_ce_cycle, color=palette[idx], label=f'{freq} Hz')
 
         # Compute the force directly  
         force_direct =  mech_model.computeForce(catn_vec, e_ce + 1, dedt_ce)
         force_cycle = force_direct[cycle_mask]
+        ax_force_cycle.plot(t_cycle, force_cycle, color=palette[idx], label=f'{freq} Hz')
 
-        # Plot the force
-        ax_force_cycle.plot(t_cycle, force_cycle, color=palette[idx], label=f'{stim_freq} Hz')
+        # Store trace data for first frequency (for cross-muscle comparison)
+        if idx == 0:
+            trace_plot_data_by_muscle[muscle_name] = {
+                't_cycle': t_cycle,
+                'e_ce_cycle': e_ce_cycle,
+                'stim_cycle': stim_vec[cycle_mask],
+                'force_cycle': force_cycle
+            }
 
         # Compute the initial energetics 
-        from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
         energy_model = EnergeticsModel()
         q_a, q_m, q_sl, w = energy_model.actEnergetics(
             t_vec, ca_vec, catn_vec, params[muscle],
@@ -256,12 +273,15 @@ for muscle_name in ('SOL', 'EDL'):
         )
 
         # Run bioenergetics
-        from Models.BioenergeticsSimple import Bioenergetics
         bioenergetic_model = Bioenergetics(params) 
         t_span = (t_vec[0], t_vec[-1]) 
         c_atp_0 = params[muscle]['c_atp_0']
         # Solve the model
         sol = bioenergetic_model.solveBioenergetics(t_span, c_atp_0, t_vec, E_initial_converted)
+
+        # Compute and plot gamma(t) from the bioenergetics model.
+        c_adp_vec = np.maximum(bioenergetic_model.c_a_tot - sol.y[0,], 0.0)
+
         # Compute the energetic rates 
         scale = (
             params[muscle]['mass'] / params[muscle]['F_0'] /
@@ -302,6 +322,34 @@ for muscle_name in ('SOL', 'EDL'):
                 q_r[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
             
+            # Plot components on single axes
+            ax_energy_comp.plot(
+                t_cycle, q_a_cum, label='$q_a$ (activation)',
+                color=component_colors[0], linewidth=2
+            )
+            ax_energy_comp.plot(
+                t_cycle, q_m_cum, label='$q_m$ (maintenance)',
+                color=component_colors[1], linewidth=2
+            )
+            ax_energy_comp.plot(
+                t_cycle, q_sl_cum, label='$q_{sl}$ (shortening)',
+                color=component_colors[2], linewidth=2
+            )
+            ax_energy_comp.plot(
+                t_cycle, w_cum, label='$w$ (mechanical work)',
+                color=component_colors[3], linewidth=2
+            )
+            ax_energy_comp.plot(
+                t_cycle, q_r_cum, label='$q_r$ (recovery)',
+                color=component_colors[4], linewidth=2
+            )
+            
+            # Add labels and formatting
+            ax_energy_comp.set_xlabel('Time (s)')
+            ax_energy_comp.set_ylabel('Cumulative Energy (mJ/g)')
+            ax_energy_comp.legend(loc='upper left')
+            ax_energy_comp.grid(True, alpha=0.3)
+
         # Plot total energy
         ax_energy.plot(
             t_vec,
@@ -323,7 +371,7 @@ for muscle_name in ('SOL', 'EDL'):
             label='$q_r + e_{init}$', color=palette[idx]
         ) 
         ax_energy.set_xlabel('Time (s)')
-        ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
+        ax_energy.set_ylabel('Energy ($mJ g^{-1}$)')
 
         # Compute energetics using previous model
         energy_rate_data, energy_data_ = energy_model.dHdt(
@@ -339,7 +387,7 @@ for muscle_name in ('SOL', 'EDL'):
             label='KLD2025 Model', color='k'
         ) 
 
-        # Store absolute end-of-trial energies for component contribution bar charts.
+        # Store absolute end-of-trial energies for component contribution bar charts
         e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
         e_q_m_end = cumtrapz(q_m, t_vec, initial = 0)[-1] * energy_unit_scaler
         e_q_sl_end = cumtrapz(q_sl, t_vec, initial = 0)[-1] * energy_unit_scaler
@@ -355,10 +403,10 @@ for muscle_name in ('SOL', 'EDL'):
         y_decay = total_energy_rate[mask]
         t_rel = t_decay - t_decay[0]
 
+        # Define function for the exponential decay
         def exp_decay(t, y_inf, A, tau):
             return y_inf + A * np.exp(-t / tau)
 
-        # Match 2_runsim_B1995 initialisation and bounds for exponential fitting.
         tail_n = min(500, len(y_decay))
         y_inf_guess = float(np.mean(y_decay[-tail_n:]))
         A_guess = float(y_decay[0] - y_inf_guess)
@@ -368,6 +416,14 @@ for muscle_name in ('SOL', 'EDL'):
         bounds = ([-np.inf, -np.inf, 1e-9], [np.inf, np.inf, np.inf])
         popt, _ = curve_fit(exp_decay, t_rel, y_decay, p0=p0, bounds=bounds, maxfev=20000)
         y_inf_fit, A_fit, tau_fit = popt
+
+        ax_tau.plot(t_rel, y_decay, color = palette[idx], alpha = 0.35, label = f'{freq} Hz decay')
+        ax_tau.plot(
+            t_rel, exp_decay(t_rel, *popt), '--',
+            color=palette[idx],
+            label=f'{freq} Hz fit ($\\tau$ = '
+                  f'{tau_fit:.2f} s)'
+        )
 
         # Compute the peak recovery rate 
         peak_qr_vs_freq.append(np.max(q_r[mask] * energy_unit_scaler))
@@ -379,6 +435,7 @@ for muscle_name in ('SOL', 'EDL'):
         W_end = cumtrapz(w, t_vec, initial = 0)[-1]
         E_tot_end_mJg = E_tot_end * energy_unit_scaler
         E_rec_end_mJg = E_rec_end * energy_unit_scaler
+        W_end_mJg = W_end * energy_unit_scaler
         E_total_out_mJg = E_tot_end_mJg + E_rec_end_mJg
         E_total_out_F0l0 = (
             E_total_out_mJg *
@@ -387,59 +444,60 @@ for muscle_name in ('SOL', 'EDL'):
             params[muscle]['l_0'] * 1e-3
         )
         total_energy_out_f0l0_vs_freq.append(E_total_out_F0l0)
-        total_energy_out_mJg_vs_freq.append(E_total_out_mJg)
         n_contractions = params['N_cycles']
-        if n_contractions > 0 and cycle_freq_hz > 0:
+        if n_contractions > 0 and freq > 0:
             # Compute average per-contraction output, then multiply by contraction frequency.
             E_init_per_contraction_mJg = E_tot_end_mJg / n_contractions
             E_total_per_contraction_mJg = E_total_out_mJg / n_contractions
             W_per_contraction_mJg = (W_end * energy_unit_scaler) / n_contractions
 
-            E_init_rate_out_mWg = E_init_per_contraction_mJg * cycle_freq_hz
-            E_total_rate_out_mWg = E_total_per_contraction_mJg * cycle_freq_hz
-            power_out_mWg = W_per_contraction_mJg * cycle_freq_hz
+            E_init_rate_out_mWg = E_init_per_contraction_mJg * freq
+            E_total_rate_out_mWg = E_total_per_contraction_mJg * freq
+            power_out_mWg = W_per_contraction_mJg * freq
         else:
             E_init_rate_out_mWg = np.nan
             E_total_rate_out_mWg = np.nan
             power_out_mWg = np.nan
 
-        eta_init = W_end / E_tot_end if np.abs(E_tot_end) > 0 else np.nan
-        eta_total = (
-            W_end / (E_tot_end + E_rec_end)
-            if np.abs(E_tot_end + E_rec_end) > 0
-            else np.nan
-        )
-        efficiency_ratio = (
-            (eta_init / eta_total - 1)
-            if (not np.isnan(eta_total) and eta_total > 0)
-            else np.nan
-        )
+        eta_init = W_end / E_tot_end
+        eta_total = W_end / (E_tot_end + E_rec_end)
+        efficiency_ratio = eta_init / eta_total - 1
+
+        # Combine into data structure
         efficiency_rows.append((
-            stim_freq, eta_init, eta_total, efficiency_ratio,
+            freq, eta_init, eta_total, efficiency_ratio,
             E_tot_end_mJg, E_rec_end_mJg,
             E_init_rate_out_mWg, E_total_rate_out_mWg,
-            power_out_mWg
+            power_out_mWg, W_end_mJg
         ))
 
         print(f'Fitted time constant (tau) = {tau_fit:.3f} s')
 
-    ax_force_cycle.set_title(f'{muscle_name} - One-Cycle Force')
+    ax_tau.set_xlabel('Time since end of stimulation (s)')
+    ax_tau.set_ylabel('Total energy rate ($mW g^{-1}$)')
+    ax_tau.legend(loc = 'upper right')
+
+    axs_strain_cycle[0].set_xlabel('Time within cycle (s)')
+    axs_strain_cycle[0].set_ylabel('$e_{ce}$')
+    axs_strain_cycle[0].grid(True, alpha=0.3)
+    axs_strain_cycle[1].set_xlabel('Time within cycle (s)')
+    axs_strain_cycle[1].set_ylabel('$\dot e_{ce}$ ($s^{-1}$)')
+    axs_strain_cycle[1].grid(True, alpha=0.3)
+
     ax_force_cycle.set_xlabel('Time within cycle (s)')
     ax_force_cycle.set_ylabel('Force (N)')
     ax_force_cycle.grid(True, alpha=0.3)
     ax_force_cycle.legend(loc = 'upper right')
 
-    # Plot component contributions vs frequency (absolute energies at trial end)
-    component_energy_abs = np.array(component_energy_abs)
-    x = np.arange(len(stim_freq_list))
-    n_comp = len(component_names)
-    bar_width = 0.15
-
     # Plot relative component contributions (normalised by total end-of-trial energy)
-    row_totals = np.sum(component_energy_abs, axis = 1)
+    component_energy_abs = np.array(component_energy_abs)
+    x = np.arange(len(freq_list))
+    n_comp = len(component_names)
+    bar_width_rel = 0.35
+    row_totals = np.sum(component_energy_abs, axis=1)
     component_energy_rel = component_energy_abs / row_totals[:, None]
 
-    fig_comp_rel, ax_comp_rel = plt.subplots(figsize=(4, 3))
+    fig_comp_rel, ax_comp_rel = plt.subplots(figsize = (4,3))
     fig_comp_rel.subplots_adjust(left=0.15)
     bar_width_rel = 0.35
     x_qi = x - bar_width_rel / 2
@@ -466,32 +524,31 @@ for muscle_name in ('SOL', 'EDL'):
         color=component_colors[4],
         label=component_names[4]
     )
-    ax_comp_rel.set_title(f'{muscle_name} - Relative Contributions')
+    # ax_comp_rel.set_title(f'{muscle_name} - Relative Contributions')
     ax_comp_rel.set_xticks(x)
-    ax_comp_rel.set_xticklabels([f'{stim_freq} Hz' for stim_freq in stim_freq_list])
-    ax_comp_rel.set_xlabel('Stimulation frequency (Hz)')
+    ax_comp_rel.set_xticklabels([f'{freq} Hz' for freq in freq_list])
+    ax_comp_rel.set_xlabel('Cycle frequency')
     ax_comp_rel.set_ylabel('Relative contribution at trial end')
     # ax_comp_rel.legend()
 
     peak_qr_by_muscle[muscle_name] = np.array(peak_qr_vs_freq)
     tau_by_muscle[muscle_name] = np.array(tau_vs_freq)
     total_energy_output_by_muscle[muscle_name] = np.array(total_energy_out_f0l0_vs_freq)
-    total_energy_output_mJg_by_muscle[muscle_name] = np.array(total_energy_out_mJg_vs_freq)
 
     # Print efficiency table in terminal for the current muscle.
     print(f'\n{muscle_name} efficiency table')
     print('freq_Hz | eta_init | eta_total | E_rec/E_tot |'
           ' E_init | E_rec | E_init_rate | E_total_rate'
-          ' | P_out')
+          ' | P_out | W_total')
     for (freq, eta_init, eta_total, efficiency_ratio,
          E_tot_end_mJg, E_rec_end_mJg, E_init_rate_out_mWg,
-         E_total_rate_out_mWg, power_out_mWg) in efficiency_rows:
+         E_total_rate_out_mWg, power_out_mWg, W_end_mJg) in efficiency_rows:
         print(f'{freq:7.2f} | {eta_init:9.6f} |'
               f'{eta_total:10.6f} | {efficiency_ratio:11.6f} |'
               f'{E_tot_end_mJg:7.3f} | {E_rec_end_mJg:6.3f} |'
               f'{E_init_rate_out_mWg:11.3f} | '
               f'{E_total_rate_out_mWg:12.3f} | '
-              f'{power_out_mWg:6.3f}')
+              f'{power_out_mWg:6.3f} | {W_end_mJg:8.3f}')
 
     efficiency_array = np.array(efficiency_rows, dtype=float)
     mean_vals = np.nanmean(efficiency_array[:, 1:], axis=0)
@@ -517,12 +574,98 @@ for muscle_name in ('SOL', 'EDL'):
     power_output_by_muscle[muscle_name] = efficiency_array[:, 8]
         
     # Save the energetics figure 
-    fig_energy.savefig('Figures/L2014_energy_' + muscle + '.jpg')
-    fig_energy.savefig('Figures/L2014_energy_' + muscle + '.svg')
+    fig_energy.savefig('Figures/B2004_energy_' + muscle + '.jpg')
+    fig_energy.savefig('Figures/B2004_energy_' + muscle + '.svg')
+    fig_energy_components.savefig(
+        'Figures/B2004_energy_components_' + muscle + '.jpg'
+    )
+    fig_energy_components.savefig(
+        'Figures/B2004_energy_components_' + muscle + '.svg'
+    )
 
+
+'''
+Comparison plots with data from both muscles 
+'''
+# Create strain and force trace plots with both muscles overlaid
+if 'SOL' in trace_plot_data_by_muscle and 'EDL' in trace_plot_data_by_muscle:
+    sol_data = trace_plot_data_by_muscle['SOL']
+    edl_data = trace_plot_data_by_muscle['EDL']
+    
+    # Create strain figure
+    fig_trace_strain, ax_trace_strain = plt.subplots(figsize=(4, 3))
+    fig_trace_strain.subplots_adjust(left=0.15)
+    ax_trace_strain.plot(sol_data['t_cycle'], sol_data['e_ce_cycle'], label='SOL', color='#1f77b4', linewidth=2)
+    ax_trace_strain.plot(edl_data['t_cycle'], edl_data['e_ce_cycle'], label='EDL', color='#d62728', linewidth=2)
+    
+    # Add stimulation region (use SOL data for timing)
+    stim_mask_sol = sol_data['stim_cycle'] > 0
+    # Add stimulation regions for both muscles
+    stim_mask_edl = edl_data['stim_cycle'] > 0
+    if np.any(stim_mask_sol):
+        t_stim_sol = sol_data['t_cycle'][stim_mask_sol]
+        ax_trace_strain.axvspan(t_stim_sol[0], t_stim_sol[-1], color='#1f77b4', alpha=0.15, label='Stim (SOL)')
+    if np.any(stim_mask_edl):
+        t_stim_edl = edl_data['t_cycle'][stim_mask_edl]
+        ax_trace_strain.axvspan(t_stim_edl[0], t_stim_edl[-1], color='#d62728', alpha=0.15, label='Stim (EDL)')
+    
+    ax_trace_strain.set_xlabel('Time within cycle (s)')
+    ax_trace_strain.set_ylabel('Strain ($e_{ce}$)')
+    ax_trace_strain.grid(True, alpha=0.3)
+    ax_trace_strain.legend(loc='upper right')
+    fig_trace_strain.savefig('Figures/B2004_trace_strain_comp.jpg')
+    fig_trace_strain.savefig('Figures/B2004_trace_strain_comp.svg')
+    
+    # Create force figure
+    fig_trace_force, ax_trace_force = plt.subplots(figsize=(4, 3))
+    fig_trace_force.subplots_adjust(left=0.15)
+    ax_trace_force.plot(sol_data['t_cycle'], sol_data['force_cycle'], label='SOL', color='#1f77b4', linewidth=2)
+    ax_trace_force.plot(edl_data['t_cycle'], edl_data['force_cycle'], label='EDL', color='#d62728', linewidth=2)
+    
+    # Add stimulation region
+    stim_mask_edl = edl_data['stim_cycle'] > 0
+    if np.any(stim_mask_sol):
+        t_stim_sol = sol_data['t_cycle'][stim_mask_sol]
+        ax_trace_force.axvspan(t_stim_sol[0], t_stim_sol[-1], color='#1f77b4', alpha=0.15, label='Stim (SOL)')
+    if np.any(stim_mask_edl):
+        t_stim_edl = edl_data['t_cycle'][stim_mask_edl]
+        ax_trace_force.axvspan(t_stim_edl[0], t_stim_edl[-1], color='#d62728', alpha=0.15, label='Stim (EDL)')
+    
+    ax_trace_force.set_xlabel('Time within cycle (s)')
+    ax_trace_force.set_ylabel('Force (N)')
+    ax_trace_force.grid(True, alpha=0.3)
+    ax_trace_force.legend(loc='upper right')
+    fig_trace_force.savefig('Figures/B2004_trace_force_comp.jpg')
+    fig_trace_force.savefig('Figures/B2004_trace_force_comp.svg')
+
+# Plot peak recovery rate versus frequency for both muscles
+fig_peak_qr_compare, ax_peak_qr_compare = plt.subplots(figsize = (4,3))
+fig_peak_qr_compare.subplots_adjust(left=0.15)
+ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['SOL'], '-o', label='SOL', color='#1f77b4')
+ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['EDL'], '-o', label='EDL', color="#d62728")
+ax_peak_qr_compare.set_xlabel('Cycle frequency (Hz)')
+ax_peak_qr_compare.set_ylabel('Peak recovery rate ($mW g^{-1}$)')
+
+exp_rrecmax_sol = np.genfromtxt('Data/BW2004_data_rrecmax_SOL.csv', delimiter=',', names=True)
+exp_rrecmax_edl = np.genfromtxt('Data/BW2004_data_rrecmax_EDL.csv', delimiter=',', names=True)
+ax_peak_qr_compare.plot(
+    exp_rrecmax_sol['freq'][0:len(freq_list)],
+    exp_rrecmax_sol['rrecmax'][0:len(freq_list)],
+    'k-o', lw=1.5, ms=4, label='EXP'
+)
+ax_peak_qr_compare.plot(
+    exp_rrecmax_edl['freq'][0:len(freq_list)],
+    exp_rrecmax_edl['rrecmax'][0:len(freq_list)],
+    'k--s', lw=1.5, ms=4, label='_nolegend_'
+)
+
+ax_peak_qr_compare.grid(True, alpha = 0.3)
+ax_peak_qr_compare.legend(loc = 'upper right')
+fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp.jpg')
+fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp.svg')
 
 # Plot initial and total energy-rate output against power output for both muscles.
-fig_energy_power_compare, ax_energy_power_compare = plt.subplots(figsize=(4, 3))
+fig_energy_power_compare, ax_energy_power_compare = plt.subplots(figsize = (4,3))
 fig_energy_power_compare.subplots_adjust(left=0.15)
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
@@ -548,48 +691,62 @@ ax_energy_power_compare.set_xlabel('Power output ($mW g^{-1}$)')
 ax_energy_power_compare.set_ylabel('Total energy rate output ($mW g^{-1}$)')
 ax_energy_power_compare.grid(True, alpha = 0.3)
 ax_energy_power_compare.legend(loc = 'upper right')
-fig_energy_power_compare.savefig('Figures/L2014_energy_vs_power_comp.jpg')
-fig_energy_power_compare.savefig('Figures/L2014_energy_vs_power_comp.svg')
+fig_energy_power_compare.savefig('Figures/B2004_energy_vs_power_comp.jpg')
+fig_energy_power_compare.savefig('Figures/B2004_energy_vs_power_comp.svg')
 
-# Plot total energy output in mJ g^-1 for both muscles.
-fig_total_energy_mJg_compare, ax_total_energy_mJg_compare = plt.subplots(figsize=(4, 3))
-fig_total_energy_mJg_compare.subplots_adjust(left=0.15)
-ax_total_energy_mJg_compare.plot(
-    stim_freq_list, total_energy_output_mJg_by_muscle['SOL'],
-    '-o', label='SOL', color='#1f77b4'
-)
-ax_total_energy_mJg_compare.plot(
-    stim_freq_list, total_energy_output_mJg_by_muscle['EDL'],
-    '-o', label='EDL', color='#d62728'
-)
+# Plot fitted time constants versus frequency for both muscles
+fig_tau_freq_compare, ax_tau_freq_compare = plt.subplots(figsize = (4,3))
+fig_tau_freq_compare.subplots_adjust(left=0.15)
+ax_tau_freq_compare.plot(freq_list, tau_by_muscle['SOL'], '-o', label='SOL', color='#1f77b4')
+ax_tau_freq_compare.plot(freq_list, tau_by_muscle['EDL'], '-o', label='EDL', color='#d62728')
+ax_tau_freq_compare.set_xlabel('Cycle frequency (Hz)')
+ax_tau_freq_compare.set_ylabel('Time constant $\\tau$ (s)')
 
-exp_energy_sol = np.genfromtxt('Data/L2014_data_stimfreq_energy_SOL.csv', delimiter=',', names=True)
-exp_energy_edl = np.genfromtxt('Data/L2014_data_stimfreq_energy_EDL.csv', delimiter=',', names=True)
-ax_total_energy_mJg_compare.plot(
-    exp_energy_sol['freq'], exp_energy_sol['E'],
-    '--o', lw=1.5, ms=4, label='EXP SOL', color='#1f77b4'
+exp_tau_sol = np.genfromtxt('Data/BW2004_data_tau_SOL.csv', delimiter=',', names=True)
+exp_tau_edl = np.genfromtxt('Data/BW2004_data_tau_EDL.csv', delimiter=',', names=True)
+ax_tau_freq_compare.plot(
+    exp_tau_sol['freq'][0:len(freq_list)],
+    exp_tau_sol['tau'][0:len(freq_list)],
+    'k-o', lw=1.5, ms=4, label='EXP'
 )
-ax_total_energy_mJg_compare.plot(
-    exp_energy_edl['freq'], exp_energy_edl['E'],
-    '--o', lw=1.5, ms=4, label='EXP EDL', color='#d62728'
+ax_tau_freq_compare.plot(
+    exp_tau_edl['freq'][0:len(freq_list)],
+    exp_tau_edl['tau'][0:len(freq_list)],
+    'k--s', lw=1.5, ms=4, label='_nolegend_'
 )
 
-ax_total_energy_mJg_compare.set_xlabel('Stimulation frequency (Hz)')
-ax_total_energy_mJg_compare.set_ylabel('Total energy ($mJ g^{-1}$)')
-ax_total_energy_mJg_compare.grid(True, alpha = 0.3)
-ax_total_energy_mJg_compare.legend(loc = 'upper right')
-fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.jpg')
-fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.svg')
+ax_tau_freq_compare.grid(True, alpha = 0.3)
+ax_tau_freq_compare.legend(loc = 'upper right')
 
-# Compute the r^2 values of the fit 
-from lib.model_metrics import r2_score 
-# Interpolate 
-mod_vals_interp_sol = np.interp(exp_energy_sol['freq'], stim_freq_list, total_energy_output_mJg_by_muscle['SOL'])
-mod_vals_interp_edl = np.interp(exp_energy_edl['freq'], stim_freq_list, total_energy_output_mJg_by_muscle['EDL'])
-# Compute normalised r2 values 
-r2_sol = r2_score(mod_vals_interp_sol/max(mod_vals_interp_sol), exp_energy_sol['E']/max( exp_energy_sol['E']))
-r2_edl = r2_score(mod_vals_interp_edl/max(mod_vals_interp_edl), exp_energy_edl['E']/max(exp_energy_edl['E']))
-print(f'SOL: r2 = {r2_sol}')
-print(f'EDL: r2 = {r2_edl}')
+fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp.jpg')
+fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp.svg')
+
+# Compute mean experimental and model time constants
+print('\n========== TIME CONSTANT ANALYSIS ==========')
+for muscle_name in ('SOL', 'EDL'):
+    # Load experimental tau data
+    if muscle_name == 'SOL':
+        exp_tau_data = np.genfromtxt('Data/BW2004_data_tau_SOL.csv', delimiter=',', names=True)
+    else:
+        exp_tau_data = np.genfromtxt('Data/BW2004_data_tau_EDL.csv', delimiter=',', names=True)
+    
+    # Extract experimental tau values for the frequencies we simulated
+    exp_tau_values = exp_tau_data['tau'][0:len(freq_list)]
+    model_tau_values = tau_by_muscle[muscle_name]
+    
+    # Compute means and standard errors
+    mean_exp_tau = np.mean(exp_tau_values)
+    sem_exp_tau = np.std(exp_tau_values, ddof=1) / np.sqrt(len(exp_tau_values))
+    
+    mean_model_tau = np.mean(model_tau_values)
+    sem_model_tau = np.std(model_tau_values, ddof=1) / np.sqrt(len(model_tau_values))
+    
+    # Compute percent difference
+    percent_diff = ((mean_model_tau - mean_exp_tau) / mean_exp_tau) * 100
+    
+    print(f'\n{muscle_name}:')
+    print(f'  Mean experimental tau: {mean_exp_tau:.4f} ± {sem_exp_tau:.4f} s')
+    print(f'  Mean model tau:        {mean_model_tau:.4f} ± {sem_model_tau:.4f} s')
+    print(f'  Percent difference:    {percent_diff:.2f}%')
 
 plt.show()

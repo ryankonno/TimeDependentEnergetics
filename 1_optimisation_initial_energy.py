@@ -1,31 +1,27 @@
 '''
-Code to determine the activation and maintenance heat parameters for the model
+Code to determine the initial model parameters.
 
+Ryan Konno
+r.konno@uq.edu.au
+The University of Queensland 
 '''
 
 # Import 
 import numpy as np 
-from scipy.integrate import solve_ivp, cumtrapz
-from scipy.interpolate import CubicSpline, PchipInterpolator
-from scipy.optimize import minimize, minimize_scalar
+from scipy.integrate import cumtrapz
+from scipy.optimize import minimize
 import matplotlib.pyplot as plt 
 font = {'size'   : 14}
 plt.rc('font', **font)
-import matplotlib.cm as cmap
 import pandas as pd
-import itertools
 import sys 
 sys.path.append('./')
-
 
 # Data files for each muscle type (SOL = soleus/slow, EDL = fast)
 data_files = {
     'SOL': 'Data/Barclay1996_sol_heatrates_data.txt',
     'EDL': 'Data/Barclay1996_edl_heatrates_data.txt',
 }
-
-
-
 
 # Define the model parameters
 params = {
@@ -108,9 +104,9 @@ params = {
 
 #####
 # Load the models
-from Models.MUActivationModel import ActivationModel
-from Models.MechanicsModelSimple import MechModel 
-from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
+from Models.ActivationModel import ActivationModel
+from Models.MechanicsModel import MechModel 
+from Models.InitialEnergeticsModel import EnergeticsModel
 
 
 # Initialise plots for the model 

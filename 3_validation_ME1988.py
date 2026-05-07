@@ -1,27 +1,28 @@
 '''
-Code the validate the recovery model using data from Mast and Elzinga 1987
+Code the validate the recovery model using data from Mast and Elzinga 1988.
+
+Soleus data is used to inform the model parameters.
 
 Ryan Konno
+r.konno@uq.edu.au
+The University of Queensland
 '''
 
 
 # Import 
 import numpy as np 
-from scipy.integrate import solve_ivp, cumtrapz
-from scipy.interpolate import CubicSpline, PchipInterpolator
-from scipy.optimize import minimize, minimize_scalar,curve_fit
+from scipy.integrate import cumtrapz
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 font = {'size'   : 14}
 plt.rc('font', **font)
-import matplotlib.cm as cmap
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
-import itertools
 import sys 
 sys.path.append('./')
 
-from Models.MUActivationModel import ActivationModel
-from Models.MechanicsModelSimple import MechModel 
-from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
+from Models.ActivationModel import ActivationModel
+from Models.MechanicsModel import MechModel 
+from Models.InitialEnergeticsModel import EnergeticsModel
 
 # Import parameters 
 from parameters_valid import params as params_muscle
@@ -89,11 +90,9 @@ def f_stim_length(t, params):
             
     return stim, stim_times, dl
 
-
 '''
 Run the model 
 '''
-
 # Plot to verify conditions 
 dt = 0.0005
 t_vec = np.linspace(params['t_start'], params['t_end'], int((params['t_end'] - params['t_start']) / dt)) 
@@ -170,7 +169,7 @@ E_tot = q_a + q_m + q_sl + w  # F0l0/s, Total energy
 E_initial_converted = E_tot * params[muscle]['F_0'] * params[muscle]['l_0'] / params[muscle]['mass'] # W/g
 
 # Run bioenergetics
-from Models.BioenergeticsSimple import Bioenergetics
+from Models.BioenergeticsModel import Bioenergetics
 bioenergetic_model = Bioenergetics(params) 
 t_span = (t_vec[0], t_vec[-1]) 
 c_atp_0 = params[muscle]['c_atp_0']

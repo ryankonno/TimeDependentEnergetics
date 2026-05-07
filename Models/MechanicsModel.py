@@ -1,14 +1,13 @@
 '''
-Mechanical model
+Mechanical model code. 
 
-This model is implemented to compute the activation levels of a muscle given a muscle force as input.
-Intrinsic properties of the model are based on Dick et al. 2017, and parameters are modified for the
-given experiment.
+Model equations are based on Dick et al. 2017.
 
-Simplified version for single musclels (no solving  with SEE)
+Note this version of the model does not capture a series elastic element. 
 
-Author: Ryan Konno, University of Queensland
-		r.konno@uq.edu.au
+Ryan Konno
+r.konno@uq.edu.au
+The University of Queensland 
 '''
 ################################################################################
 # Import

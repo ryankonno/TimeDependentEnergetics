@@ -1,11 +1,9 @@
 '''
-This code is designed to investigate the time activation dynamics for a single MU/muscle fibre
-
-Based on the code for the full MU model but stripped down to remove any scaling and multiple MU calculations
+Excitation-activation model code.
 
 Ryan Konno
-The University of British Columbia
-
+r.konno@uq.edu.au
+The University of Queensland 
 '''
 import numpy as np
 from scipy.integrate import solve_ivp

@@ -9,11 +9,10 @@ from scipy.integrate import solve_ivp, cumtrapz
 from scipy.interpolate import CubicSpline, PchipInterpolator
 from scipy.optimize import minimize, minimize_scalar,curve_fit
 import matplotlib.pyplot as plt 
-font = {'size'   : 14}
-plt.rc('font', **font)
-import matplotlib.cm as cmap
+import lib.plot_style
+
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
-import itertools
+
 import copy
 import sys 
 sys.path.append('./')
@@ -350,7 +349,7 @@ def f_opt(x):
 
             # Ca dynamics
             from Models.ActivationModel import ActivationModel
-            act_model = ActivationModel(params[params['muscle']], t_vec, True)
+            act_model = ActivationModel(params[params['muscle']], t_vec)
             idx_stims = np.nonzero(stim_times_vec)[0]
             stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
 
@@ -371,7 +370,7 @@ def f_opt(x):
             # Compute the initial energetics 
             from Models.InitialEnergeticsModel import EnergeticsModel
             energy_model = EnergeticsModel()
-            q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
+            q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
             E_tot = q_a + q_m + q_sl + w  # F0l0/s, Total energy 
 
             # Convert units to input for bioenergetics model 
@@ -492,7 +491,7 @@ for muscle_name in ('SOL', 'EDL'):
 
         # Ca dynamics
         from Models.ActivationModel import ActivationModel
-        act_model = ActivationModel(params[params['muscle']], t_vec, True)
+        act_model = ActivationModel(params[params['muscle']], t_vec)
         idx_stims = np.nonzero(stim_times_vec)[0]
         stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
 
@@ -519,7 +518,7 @@ for muscle_name in ('SOL', 'EDL'):
         # Compute the initial energetics 
         from Models.InitialEnergeticsModel import EnergeticsModel
         energy_model = EnergeticsModel()
-        q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
+        q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
         E_tot = q_a + q_m + q_sl + w  # F0l0/s, Total energy 
 
         # Convert units to input for bioenergetics model 
@@ -547,7 +546,7 @@ for muscle_name in ('SOL', 'EDL'):
         ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
 
         # Compute the energetics using the previous model 
-        energy_rate_data, energy_data_ = energy_model.dHdt(catn_vec, t_vec, e_ce, dedt_ce, force_direct, params[muscle]['r1'], params[muscle]['r2'], params)
+        energy_rate_data, energy_data_ = energy_model.dHdt_Konno2025(catn_vec, t_vec, e_ce, dedt_ce, force_direct, params[muscle]['r1'], params[muscle]['r2'], params)
         E_tot_konno2025 = energy_rate_data['dEdt'] # Initial + Recovery heat
         ax_energy.plot(t_vec, cumtrapz(E_tot_konno2025, t_vec, initial = 0) / params[muscle]['mass'] * 1e3, label = 'KLD2025 Model', color = 'k') 
 

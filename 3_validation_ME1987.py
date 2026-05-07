@@ -14,8 +14,8 @@ import numpy as np
 from scipy.integrate import cumtrapz
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
-font = {'size'   : 14}
-plt.rc('font', **font)
+import lib.plot_style
+
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
 import sys 
 sys.path.append('./')
@@ -111,7 +111,7 @@ peak_qr_vs_freq = []
 efficiency_rows = []
 
 # Ca dynamics
-act_model = ActivationModel(params[params['muscle']], t_vec, True)
+act_model = ActivationModel(params[params['muscle']], t_vec)
 idx_stims = np.nonzero(stim_times_vec)[0]
 stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
 # Plot the results 
@@ -142,7 +142,7 @@ t_cycle_norm = t_cycle / params['cycle_length']
 
 # Compute the initial energetics 
 energy_model = EnergeticsModel()
-q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
+q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
 E_tot = q_a + q_m + q_sl + w  # F0l0/s, Total energy 
 # Plot the rates 
 # fig, ax = plt.subplots(layout = 'constrained')

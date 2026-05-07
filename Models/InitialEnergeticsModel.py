@@ -1,6 +1,10 @@
 '''
 Initial energetics model code.
 
+Includes the model from Konno et al., 2025
+
+Note the current version here ignores lengthening heat rates... This will need to be updated for experiments including lengthening (see commented lines)
+
 Ryan Konno
 r.konno@uq.edu.au
 The University of Queensland 
@@ -8,38 +12,38 @@ The University of Queensland
 ################################################################################
 # Import
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import cm
-# import matplotlib
-# matplotlib.use('agg')
 
-# Import the force-length relationship for the mechanical model 
+# Import the force-length relationship for the mechanical model
 from Models.MechanicsModel import MechModel
 
 ################################################################################
 class EnergeticsModel():
     def __init__(self):
         return None
-    
-    def actEnergetics(
+    ################################################################################
+    def solveInitialEnergetics(
         self, t, ca_vec, catn_vec, params,
         e_m=None, dedt_m=None, force=None, mech_model=None
     ):
         '''
-        Activation component of the energetics 
-            designed for investigating Ca dependent properties of activation model
+        Solve the energetics fo the 
 
-        Input 
+        Input :
             t: time 
             dcadt_vec: rate of Ca transport into the cytoplasm 
             catn_vec: concentration of bound CaTn complex (assume proportional to force)
+            params: muscle parameters 
+        Output:
+            q_cat: Ca transport heat rate (F0l0/s)
+            q_cxb: Cross-bridge cycling heat rate (F0l0/s)
+            q_sl: Shortening heat rate (F0l0/s)
+            w: Work rate (F0l0/s)
         '''
 
         # Define constants associated with the activation and mainenance processes 
-        r_a = params['r_cat']
-        r_m = params['r_cxb']
+        r_cat = params['r_cat']
+        r_cxb = params['r_cxb']
         cxb_scale = params.get('cxb_scale', 1)
-        cat_scale = params.get('cat_scale', 2)
 
         # Compute rate of ca transport for later calculation
         # Compute time differences, prepend first value to match dimensions
@@ -50,33 +54,27 @@ class EnergeticsModel():
         dcadt_vec = np.diff(ca_vec, prepend=ca_vec[0]) / dt
 
         # Compute heat of Ca transport (valid if ca_vec is decreasing)
-        # NOTE: Equation assumes pumping is fully buffered by PCr
-        # 1/s, Use measured quantity scaled based on Ca released
-        # q_a = -r_a * dcadt_vec * (dcadt_vec < 0) # No scaling based on Ca concentration 
-        # Use a scaled version with ca_vec dependence
-        ca_vec_clipped = np.clip(ca_vec, 1e-12, 2 - 1e-12)
-        q_a = -r_a * np.minimum(-np.log(ca_vec_clipped / (cat_scale - ca_vec_clipped)), np.ones_like(ca_vec)) * dcadt_vec * (dcadt_vec < 0)
+        q_cat = -r_cat * dcadt_vec * (dcadt_vec < 0) # No scaling based on Ca concentration 
 
         # Compute cross-bridge energetics (maintenance)
         # This will be scaled based on catn_vec
-        # 1/s, heat rate of cross-bridge kinetics
-        q_m_0 = r_m * (catn_vec ** cxb_scale)
+        q_cxb_0 = r_cxb * (catn_vec ** cxb_scale)
 
         # Length dependent parts of the code
         if e_m is None or not e_m.any(): 
             # No length dependence
-            q_m = q_m_0
+            q_cxb = q_cxb_0
             
-            return q_a, q_m # Reported in F0l0/s
+            return q_cat, q_cxb # Reported in F0l0/s
         else:
             # Assume that we want to compute the length dependent aspects
             # Maintenance 
-            q_m = q_m_0 * mech_model.F_la(e_m) 
+            q_cxb = q_cxb_0 * mech_model.F_la(e_m) 
 
             # Shortening-lengthening heat rate
             # q_sl = (- params['r_sl'] * catn_vec * mech_model.F_la(e_m) *
             #         dedt_m * (dedt_m < 0) +
-            #         dedt_m * mech_model.F_la(e_m) * force * (dedt_m <= 0))
+            #         dedt_m * force * (dedt_m <= 0))
             # Ignore lengthening heat (set to zero)
             q_sl = (
                 - params['r_sl'] * catn_vec * mech_model.F_la(e_m) *
@@ -86,11 +84,26 @@ class EnergeticsModel():
             # Work
             w = -force * dedt_m * (dedt_m < 0)
 
-            # Reported in F0l0/s
-            return q_a, q_m, q_sl, w
+            return q_cat, q_cxb, q_sl, w # F0l0/s
 
-    
-    def dHdt(self, act, t, e_ce, dedt_ce, F, r1, r2, params):
+    ################################################################################
+    def dHdt_Konno2025(self, act, t, e_ce, dedt_ce, F, r1, r2, params):
+        '''
+        Computes heat rates using the model from Konno et al., 2025
+
+        Inputs: 
+            act: muscle activation (unitless)
+            t: time vector (s) 
+            e_ce: CE strain (unitless)
+            dedt_ce: CE strain rate (1/s) 
+            F: Muscle force (unitless) 
+            r1: Activation and maintenance heat parameter (1/s) 
+            r2: Shortening heat parameter (unitless) 
+            params: Muscle parameters 
+        Outputs: 
+            Energy_rate_data: Dictionary of energetic rates (W) 
+            Energy_data: Dictionary of energy values (J)
+        '''
 
         # Define parameters
         l_0 = params[params['muscle']]['l_0']
@@ -113,7 +126,6 @@ class EnergeticsModel():
             def dQmdt(t, act, e_m, dedt_m, F):
                 # Adjusted for +ive dedt_m during lengthening
                 v_ce_g0 = 0.3 + 0.7 * np.exp(-8 * dedt_m)
-                # No Labile (scale factor s_labile)
                 return (
                     r1 * ((dedt_m < 0) +
                           v_ce_g0 * (dedt_m >= 0))
@@ -141,7 +153,7 @@ class EnergeticsModel():
                 return (
                     - r2 * dedt_ce * mech_model.F_la(e_m) *
                     (dedt_ce < 0) 
-                    # + F * (-dedt_ce) * (dedt_ce >= 0)
+                    # + F * (-dedt_ce) * (dedt_ce >= 0) # Ignoring lengthening heat rates
                 )
             return act * dQsldt(act, e_m, dedt_m, F)
 
@@ -161,11 +173,6 @@ class EnergeticsModel():
         E_init   = Q_tot + W_tot # W
         Q_rec    = 1 * E_init # W, NOTE: set recovery ratio to 1
         dEdt = E_init + Q_rec# W
-        # print(f'F0 = {F_0}')
-        # print(f'l_0 = {l_0}')
-        # print(f'dedt_ce = {max(dedt_ce)}')
-        # print(f'F = {max(F)}')
-        # print(f'Peak work = {F_0 * l_0 * max(dedt_ce * F)}')
 
         # Integrate to get the energy in J
         Sum_QM   = np.cumsum(Q_m_tot * dt)
@@ -193,4 +200,4 @@ class EnergeticsModel():
             'Q_rec': Sum_Qrec
         }
 
-        return Energy_rate_data, Energy_data
+        return Energy_rate_data, Energy_data # W, J

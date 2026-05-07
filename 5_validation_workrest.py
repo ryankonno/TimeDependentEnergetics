@@ -11,17 +11,17 @@ from scipy.integrate import solve_ivp, cumtrapz
 from scipy.interpolate import CubicSpline, PchipInterpolator
 from scipy.optimize import minimize, minimize_scalar,curve_fit
 import matplotlib.pyplot as plt 
-font = {'size'   : 14}
-plt.rc('font', **font)
+import lib.plot_style
+
 import matplotlib.cm as cmap
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
 import itertools
 import sys 
 sys.path.append('./')
 
-from Models.MUActivationModel import ActivationModel
-from Models.MechanicsModelSimple import MechModel 
-from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
+from Models.ActivationModel import ActivationModel
+from Models.MechanicsModel import MechModel 
+from Models.InitialEnergeticsModel import EnergeticsModel
 
 # Parameters
 params = {
@@ -193,7 +193,7 @@ Run the model
 # Plot to verify conditions 
 t_vec = np.linspace(params['t_start'], params['t_end'], int(10000 * params['t_end']))
 
-from Models.BioenergeticsSimple import Bioenergetics
+from Models.BioenergeticsModel import Bioenergetics
 
 muscle = params['muscle']
 mass_g = params[muscle]['mass']

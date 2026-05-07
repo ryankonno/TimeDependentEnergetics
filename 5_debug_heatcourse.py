@@ -12,8 +12,9 @@ from scipy.integrate import solve_ivp, cumtrapz
 from scipy.interpolate import CubicSpline, PchipInterpolator
 from scipy.optimize import minimize, minimize_scalar,curve_fit
 import matplotlib.pyplot as plt 
-font = {'size'   : 14}
-plt.rc('font', **font)
+import lib.plot_style
+
+# global plotting defaults are set in lib.plot_style
 import matplotlib.cm as cmap
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
 import itertools
@@ -287,7 +288,7 @@ for idx, stim_freq_hz in enumerate(freq_list):
     )
 
     # Ca dynamics
-    act_model = ActivationModel(params[params['muscle']], t_vec, True)
+    act_model = ActivationModel(params[params['muscle']], t_vec)
     idx_stims = np.nonzero(stim_times_vec)[0]
     stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
     ax_ca.plot(t_vec, ca_vec, color=color, label=f'{stim_freq_hz} Hz')
@@ -301,7 +302,7 @@ for idx, stim_freq_hz in enumerate(freq_list):
 
     # Initial energetics
     energy_model = EnergeticsModel()
-    q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
+    q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force_direct, mech_model)
     E_tot = q_a + q_m + q_sl + w
     E_initial_converted = E_tot * params[muscle]['F_0'] * params[muscle]['l_0'] / params[muscle]['mass']
 

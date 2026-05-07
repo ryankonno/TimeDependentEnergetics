@@ -11,9 +11,9 @@ The University of Queensland
 # Import
 import numpy as np
 import matplotlib.pyplot as plt
+import lib.plot_style
 
-font = {'size': 14}
-plt.rc('font', **font)
+# global plotting defaults are set in lib.plot_style
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
 
 import sys
@@ -92,7 +92,7 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
             freq_hz=stim_freq_hz,
         )
 
-        act_model = ActivationModel(local_params[local_params['muscle']], t_vec, True)
+        act_model = ActivationModel(local_params[local_params['muscle']], t_vec)
         idx_stims = np.nonzero(stim_times_vec)[0]
         stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims)
 
@@ -108,7 +108,7 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
         force_direct = mech_model.computeForce(catn_vec, e_ce + 1, dedt_ce)
 
         energy_model = EnergeticsModel()
-        q_a, q_m, q_sl, w = energy_model.actEnergetics(
+        q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(
             t_vec,
             ca_vec,
             catn_vec,
@@ -122,7 +122,7 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
         _, stim_times_single, _ = f_stim_length(t_vec, local_params, n_twitches=1, freq_hz=stim_freq_hz)
         idx_stims_single = np.nonzero(stim_times_single)[0]
         _, ca_single, catn_single = act_model.runExcAct(idx_stims_single)
-        q_a_single, _ = energy_model.actEnergetics(t_vec, ca_single, catn_single, local_params[muscle])
+        q_a_single, _ = energy_model.solveInitialEnergetics(t_vec, ca_single, catn_single, local_params[muscle])
 
         # Activation heat by subtraction.
         q_a_two_twitch = float(np.trapz(q_a, t_vec))
@@ -232,7 +232,7 @@ for ci, f in enumerate(freq_list):
     local_params = params.copy()
     local_params['muscle'] = 'SOL'
     stim_protocol_vec, stim_times_vec, dl_vec = f_stim_length(t_vec, local_params, n_twitches=2, freq_hz=f)
-    act_model = ActivationModel(local_params[local_params['muscle']], t_vec, True)
+    act_model = ActivationModel(local_params[local_params['muscle']], t_vec)
     idx_stims = np.nonzero(stim_times_vec)[0]
     _, ca_vec, _ = act_model.runExcAct(idx_stims)
     ax_ca_time_sol.plot(t_vec, ca_vec, color=colors[ci], label=f'{int(f)} Hz')
@@ -251,7 +251,7 @@ for ci, f in enumerate(freq_list):
     local_params = params.copy()
     local_params['muscle'] = 'EDL'
     stim_protocol_vec, stim_times_vec, dl_vec = f_stim_length(t_vec, local_params, n_twitches=2, freq_hz=f)
-    act_model = ActivationModel(local_params[local_params['muscle']], t_vec, True)
+    act_model = ActivationModel(local_params[local_params['muscle']], t_vec)
     idx_stims = np.nonzero(stim_times_vec)[0]
     _, ca_vec, _ = act_model.runExcAct(idx_stims)
     ax_ca_time_edl.plot(t_vec, ca_vec, color=colors[ci], label=f'{int(f)} Hz')

@@ -11,7 +11,8 @@ import numpy as np
 from scipy.integrate import cumtrapz
 from scipy.optimize import minimize, curve_fit
 import matplotlib.pyplot as plt 
-plt.rcParams['font.size'] = 14
+import lib.plot_style
+
 import sys 
 sys.path.append('./')
 

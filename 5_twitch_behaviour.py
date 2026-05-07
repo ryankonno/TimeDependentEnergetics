@@ -11,8 +11,8 @@ from scipy.integrate import solve_ivp, cumtrapz
 from scipy.interpolate import CubicSpline, PchipInterpolator
 from scipy.optimize import minimize, minimize_scalar
 import matplotlib.pyplot as plt 
-font = {'size'   : 14}
-plt.rc('font', **font)
+import lib.plot_style
+
 import matplotlib.cm as cmap
 import pandas as pd
 import itertools
@@ -163,9 +163,9 @@ params = {
 
 #####
 # Load the models
-from Models.MUActivationModel import ActivationModel
-from Models.MechanicsModelSimple import MechModel 
-from Models.MUEnergeticsModelSimple_SplitVars import EnergeticsModel
+from Models.ActivationModel import ActivationModel
+from Models.MechanicsModel import MechModel 
+from Models.InitialEnergeticsModel import EnergeticsModel
 
 
 # Store data from each muscle so both can be plotted side by side.
@@ -197,7 +197,7 @@ for muscle_type in ['SOL', 'EDL']:
     t_vec = np.linspace(params['t_start'], params['t_end'], int(50000 * params['t_end']))
 
     # Define the models
-    act_model = ActivationModel(params[params['muscle']], t_vec, True)
+    act_model = ActivationModel(params[params['muscle']], t_vec)
     mech_model = MechModel(1, params[muscle]['dedt_ce_max'], params[muscle]['kappa'], params['k_see'])
     energy_model = EnergeticsModel()
     
@@ -276,7 +276,7 @@ for muscle_type in ['SOL', 'EDL']:
         force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce)
             
         # Compute the energy rates 
-        q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
+        q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
 
         # Compute the total activation heat 
         q_a_int = cumtrapz(q_a, t_vec, initial=0)
@@ -302,7 +302,7 @@ for muscle_type in ['SOL', 'EDL']:
         force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce)
             
         # Compute the energy rates 
-        q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
+        q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
 
         # Compute the total activation heat 
         q_m_int = cumtrapz(q_m, t_vec, initial=0)
@@ -337,7 +337,7 @@ for muscle_type in ['SOL', 'EDL']:
     # Get the force
     force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce)
     # Compute the energy rates 
-    q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
+    q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
 
     # Compute the total activation heat 
     q_m_int = cumtrapz(q_m, t_vec, initial=0)

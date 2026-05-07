@@ -12,9 +12,11 @@ The University of Queensland
 import numpy as np 
 from scipy.integrate import cumtrapz
 from scipy.optimize import curve_fit
+
+# Import matplotlib and define plot properties
 import matplotlib.pyplot as plt 
-font = {'size'   : 10}
-plt.rc('font', **font)
+import lib.plot_style
+
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
 
 import sys 
@@ -219,7 +221,7 @@ for muscle_name in ('SOL', 'EDL'):
         stim_vec, stim_times_vec,  dl_vec = f_stim_length(t_vec, params)
 
         # Ca dynamics
-        act_model = ActivationModel(params[params['muscle']], t_vec, True)
+        act_model = ActivationModel(params[params['muscle']], t_vec)
         idx_stims = np.nonzero(stim_times_vec)[0]
         stim_vec, ca_vec, catn_vec = act_model.runExcAct(idx_stims, w_0 = 0.004)
 
@@ -260,7 +262,7 @@ for muscle_name in ('SOL', 'EDL'):
 
         # Compute the initial energetics 
         energy_model = EnergeticsModel()
-        q_a, q_m, q_sl, w = energy_model.actEnergetics(
+        q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(
             t_vec, ca_vec, catn_vec, params[muscle],
             e_ce + 1, dedt_ce, force_direct, mech_model
         )
@@ -374,7 +376,7 @@ for muscle_name in ('SOL', 'EDL'):
         ax_energy.set_ylabel('Energy ($mJ g^{-1}$)')
 
         # Compute energetics using previous model
-        energy_rate_data, energy_data_ = energy_model.dHdt(
+        energy_rate_data, energy_data_ = energy_model.dHdt_Konno2025(
             catn_vec, t_vec, e_ce, dedt_ce,
             force_direct, params[muscle]['r1'],
             params[muscle]['r2'], params

@@ -11,8 +11,7 @@ import numpy as np
 from scipy.integrate import cumtrapz
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt 
-font = {'size'   : 14}
-plt.rc('font', **font)
+import lib.plot_style
 import pandas as pd
 import sys 
 sys.path.append('./')
@@ -208,7 +207,7 @@ for muscle_type in ['SOL',]:
             force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce + 1)
             
             # Compute the energy use 
-            q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
+            q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
 
             # Define the range over which to compute the energy use 
             t_range = (t_vec >= 1) * (t_vec < 1.1)
@@ -245,7 +244,7 @@ for muscle_type in ['SOL',]:
 
         for idx_v, freq_stim in enumerate(freq_opt_list):
             # Create a new activation model
-            act_model = ActivationModel(params[params['muscle']], t_vec, True)
+            act_model = ActivationModel(params[params['muscle']], t_vec)
             # Compute the stimulus times
             period = 1.0 / freq_stim
             # Get the firing times (accumulate into a Python list then convert)
@@ -279,7 +278,7 @@ for muscle_type in ['SOL',]:
             force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce + 1)
             
             # Compute the energy use 
-            q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
+            q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
             assert sum(w) == 0 # enforce no work condition
             q_tot = q_a + q_m + q_sl +  w
             
@@ -400,7 +399,7 @@ for muscle_type in ['SOL',]:
         # axs_strain[1].plot(t_vec, dedt_ce, label='$v_{short}$ = ' + str(v_short))
 
                 
-        act_model = ActivationModel(params[params['muscle']], t_vec, True)
+        act_model = ActivationModel(params[params['muscle']], t_vec)
         # Compute the stimulus times
         period = 1.0 / params[params['muscle']]['freq']
         # Get the firing times (accumulate into a Python list then convert)
@@ -429,7 +428,7 @@ for muscle_type in ['SOL',]:
         force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce + 1)
         ax_force.plot(t_vec, force, label='$v_{short}$ = ' + str(v_short))
 
-        q_a, q_m, q_sl, w = energy_model.actEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
+        q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
 
         # Compute cumulative energy for each component
         q_a_cum = cumtrapz(q_a, t_vec, initial=0)
@@ -518,7 +517,7 @@ for muscle_type in ['SOL',]:
     freq_plot_vec = np.linspace(40, 160, 25)
     ratio_plot_vec = np.zeros_like(freq_plot_vec, dtype=float)
     for idx_f, freq_stim in enumerate(freq_plot_vec):
-        act_model = ActivationModel(params[params['muscle']], t_vec, True)
+        act_model = ActivationModel(params[params['muscle']], t_vec)
 
         period = 1.0 / freq_stim
         t_fire_vec = []
@@ -544,7 +543,7 @@ for muscle_type in ['SOL',]:
         dedt_ce = np.zeros_like(t_vec)
         e_ce = np.zeros_like(dedt_ce)
         force = catn_vec * mech_model.F_va(dedt_ce) * mech_model.F_la(e_ce + 1)
-        q_a, q_m, q_sl, w = energy_model.actEnergetics(
+        q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(
             t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model
         )
 

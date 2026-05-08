@@ -524,6 +524,9 @@ for muscle_name in ('SOL', 'EDL'):
     # Save the energetics figure 
     fig_energy.savefig('Figures/L2014_energy_' + muscle + '.jpg')
     fig_energy.savefig('Figures/L2014_energy_' + muscle + '.svg')
+    # Save the per-muscle force cycle figure
+    fig_force_cycle.savefig('Figures/L2014_force_' + muscle + '.jpg')
+    fig_force_cycle.savefig('Figures/L2014_force_' + muscle + '.svg')
 
 
 # Plot initial and total energy-rate output against power output for both muscles.
@@ -532,7 +535,7 @@ fig_energy_power_compare.subplots_adjust(left=0.15)
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
     initial_energy_rate_output_by_muscle['SOL'],
-    '--o', label='SOL initial rate', color=lib.plot_style.palette_cont_slow[0]
+    ':o', label='SOL initial rate', color=lib.plot_style.palette_cont_slow[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
@@ -542,7 +545,7 @@ ax_energy_power_compare.plot(
 ax_energy_power_compare.plot(
     power_output_by_muscle['EDL'],
     initial_energy_rate_output_by_muscle['EDL'],
-    '--o', label='EDL initial rate', color=lib.plot_style.palette_cont_fast[0]
+    ':o', label='EDL initial rate', color=lib.plot_style.palette_cont_fast[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['EDL'],
@@ -572,11 +575,11 @@ exp_energy_sol = np.genfromtxt('Data/L2014_data_stimfreq_energy_SOL.csv', delimi
 exp_energy_edl = np.genfromtxt('Data/L2014_data_stimfreq_energy_EDL.csv', delimiter=',', names=True)
 ax_total_energy_mJg_compare.plot(
     exp_energy_sol['freq'], exp_energy_sol['E'],
-    '--o', lw=1.5, ms=4, label='EXP SOL', color=lib.plot_style.palette_cont_slow[0]
+    ':o', lw=1.5, ms=4, label='EXP SOL', color=lib.plot_style.palette_cont_slow[0]
 )
 ax_total_energy_mJg_compare.plot(
     exp_energy_edl['freq'], exp_energy_edl['E'],
-    '--o', lw=1.5, ms=4, label='EXP EDL', color=lib.plot_style.palette_cont_fast[0]
+    ':o', lw=1.5, ms=4, label='EXP EDL', color=lib.plot_style.palette_cont_fast[0]
 )
 
 ax_total_energy_mJg_compare.set_xlabel('Stimulation frequency (Hz)')
@@ -612,11 +615,11 @@ ax_total_energy_mJg_compare_norm.plot(
 )
 ax_total_energy_mJg_compare_norm.plot(
     exp_energy_sol['freq'], sol_exp_norm,
-    '--o', lw=1.5, ms=4, label='EXP SOL', color=lib.plot_style.palette_cont_slow[0]
+    ':o', lw=1.5, ms=4, label='EXP SOL', color=lib.plot_style.palette_cont_slow[0]
 )
 ax_total_energy_mJg_compare_norm.plot(
     exp_energy_edl['freq'], edl_exp_norm,
-    '--o', lw=1.5, ms=4, label='EXP EDL', color=lib.plot_style.palette_cont_fast[0]
+    ':o', lw=1.5, ms=4, label='EXP EDL', color=lib.plot_style.palette_cont_fast[0]
 )
 
 ax_total_energy_mJg_compare_norm.set_xlabel('Stimulation frequency (Hz)')

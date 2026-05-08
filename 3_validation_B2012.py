@@ -267,10 +267,9 @@ for ci, f in enumerate(freq_list):
     _, ca_vec, _ = act_model.runExcAct(idx_stims)
     ax_ca_time_edl.plot(t_vec, ca_vec, color=colors_edl[ci], label=f'{int(f)} Hz')
 ax_ca_time_edl.set_xlabel('Time (s)')
-ax_ca_time_edl.set_ylabel('$c_{ca}$')
-# ax_ca_time_edl.set_title('EDL: Time-varying Ca')
+ax_ca_time_edl.set_ylabel('Ca amount')
 ax_ca_time_edl.grid(True, alpha=0.3)
-# ax_ca_time_edl.legend()
+ax_ca_time_edl.legend()
 fig_ca_time_edl.savefig('Figures/conseq_twitches_ca_time_EDL.jpg')
 fig_ca_time_edl.savefig('Figures/conseq_twitches_ca_time_EDL.svg')
 

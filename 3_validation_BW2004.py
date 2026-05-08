@@ -15,6 +15,7 @@ from scipy.optimize import curve_fit
 
 # Import matplotlib and define plot properties
 import matplotlib.pyplot as plt 
+from matplotlib.lines import Line2D
 import lib.plot_style
 
 # Define colour schemes
@@ -384,6 +385,13 @@ for muscle_name in ('SOL', 'EDL'):
         ) 
         ax_energy.set_xlabel('Time (s)')
         ax_energy.set_ylabel('Energy ($mJ g^{-1}$)')
+        # Add a legend mapping hue -> stimulation frequency
+        try:
+            freq_handles = [Line2D([0], [0], color=palette_cont[i], lw=2) for i in range(len(freq_list))]
+            freq_labels = [f'{f} Hz' for f in freq_list]
+            ax_energy.legend(freq_handles, freq_labels, title='Frequency', loc='upper right', fontsize=8)
+        except Exception:
+            pass
 
         # Compute energetics using previous model
         energy_rate_data, energy_data_ = energy_model.dHdt_Konno2025(
@@ -688,7 +696,7 @@ fig_energy_power_compare.subplots_adjust(left=0.15)
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
     initial_energy_rate_output_by_muscle['SOL'],
-    '--o', label='SOL initial rate', color=palette_cont_slow[0]
+    ':o', label='SOL initial rate', color=palette_cont_slow[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
@@ -698,7 +706,7 @@ ax_energy_power_compare.plot(
 ax_energy_power_compare.plot(
     power_output_by_muscle['EDL'],
     initial_energy_rate_output_by_muscle['EDL'],
-    '--o', label='EDL initial rate', color=palette_cont_fast[0]
+    ':o', label='EDL initial rate', color=palette_cont_fast[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['EDL'],

@@ -24,20 +24,37 @@ params = {
             'kappa': 0.18,
             
             # Initial energetics model 
-            'r_cxb':   0.2584, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.03540, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'cxb_scale':  0.5166, # unitless, cxb scale factor
-            'r_sl':  0.1258, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # 'r_cxb':   0.2584, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.03540, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.5166, # unitless, cxb scale factor
+            # 'r_sl':  0.1258, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # New optimised values 
+            'r_cxb':   0.247, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.0295, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'cxb_scale':  0.567, # unitless, cxb scale factor
+            'r_sl':  0.126, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
             # Bioenergetics parameters 
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992 
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992 
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992 
-            # Corrected values 
-            'V_max_oxphos': 2 * 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # # Corrected values (from first optimisation)
+            # 'V_max_oxphos': 2 * 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.61325, # unitless, # original
+            # 'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest    
+            # # New optimised values 
+            # 'V_max_oxphos': 2.0255, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.742, # unitless, # original
+            # 'r_rec': 0.165e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest    
+            # New corrected values 
+            'V_max_oxphos': 2 * 2.0255, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
             'K_adp': 0.058, # mM,
-            'nh': 0.61325, # unitless, # original
-            'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
+            'nh': 0.742, # unitless, # original
+            'r_rec': 0.5 * 0.165e6, # J / mol, Obtained from efficiency calculation 
             'gamma': 1, # Scaling factor for metabolic rates at rest    
 
             # Other model parameters
@@ -63,21 +80,38 @@ params = {
             'kappa': 0.29,
 
             # Initial energetics model
-            'r_cxb':  0.761209, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'r_cat': 0.0216, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
-            'cxb_scale':  0.23276, # unitless, cxb scale factor
-            'r_sl':  0.105056, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # 'r_cxb':  0.761209, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'r_cat': 0.0216, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            # 'cxb_scale':  0.23276, # unitless, cxb scale factor
+            # 'r_sl':  0.105056, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
+            # New optimised values 
+            'r_cxb':   0.763, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'r_cat': 0.0199, # F0l0/s, Maximum heat rate of isometric contraction (slow-type fibre)
+            'cxb_scale':  0.257, # unitless, cxb scale factor
+            'r_sl':  0.105, # W/F_0/l_0, Maximum shortening heat rate (slow-type fibre)
 
             # Bioenergetics parameters
             'c_c_tot': 29.5, # mM, Kushmerick et al. 1992
             'c_atp_0': 5.3, # mM,  Kushmerick et al. 1992
             'c_pcr_0': 21.1, # mM,  Kushmerick et al. 1992
-            # Optimised values 
-            'V_max_oxphos': 2 * 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # # Optimised values 
+            # 'V_max_oxphos': 2 * 1.9322, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.61325, # unitless, # original
+            # 'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest     
+            # # New optimised values 
+            # 'V_max_oxphos': 2.0255, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
+            # 'K_adp': 0.058, # mM,
+            # 'nh': 0.742, # unitless, # original
+            # 'r_rec': 0.165e6, # J / mol, Obtained from efficiency calculation 
+            # 'gamma': 1, # Scaling factor for metabolic rates at rest    
+            # New corrected values 
+            'V_max_oxphos': 2 * 2.0255, # mM/s, Assume 2x recovery rate at 35 compared to 20 degrees
             'K_adp': 0.058, # mM,
-            'nh': 0.61325, # unitless, # original
-            'r_rec': 0.5 * 0.16730e6, # J / mol, Obtained from efficiency calculation 
-            'gamma': 1, # Scaling factor for metabolic rates at rest     
+            'nh': 0.742, # unitless, # original
+            'r_rec': 0.5 * 0.165e6, # J / mol, Obtained from efficiency calculation 
+            'gamma': 1, # Scaling factor for metabolic rates at rest    
 
             # Other model parameters
             # Konno et al., 2025 model parameters

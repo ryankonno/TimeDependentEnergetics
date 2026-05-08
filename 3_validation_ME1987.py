@@ -183,7 +183,7 @@ energy_unit_scaler = params[muscle]['F_0'] * params[muscle]['l_0'] / params[musc
 # Plot the total energy over the cycle
 fig_energy, ax_energy = plt.subplots(layout = 'constrained')
 ax_energy.plot(t_vec, cumtrapz(E_tot, t_vec, initial = 0) * energy_unit_scaler, label = '$ e_{init}$', color = palette[single_run_idx], alpha = 0.25) 
-ax_energy.plot(t_vec, cumtrapz(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$', color = palette[single_run_idx], ls = ':', alpha = 0.5) 
+ax_energy.plot(t_vec, cumtrapz(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$', color = palette[single_run_idx], ls = lib.plot_style.ls_styles[2], alpha = 0.5) 
 ax_energy.plot(t_vec, cumtrapz(E_tot + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$', color = palette[single_run_idx]) 
 # ax_energy.legend()
 ax_energy.set_xlabel('Time (s)')

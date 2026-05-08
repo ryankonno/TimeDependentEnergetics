@@ -540,7 +540,7 @@ for muscle_name in ('SOL', 'EDL'):
 
         # Plot the total energy over the cycle
         ax_energy.plot(t_vec, cumtrapz(E_tot, t_vec, initial = 0) * energy_unit_scaler, label = '$ e_{init}$', color = palette[idx], alpha = 0.25) 
-        ax_energy.plot(t_vec, cumtrapz(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$', color = palette[idx], ls = ':', alpha = 0.5) 
+        ax_energy.plot(t_vec, cumtrapz(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$', color = palette[idx], ls = lib.plot_style.ls_styles[2], alpha = 0.5) 
         ax_energy.plot(t_vec, cumtrapz(E_tot + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$', color = palette[idx]) 
         ax_energy.set_xlabel('Time (s)')
         ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
@@ -694,11 +694,12 @@ for muscle_name in ('SOL', 'EDL'):
 
     # Save the energetics figure 
     fig_energy.savefig('Figures/B2004_tauopt_energy_' + muscle + '.jpg')
+    fig_energy.savefig('Figures/B2004_tauopt_energy_' + muscle + '.svg')
 
 # Plot peak recovery rate versus frequency for both muscles
 fig_peak_qr_compare, ax_peak_qr_compare = plt.subplots(layout = 'constrained')
-ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['SOL'], '-o', label='SOL', color='#1f77b4')
-ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['EDL'], '-o', label='EDL', color="#d62728")
+ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['SOL'], '-o', label='SOL', color=lib.plot_style.palette_cont_slow[0])
+ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['EDL'], '-o', label='EDL', color=lib.plot_style.palette_cont_fast[0])
 ax_peak_qr_compare.set_xlabel('Cycle frequency (Hz)')
 ax_peak_qr_compare.set_ylabel('Peak recovery rate ($mW g^{-1}$)')
 
@@ -710,11 +711,12 @@ ax_peak_qr_compare.plot(exp_rrecmax_edl['freq'][0:len(freq_list)], exp_rrecmax_e
 ax_peak_qr_compare.grid(True, alpha = 0.3)
 ax_peak_qr_compare.legend()
 fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp_scaleopt.jpg')
+fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp_scaleopt.svg')
 
 # Plot fitted time constants versus frequency for both muscles
 fig_tau_freq_compare, ax_tau_freq_compare = plt.subplots(layout = 'constrained')
-ax_tau_freq_compare.plot(freq_list, tau_by_muscle['SOL'], '-o', label='SOL', color='#1f77b4')
-ax_tau_freq_compare.plot(freq_list, tau_by_muscle['EDL'], '-o', label='EDL', color='#d62728')
+ax_tau_freq_compare.plot(freq_list, tau_by_muscle['SOL'], '-o', label='SOL', color=lib.plot_style.palette_cont_slow[0])
+ax_tau_freq_compare.plot(freq_list, tau_by_muscle['EDL'], '-o', label='EDL', color=lib.plot_style.palette_cont_fast[0])
 ax_tau_freq_compare.set_xlabel('Cycle frequency (Hz)')
 ax_tau_freq_compare.set_ylabel('Time constant $\\tau$ (s)')
 
@@ -727,5 +729,6 @@ ax_tau_freq_compare.grid(True, alpha = 0.3)
 ax_tau_freq_compare.legend()
 
 fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp_scaleopt.jpg')
+fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp_scaleopt.svg')
 
 plt.show()

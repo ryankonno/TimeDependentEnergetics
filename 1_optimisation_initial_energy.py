@@ -26,9 +26,6 @@ params_protocol = {
     't_start': 0, # s
     't_end': 2, # s
 
-    # General muscle parameters
-    'rho0':  1e6, # g/m^3, Density of muscle
-
     'muscle': 'SOL', # Specify muscle parameters to be used in simulation
         # Mouse data 
         'SOL': {

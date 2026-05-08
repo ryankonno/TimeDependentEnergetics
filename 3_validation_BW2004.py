@@ -18,8 +18,11 @@ import matplotlib.pyplot as plt
 import lib.plot_style
 
 # Define colour schemes
-palette_cont = ("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2", "#CC79A7")
-palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
+# palette_cont = ("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2", "#CC79A7")
+palette_cont_slow = lib.plot_style.palette_cont_slow
+palette_cont_fast = lib.plot_style.palette_cont_fast
+# palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
+ls_styles = lib.plot_style.ls_styles
 
 import sys 
 sys.path.append('./')
@@ -58,7 +61,7 @@ params_protocol = {
         'EDL': {
             # Muscle-specific experimental protocol parameters
             'velo_short': 2.8, # l0/s, Barclay and Weber 2004
-            'freq': 225, # Hz, Frequency of stimulation, Adjusted for tetenanus
+            'freq': 175, # Hz, Frequency of stimulation, Adjusted for tetenanus
 
         },
 }
@@ -167,7 +170,7 @@ def f_stim_length(t, params):
 
 
 # Define the time vector 
-dt = 0.00005
+dt = 0.0001
 t_vec = np.linspace(params['t_start'], params['t_end'], int((params['t_end'] - params['t_start']) / dt)) 
 
 # Define frequencies for the cycles, Hz
@@ -175,6 +178,11 @@ freq_list = (0.5, 1, 2, 3, 4)
 
 # Define plotting properties 
 component_names = ('q_{cat}', 'q_{cxb}', 'q_{sl}', 'w', 'q_r')
+hatch_styles = ('///', '\\\\', 'xx', '..', 'oo')
+palette_cont_by_muscle = {
+    'SOL': palette_cont_slow,
+    'EDL': palette_cont_fast,
+}
 
 # Storage for cross-muscle comparison
 peak_qr_by_muscle = {}
@@ -189,6 +197,7 @@ trace_plot_data_by_muscle = {}
 for muscle_name in ('SOL', 'EDL'):
     print(f'\n========== {muscle_name} ==========')
     params['muscle'] = muscle_name
+    palette_cont = palette_cont_by_muscle[muscle_name]
     
     # Initialise plots 
     fig_energy, ax_energy = plt.subplots()
@@ -328,23 +337,23 @@ for muscle_name in ('SOL', 'EDL'):
             # Plot components on single axes
             ax_energy_comp.plot(
                 t_cycle, q_a_cum, label='$q_a$ (activation)',
-                color=palette[0], linewidth=2
+                color=palette_cont[0], ls = ls_styles[0], linewidth=2
             )
             ax_energy_comp.plot(
                 t_cycle, q_m_cum, label='$q_m$ (maintenance)',
-                color=palette[1], linewidth=2
+                color=palette_cont[0], ls = ls_styles[1], linewidth=2
             )
             ax_energy_comp.plot(
                 t_cycle, q_sl_cum, label='$q_{sl}$ (shortening)',
-                color=palette[2], linewidth=2
+                color=palette_cont[0], ls = ls_styles[2], linewidth=2
             )
             ax_energy_comp.plot(
                 t_cycle, w_cum, label='$w$ (mechanical work)',
-                color=palette[3], linewidth=2
+                color=palette_cont[0], ls = ls_styles[3], linewidth=2
             )
             ax_energy_comp.plot(
                 t_cycle, q_r_cum, label='$q_r$ (recovery)',
-                color=palette[4], linewidth=2
+                color=palette_cont[0], ls = ls_styles[4], linewidth=2
             )
             
             # Add labels and formatting
@@ -514,7 +523,9 @@ for muscle_name in ('SOL', 'EDL'):
             component_energy_rel[:, comp_idx],
             width = bar_width_rel,
             bottom=q_i_bottom,
-            color=palette[comp_idx],
+            facecolor='white',
+            edgecolor='black',
+            hatch=hatch_styles[comp_idx],
             label=component_names[comp_idx]
         )
         q_i_bottom += component_energy_rel[:, comp_idx]
@@ -524,7 +535,9 @@ for muscle_name in ('SOL', 'EDL'):
         x_qr,
         component_energy_rel[:, 4],
         width=bar_width_rel,
-        color=palette[4],
+        facecolor='white',
+        edgecolor='black',
+        hatch=hatch_styles[4],
         label=component_names[4]
     )
     # ax_comp_rel.set_title(f'{muscle_name} - Relative Contributions')
@@ -594,12 +607,14 @@ Comparison plots with data from both muscles
 if 'SOL' in trace_plot_data_by_muscle and 'EDL' in trace_plot_data_by_muscle:
     sol_data = trace_plot_data_by_muscle['SOL']
     edl_data = trace_plot_data_by_muscle['EDL']
+    sol_color = palette_cont_slow[0]
+    edl_color = palette_cont_fast[0]
     
     # Create strain figure
     fig_trace_strain, ax_trace_strain = plt.subplots(figsize=(4, 3))
     fig_trace_strain.subplots_adjust(left=0.15)
-    ax_trace_strain.plot(sol_data['t_cycle'], sol_data['e_ce_cycle'], label='SOL', color='#1f77b4', linewidth=2)
-    ax_trace_strain.plot(edl_data['t_cycle'], edl_data['e_ce_cycle'], label='EDL', color='#d62728', linewidth=2)
+    ax_trace_strain.plot(sol_data['t_cycle'], sol_data['e_ce_cycle'], label='SOL', color=sol_color, linewidth=2)
+    ax_trace_strain.plot(edl_data['t_cycle'], edl_data['e_ce_cycle'], label='EDL', color=edl_color, linewidth=2)
     
     # Add stimulation region (use SOL data for timing)
     stim_mask_sol = sol_data['stim_cycle'] > 0
@@ -607,10 +622,10 @@ if 'SOL' in trace_plot_data_by_muscle and 'EDL' in trace_plot_data_by_muscle:
     stim_mask_edl = edl_data['stim_cycle'] > 0
     if np.any(stim_mask_sol):
         t_stim_sol = sol_data['t_cycle'][stim_mask_sol]
-        ax_trace_strain.axvspan(t_stim_sol[0], t_stim_sol[-1], color='#1f77b4', alpha=0.15, label='Stim (SOL)')
+        ax_trace_strain.axvspan(t_stim_sol[0], t_stim_sol[-1], color=sol_color, alpha=0.15, label='Stim (SOL)')
     if np.any(stim_mask_edl):
         t_stim_edl = edl_data['t_cycle'][stim_mask_edl]
-        ax_trace_strain.axvspan(t_stim_edl[0], t_stim_edl[-1], color='#d62728', alpha=0.15, label='Stim (EDL)')
+        ax_trace_strain.axvspan(t_stim_edl[0], t_stim_edl[-1], color=edl_color, alpha=0.15, label='Stim (EDL)')
     
     ax_trace_strain.set_xlabel('Time within cycle (s)')
     ax_trace_strain.set_ylabel('Strain ($e_{ce}$)')
@@ -622,17 +637,17 @@ if 'SOL' in trace_plot_data_by_muscle and 'EDL' in trace_plot_data_by_muscle:
     # Create force figure
     fig_trace_force, ax_trace_force = plt.subplots(figsize=(4, 3))
     fig_trace_force.subplots_adjust(left=0.15)
-    ax_trace_force.plot(sol_data['t_cycle'], sol_data['force_cycle'], label='SOL', color='#1f77b4', linewidth=2)
-    ax_trace_force.plot(edl_data['t_cycle'], edl_data['force_cycle'], label='EDL', color='#d62728', linewidth=2)
+    ax_trace_force.plot(sol_data['t_cycle'], sol_data['force_cycle'], label='SOL', color=sol_color, linewidth=2)
+    ax_trace_force.plot(edl_data['t_cycle'], edl_data['force_cycle'], label='EDL', color=edl_color, linewidth=2)
     
     # Add stimulation region
     stim_mask_edl = edl_data['stim_cycle'] > 0
     if np.any(stim_mask_sol):
         t_stim_sol = sol_data['t_cycle'][stim_mask_sol]
-        ax_trace_force.axvspan(t_stim_sol[0], t_stim_sol[-1], color='#1f77b4', alpha=0.15, label='Stim (SOL)')
+        ax_trace_force.axvspan(t_stim_sol[0], t_stim_sol[-1], color=sol_color, alpha=0.15, label='Stim (SOL)')
     if np.any(stim_mask_edl):
         t_stim_edl = edl_data['t_cycle'][stim_mask_edl]
-        ax_trace_force.axvspan(t_stim_edl[0], t_stim_edl[-1], color='#d62728', alpha=0.15, label='Stim (EDL)')
+        ax_trace_force.axvspan(t_stim_edl[0], t_stim_edl[-1], color=edl_color, alpha=0.15, label='Stim (EDL)')
     
     ax_trace_force.set_xlabel('Time within cycle (s)')
     ax_trace_force.set_ylabel('Force (N)')
@@ -644,8 +659,8 @@ if 'SOL' in trace_plot_data_by_muscle and 'EDL' in trace_plot_data_by_muscle:
 # Plot peak recovery rate versus frequency for both muscles
 fig_peak_qr_compare, ax_peak_qr_compare = plt.subplots()
 fig_peak_qr_compare.subplots_adjust(left=0.15)
-ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['SOL'], '-o', label='SOL', color='#1f77b4')
-ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['EDL'], '-o', label='EDL', color="#d62728")
+ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['SOL'], '-o', label='SOL', color=palette_cont_slow[0])
+ax_peak_qr_compare.plot(freq_list, peak_qr_by_muscle['EDL'], '-o', label='EDL', color=palette_cont_fast[0])
 ax_peak_qr_compare.set_xlabel('Cycle frequency (Hz)')
 ax_peak_qr_compare.set_ylabel('Peak recovery rate ($mW g^{-1}$)')
 
@@ -673,22 +688,22 @@ fig_energy_power_compare.subplots_adjust(left=0.15)
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
     initial_energy_rate_output_by_muscle['SOL'],
-    '--o', label='SOL initial rate', color='#1f77b4'
+    '--o', label='SOL initial rate', color=palette_cont_slow[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
     total_energy_rate_output_by_muscle['SOL'],
-    '-o', label='SOL total rate', color='#1f77b4'
+    '-o', label='SOL total rate', color=palette_cont_slow[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['EDL'],
     initial_energy_rate_output_by_muscle['EDL'],
-    '--o', label='EDL initial rate', color='#d62728'
+    '--o', label='EDL initial rate', color=palette_cont_fast[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['EDL'],
     total_energy_rate_output_by_muscle['EDL'],
-    '-o', label='EDL total rate', color='#d62728'
+    '-o', label='EDL total rate', color=palette_cont_fast[0]
 )
 ax_energy_power_compare.set_xlabel('Power output ($mW g^{-1}$)')
 ax_energy_power_compare.set_ylabel('Total energy rate output ($mW g^{-1}$)')
@@ -700,8 +715,8 @@ fig_energy_power_compare.savefig('Figures/B2004_energy_vs_power_comp.svg')
 # Plot fitted time constants versus frequency for both muscles
 fig_tau_freq_compare, ax_tau_freq_compare = plt.subplots()
 fig_tau_freq_compare.subplots_adjust(left=0.15)
-ax_tau_freq_compare.plot(freq_list, tau_by_muscle['SOL'], '-o', label='SOL', color='#1f77b4')
-ax_tau_freq_compare.plot(freq_list, tau_by_muscle['EDL'], '-o', label='EDL', color='#d62728')
+ax_tau_freq_compare.plot(freq_list, tau_by_muscle['SOL'], '-o', label='SOL', color=palette_cont_slow[0])
+ax_tau_freq_compare.plot(freq_list, tau_by_muscle['EDL'], '-o', label='EDL', color=palette_cont_fast[0])
 ax_tau_freq_compare.set_xlabel('Cycle frequency (Hz)')
 ax_tau_freq_compare.set_ylabel('Time constant $\\tau$ (s)')
 

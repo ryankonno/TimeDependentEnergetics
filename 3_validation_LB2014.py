@@ -15,7 +15,7 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 import lib.plot_style
 
-palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
+# palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
 import sys 
 sys.path.append('./')
 
@@ -43,12 +43,14 @@ params_protocol = {
             # Muscle-specific experimental protocol parameters 
             'velo_short': 1.3, # l0/s, Barclay and Weber 2004
             'freq': 150, # Hz, Frequency of stimulation, adjusted for tetanus
+            't_stim_end': 0.125 # s, End time of stimulation, Barclay and Weber 2004
 
         }, 
         'EDL': {
             # Muscle-specific experimental protocol parameters
             'velo_short': 2.8, # l0/s, Barclay and Weber 2004
             'freq': 200, # Hz, Frequency of stimulation, Adjusted for tetenanus
+            't_stim_end': 0.063 # s, End time of stimulation, Barclay and Weber 2004
 
         },
 }
@@ -78,16 +80,16 @@ def f_stim_length(t, params):
     # Time parameters edited to have a fixed stimulation time 
     if params['muscle'] == 'EDL':  
         t_stim_start = 0 
-        t_stim_end = 0.063 # From paper 
+        t_stim_end = params[params['muscle']]['t_stim_end'] # From paper 
         t_short_start = 0.03 # Choose to get reasonable power & work... (sampe proportion as soleus values)
         # t_short_start = 0.005
         t_length_start = 0.15
         t_length_end =  cycle_length # Assume return to initial lenght by the end of the cycle
     elif params['muscle'] == 'SOL': 
         t_stim_start = 0 
-        t_stim_end = 0.125 # From paper
+        t_stim_end = params[params['muscle']]['t_stim_end'] # From paper
         t_short_start = 0.06
-        t_length_start = 0.245
+        t_length_start = 0.5
         t_length_end =  cycle_length # Assume return to initial lenght by the end of the cycle
 
     # Get the optimal length of the muscle
@@ -155,7 +157,7 @@ def f_stim_length(t, params):
 
 
 # Plot to verify conditions 
-dt = 0.0005
+dt = 0.0001
 t_vec = np.linspace(params['t_start'], params['t_end'], int((params['t_end'] - params['t_start']) / dt)) 
 
 # Keep cycle frequency fixed at 1 Hz and sweep stimulation frequencies.
@@ -174,6 +176,14 @@ total_energy_rate_output_by_muscle = {}
 total_energy_output_by_muscle = {}
 total_energy_output_mJg_by_muscle = {}
 
+# Define plotting properties 
+component_names = ('q_{cat}', 'q_{cxb}', 'q_{sl}', 'w', 'q_r')
+hatch_styles = ('///', '\\\\', 'xx', '..', 'oo')
+palette_cont_by_muscle = {
+    'SOL': lib.plot_style.palette_cont_slow,
+    'EDL': lib.plot_style.palette_cont_fast,
+}
+
 # Loop over muscles
 for muscle_name in ('SOL', 'EDL'):
     print(f'\n========== {muscle_name} ==========')
@@ -191,6 +201,9 @@ for muscle_name in ('SOL', 'EDL'):
     efficiency_rows = []
     total_energy_out_f0l0_vs_freq = []
     total_energy_out_mJg_vs_freq = []
+
+    # Define the colour scheme 
+    palette = palette_cont_by_muscle[muscle_name]
 
     for idx, stim_freq in enumerate(stim_freq_list): 
         cycle_length = 1.0 / cycle_freq_hz
@@ -305,7 +318,7 @@ for muscle_name in ('SOL', 'EDL'):
             t_vec,
             cumtrapz(q_r, t_vec, initial=0) *
             energy_unit_scaler,
-            label='$q_r$', color=palette[idx], ls=':',
+            label='$q_r$', color=palette[idx], ls=lib.plot_style.ls_styles[2],
             alpha=0.5
         )
         ax_energy.plot(
@@ -317,19 +330,19 @@ for muscle_name in ('SOL', 'EDL'):
         ax_energy.set_xlabel('Time (s)')
         ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
 
-        # Compute energetics using previous model
-        energy_rate_data, energy_data_ = energy_model.dHdt_Konno2025(
-            catn_vec, t_vec, e_ce, dedt_ce,
-            force_direct, params[muscle]['r1'],
-            params[muscle]['r2'], params
-        )
-        E_tot_konno2025 = energy_rate_data['dEdt']
-        ax_energy.plot(
-            t_vec,
-            cumtrapz(E_tot_konno2025, t_vec, initial=0) /
-            params[muscle]['mass'] * 1e3,
-            label='KLD2025 Model', color='k'
-        ) 
+        # # Compute energetics using previous model
+        # energy_rate_data, energy_data_ = energy_model.dHdt_Konno2025(
+        #     catn_vec, t_vec, e_ce, dedt_ce,
+        #     force_direct, params[muscle]['r1'],
+        #     params[muscle]['r2'], params
+        # )
+        # E_tot_konno2025 = energy_rate_data['dEdt']
+        # ax_energy.plot(
+        #     t_vec,
+        #     cumtrapz(E_tot_konno2025, t_vec, initial=0) /
+        #     params[muscle]['mass'] * 1e3,
+        #     label='KLD2025 Model', color='k'
+        # ) 
 
         # Store absolute end-of-trial energies for component contribution bar charts.
         e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
@@ -415,9 +428,9 @@ for muscle_name in ('SOL', 'EDL'):
 
         print(f'Fitted time constant (tau) = {tau_fit:.3f} s')
 
-    ax_force_cycle.set_title(f'{muscle_name} - One-Cycle Force')
     ax_force_cycle.set_xlabel('Time within cycle (s)')
     ax_force_cycle.set_ylabel('Force (N)')
+    ax_force_cycle.set_xlim((0,params[muscle]['t_stim_end'] + 0.5))
     ax_force_cycle.grid(True, alpha=0.3)
     ax_force_cycle.legend(loc = 'upper right')
 
@@ -519,22 +532,22 @@ fig_energy_power_compare.subplots_adjust(left=0.15)
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
     initial_energy_rate_output_by_muscle['SOL'],
-    '--o', label='SOL initial rate', color='#1f77b4'
+    '--o', label='SOL initial rate', color=lib.plot_style.palette_cont_slow[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['SOL'],
     total_energy_rate_output_by_muscle['SOL'],
-    '-o', label='SOL total rate', color='#1f77b4'
+    '-o', label='SOL total rate', color=lib.plot_style.palette_cont_slow[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['EDL'],
     initial_energy_rate_output_by_muscle['EDL'],
-    '--o', label='EDL initial rate', color='#d62728'
+    '--o', label='EDL initial rate', color=lib.plot_style.palette_cont_fast[0]
 )
 ax_energy_power_compare.plot(
     power_output_by_muscle['EDL'],
     total_energy_rate_output_by_muscle['EDL'],
-    '-o', label='EDL total rate', color='#d62728'
+    '-o', label='EDL total rate', color=lib.plot_style.palette_cont_fast[0]
 )
 ax_energy_power_compare.set_xlabel('Power output ($mW g^{-1}$)')
 ax_energy_power_compare.set_ylabel('Total energy rate output ($mW g^{-1}$)')
@@ -548,22 +561,22 @@ fig_total_energy_mJg_compare, ax_total_energy_mJg_compare = plt.subplots(figsize
 fig_total_energy_mJg_compare.subplots_adjust(left=0.15)
 ax_total_energy_mJg_compare.plot(
     stim_freq_list, total_energy_output_mJg_by_muscle['SOL'],
-    '-o', label='SOL', color='#1f77b4'
+    '-o', label='SOL', color=lib.plot_style.palette_cont_slow[0]
 )
 ax_total_energy_mJg_compare.plot(
     stim_freq_list, total_energy_output_mJg_by_muscle['EDL'],
-    '-o', label='EDL', color='#d62728'
+    '-o', label='EDL', color=lib.plot_style.palette_cont_fast[0]
 )
 
 exp_energy_sol = np.genfromtxt('Data/L2014_data_stimfreq_energy_SOL.csv', delimiter=',', names=True)
 exp_energy_edl = np.genfromtxt('Data/L2014_data_stimfreq_energy_EDL.csv', delimiter=',', names=True)
 ax_total_energy_mJg_compare.plot(
     exp_energy_sol['freq'], exp_energy_sol['E'],
-    '--o', lw=1.5, ms=4, label='EXP SOL', color='#1f77b4'
+    '--o', lw=1.5, ms=4, label='EXP SOL', color=lib.plot_style.palette_cont_slow[0]
 )
 ax_total_energy_mJg_compare.plot(
     exp_energy_edl['freq'], exp_energy_edl['E'],
-    '--o', lw=1.5, ms=4, label='EXP EDL', color='#d62728'
+    '--o', lw=1.5, ms=4, label='EXP EDL', color=lib.plot_style.palette_cont_fast[0]
 )
 
 ax_total_energy_mJg_compare.set_xlabel('Stimulation frequency (Hz)')
@@ -572,6 +585,46 @@ ax_total_energy_mJg_compare.grid(True, alpha = 0.3)
 ax_total_energy_mJg_compare.legend(loc = 'upper right')
 fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.jpg')
 fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.svg')
+
+# Plot total energy output normalised by each series maximum.
+def normalise_to_max(values):
+    values = np.asarray(values, dtype=float)
+    max_val = np.max(values)
+    if max_val <= 0:
+        return values
+    return values / max_val
+
+fig_total_energy_mJg_compare_norm, ax_total_energy_mJg_compare_norm = plt.subplots(figsize=(4, 3))
+fig_total_energy_mJg_compare_norm.subplots_adjust(left=0.15)
+
+sol_model_norm = normalise_to_max(total_energy_output_mJg_by_muscle['SOL'])
+edl_model_norm = normalise_to_max(total_energy_output_mJg_by_muscle['EDL'])
+sol_exp_norm = normalise_to_max(exp_energy_sol['E'])
+edl_exp_norm = normalise_to_max(exp_energy_edl['E'])
+
+ax_total_energy_mJg_compare_norm.plot(
+    stim_freq_list, sol_model_norm,
+    '-o', label='SOL', color=lib.plot_style.palette_cont_slow[0]
+)
+ax_total_energy_mJg_compare_norm.plot(
+    stim_freq_list, edl_model_norm,
+    '-o', label='EDL', color=lib.plot_style.palette_cont_fast[0]
+)
+ax_total_energy_mJg_compare_norm.plot(
+    exp_energy_sol['freq'], sol_exp_norm,
+    '--o', lw=1.5, ms=4, label='EXP SOL', color=lib.plot_style.palette_cont_slow[0]
+)
+ax_total_energy_mJg_compare_norm.plot(
+    exp_energy_edl['freq'], edl_exp_norm,
+    '--o', lw=1.5, ms=4, label='EXP EDL', color=lib.plot_style.palette_cont_fast[0]
+)
+
+ax_total_energy_mJg_compare_norm.set_xlabel('Stimulation frequency (Hz)')
+ax_total_energy_mJg_compare_norm.set_ylabel('Normalised total energy (-)')
+ax_total_energy_mJg_compare_norm.grid(True, alpha = 0.3)
+ax_total_energy_mJg_compare_norm.legend(loc = 'upper right')
+fig_total_energy_mJg_compare_norm.savefig('Figures/L2014_total_energy_mJg_comp_norm.jpg')
+fig_total_energy_mJg_compare_norm.savefig('Figures/L2014_total_energy_mJg_comp_norm.svg')
 
 # Compute the r^2 values of the fit 
 from lib.model_metrics import r2_score 

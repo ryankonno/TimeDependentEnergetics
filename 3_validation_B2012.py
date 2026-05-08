@@ -156,8 +156,12 @@ sol_act_rows, sol_ca_rows = analyze_muscle('SOL', t_vec, freq_list, n_twitches=2
 edl_act_rows, edl_ca_rows = analyze_muscle('EDL', t_vec, freq_list, n_twitches=2)
 
 
-sol_between_twitch = 1.0 / sol_act_rows[:, 0]
-edl_between_twitch = 1.0 / edl_act_rows[:, 0]
+# sol_between_twitch = 1.0 / sol_act_rows[:, 0]
+# edl_between_twitch = 1.0 / edl_act_rows[:, 0]
+sol_freq = sol_act_rows[:, 0]
+edl_freq = edl_act_rows[:, 0]
+sol_between_twitch = 1.0 / sol_freq
+edl_between_twitch = 1.0 / edl_freq
 
 # Plot the activation heat as a percentage of the first twitch
 fig_act_ratio, ax_act_ratio = plt.subplots(figsize=(4,3))
@@ -166,11 +170,14 @@ fig_act_ratio.subplots_adjust(left=0.15)
 import pandas as pd
 data_exp_SOL = pd.read_csv('./Data/B2012_data_conseq_twitch_qA_SOL.csv')
 data_exp_EDL = pd.read_csv('./Data/B2012_data_conseq_twitch_qA_EDL.csv')
-ax_act_ratio.plot(np.array(data_exp_SOL['t_int']), np.array(data_exp_SOL['qA_rel']), ':o', color='#1f77b4', label='SOL Exp')
-ax_act_ratio.plot(np.array(data_exp_EDL['t_int']), np.array(data_exp_EDL['qA_rel']), ':o', color='#d62728', label='EDL Exp')
-ax_act_ratio.plot(sol_between_twitch, sol_act_rows[:, 4], '-o', color='#1f77b4', label='SOL Mod')   
-ax_act_ratio.plot(edl_between_twitch, edl_act_rows[:, 4], '-o', color='#d62728', label='EDL Mod')
-ax_act_ratio.set_xlabel('Between-twitch time (s)')
+ax_act_ratio.plot(1/np.array(data_exp_SOL['t_int']), np.array(data_exp_SOL['qA_rel']), ':o', color=lib.plot_style.palette_cont_slow[0], label='SOL Exp')
+ax_act_ratio.plot(1/np.array(data_exp_EDL['t_int']), np.array(data_exp_EDL['qA_rel']), ':o', color=lib.plot_style.palette_cont_fast[0], label='EDL Exp')
+# ax_act_ratio.plot(sol_between_twitch, sol_act_rows[:, 4], '-o', color=lib.plot_style.palette_cont_slow[0], label='SOL Mod')   
+# ax_act_ratio.plot(edl_between_twitch, edl_act_rows[:, 4], '-o', color=lib.plot_style.palette_cont_fast[0], label='EDL Mod')
+ax_act_ratio.plot(sol_freq, sol_act_rows[:, 4], '-o', color=lib.plot_style.palette_cont_slow[0], label='SOL Mod')   
+ax_act_ratio.plot(edl_freq, edl_act_rows[:, 4], '-o', color=lib.plot_style.palette_cont_fast[0], label='EDL Mod')
+# ax_act_ratio.set_xlabel('Between-twitch time (s)')
+ax_act_ratio.set_xlabel('Stimulation frequency ($Hz$)')
 ax_act_ratio.set_ylabel('Activation heat (%)')
 # ax_act_ratio.set_title('Second-twitch Activation Heat Percentage')
 ax_act_ratio.set_xscale('log')
@@ -195,8 +202,8 @@ print(f'EDL: r2 = {r2_model_edl}, mse = {mse_model_edl}')
 # Plot the ca released as a percentage of the first twitch
 fig_ca_release_ratio, ax_ca_release_ratio = plt.subplots(figsize=(4,3))
 fig_ca_release_ratio.subplots_adjust(left=0.15)
-ax_ca_release_ratio.plot(sol_between_twitch, sol_ca_rows[:, 4], '-o', color='#1f77b4', label='SOL (tau_1 = 0.001)')
-ax_ca_release_ratio.plot(edl_between_twitch, edl_ca_rows[:, 4], '-o', color='#d62728', label='EDL (tau_1 = 0.0007)')
+ax_ca_release_ratio.plot(sol_between_twitch, sol_ca_rows[:, 4], '-o', color=lib.plot_style.palette_cont_slow[0], label='SOL (tau_1 = 0.001)')
+ax_ca_release_ratio.plot(edl_between_twitch, edl_ca_rows[:, 4], '-o', color=lib.plot_style.palette_cont_fast[0], label='EDL (tau_1 = 0.0007)')
 ax_ca_release_ratio.set_xlabel('Between-twitch time (s)')
 ax_ca_release_ratio.set_ylabel('Relative Ca release (%)')
 # ax_ca_release_ratio.set_title('Second-twitch Relative Ca Release')
@@ -223,7 +230,11 @@ for i, freq in enumerate(freq_list):
 
 
 # Time-varying Ca amount: plot Ca concentration over time for each stimulation frequency
-colors = plt.cm.viridis(np.linspace(0, 1, len(freq_list)))
+n_freq = len(freq_list)
+slow_idx = np.round(np.linspace(0, len(lib.plot_style.palette_cont_slow) - 1, n_freq)).astype(int)
+fast_idx = np.round(np.linspace(0, len(lib.plot_style.palette_cont_fast) - 1, n_freq)).astype(int)
+colors_sol = [lib.plot_style.palette_cont_slow[i] for i in slow_idx]
+colors_edl = [lib.plot_style.palette_cont_fast[i] for i in fast_idx]
 
 # SOL: time-varying Ca amount
 fig_ca_time_sol, ax_ca_time_sol = plt.subplots(figsize=(4,3))
@@ -235,7 +246,7 @@ for ci, f in enumerate(freq_list):
     act_model = ActivationModel(local_params[local_params['muscle']], t_vec)
     idx_stims = np.nonzero(stim_times_vec)[0]
     _, ca_vec, _ = act_model.runExcAct(idx_stims)
-    ax_ca_time_sol.plot(t_vec, ca_vec, color=colors[ci], label=f'{int(f)} Hz')
+    ax_ca_time_sol.plot(t_vec, ca_vec, color=colors_sol[ci], label=f'{int(f)} Hz')
 ax_ca_time_sol.set_xlabel('Time (s)')
 ax_ca_time_sol.set_ylabel('Ca amount')
 # ax_ca_time_sol.set_title('SOL: Time-varying Ca')
@@ -254,7 +265,7 @@ for ci, f in enumerate(freq_list):
     act_model = ActivationModel(local_params[local_params['muscle']], t_vec)
     idx_stims = np.nonzero(stim_times_vec)[0]
     _, ca_vec, _ = act_model.runExcAct(idx_stims)
-    ax_ca_time_edl.plot(t_vec, ca_vec, color=colors[ci], label=f'{int(f)} Hz')
+    ax_ca_time_edl.plot(t_vec, ca_vec, color=colors_edl[ci], label=f'{int(f)} Hz')
 ax_ca_time_edl.set_xlabel('Time (s)')
 ax_ca_time_edl.set_ylabel('$c_{ca}$')
 # ax_ca_time_edl.set_title('EDL: Time-varying Ca')

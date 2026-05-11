@@ -6,6 +6,10 @@ This repository contains the time-dependent energetics model developed in the ma
 
 This model is designed to capture the time-dependent response of muscle energy consumption under a number of contractile conditions. As a validation we include codes demonstrating model behaviour in response to dynamic contractions, varying stimuli frequencies, and twitch contractions. 
 
+All codes required to run the model are contained within this repository. 
+
+Report any issues in this repository to r.konno@uq.edu.au.
+
 ## Model 
 The model framework consists of four components including an excitation-activation model, a mechanics model, an initial energetics model, and a recovery bioenergetics model. The models are contained in the following codes, respectively, `ActivationModel.py`, `MechanicsModel.py`, `InitialEnergeticsModel.py`, and `BioenergeticsModel.py`. For a description of the model, see [PREPRINT LINK HERE]
 
@@ -43,4 +47,20 @@ The model was validated against data from a number of experimental studies:
 
 All muscle specific parameters are contained within `parameters_valid.py`
 
-#### 3_XX
+#### 3_validation_B2012
+This code implements a comparison to the dataset from Barclay et al., 2012. These simulations include a series of two muscle twitches at varying frequency to test the dependence of activation heat rates (heat due to Ca transport) on the the frequency of muscle twitches. Simulations are performed for both fast-type and slow-type muscle.
+
+#### 3_validation_BW2004
+This code implements a comparison to the dataset from Barclay and Weber 2004. These simulations include dynamic contractions with an isometric phase followed by an isokinetic phase. Simulations are performed at varying contraction frequencies. Simulations are performed for both fast-type and slow-type muscle.
+
+#### 3_validation_LB2014
+This code implements a comparison to the dataset from Lewis and Barclay 2004. These simulations follow the same protocol as BW2004 simulations, but only at one contraction frequency. Here, the contraction frequency is varied to investigate the role of submaximal activations on energetic rates. Simulations are performed for both fast-type and slow-type muscle.
+
+#### 3_validation_ME1987
+This code implements a comparison to the dataset from Mast and Elzinga 1987. The protocol for this simulations involves a series of isometric muscle twitches. The time-constant of recovery is determined to compare with the time-constant of oxygen recovery. Slow-type muscle parameters are used.
+
+#### 3_validation_ME1988
+This code implements a comparison to the dataset from Mast and Elzinga 1988. The protocol for this simulations involves a series of 10 isometric muscle twitches. The time-constant of recovery and the ratio of initial to recovery heat is compared to the experimental data. Slow-type muscle parameters are used.
+
+## AI use
+The portions of the codes within this repository were written with the assistance of Microsoft Copilot. All codes have been manually checked and tested.

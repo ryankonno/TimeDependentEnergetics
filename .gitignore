@@ -1,2 +1,5 @@
 Figures/* 
 Old/*
+Docs/*
+Models/__pycache__/*.pyc
+.vscode

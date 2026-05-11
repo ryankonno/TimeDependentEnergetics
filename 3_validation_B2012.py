@@ -12,6 +12,7 @@ The University of Queensland
 import numpy as np
 import matplotlib.pyplot as plt
 import lib.plot_style
+from scipy.integrate import cumtrapz
 
 # global plotting defaults are set in lib.plot_style
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
@@ -22,6 +23,7 @@ sys.path.append('./')
 from Models.ActivationModel import ActivationModel
 from Models.MechanicsModel import MechModel
 from Models.InitialEnergeticsModel import EnergeticsModel
+from Models.BioenergeticsModel import Bioenergetics
 
 from lib.model_metrics import r2_score, mse_calc
 
@@ -81,6 +83,7 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
 
     activation_ratio_rows = []
     ca_release_ratio_rows = []
+    energy_konno_ratio_rows = []
 
     for stim_freq_hz in freq_list:
         print(f'Running {muscle_name} at {n_twitches} twitches, {stim_freq_hz} Hz')
@@ -124,14 +127,14 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
         _, ca_single, catn_single = act_model.runExcAct(idx_stims_single)
         q_a_single, _ = energy_model.solveInitialEnergetics(t_vec, ca_single, catn_single, local_params[muscle])
 
-        # Activation heat by subtraction.
+        # Activation heat by subtraction
         q_a_two_twitch = float(np.trapz(q_a, t_vec))
         q_a_one_twitch = float(np.trapz(q_a_single, t_vec))
         q_a_second = q_a_two_twitch - q_a_one_twitch
         pct_second_vs_first = 100.0 * q_a_second / q_a_one_twitch if np.abs(q_a_one_twitch) > 1e-12 else np.nan
         activation_ratio_rows.append((stim_freq_hz, q_a_one_twitch, q_a_two_twitch, q_a_second, pct_second_vs_first))
 
-        # Ca release by subtraction.
+        # Ca release by subtraction
         dt = np.diff(t_vec, prepend=t_vec[0])
         dt[dt == 0] = 1e-12
         ca_release_rate_two = np.maximum(np.diff(ca_vec, prepend=ca_vec[0]) / dt, 0.0)
@@ -142,7 +145,44 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
         pct_ca_second_vs_first = 100.0 * ca_release_second / ca_release_one_twitch if np.abs(ca_release_one_twitch) > 1e-12 else np.nan
         ca_release_ratio_rows.append((stim_freq_hz, ca_release_one_twitch, ca_release_two_twitch, ca_release_second, pct_ca_second_vs_first))
 
-    return np.array(activation_ratio_rows, dtype=float), np.array(ca_release_ratio_rows, dtype=float)
+        ############################################
+        # Compute energetics using konno2025 model for two twitches
+        energy_rate_data_two, energy_data_two = energy_model.dHdt_Konno2025(
+            catn_vec, t_vec, e_ce, dedt_ce,
+            force_direct, local_params[muscle]['r1'],
+            local_params[muscle]['r2'], local_params
+        )
+        Q_a_konno2025_two = energy_rate_data_two['dQ_mdt'] * 0.4 # Get the approximate activation heat component
+        Q_a_total_two = cumtrapz(Q_a_konno2025_two, t_vec, initial=0)[-1]
+        
+        # Compute energetics using konno2025 model for single twitch
+        e_ce_single = dl_vec / local_params[muscle]['l_0'] + 0.1
+        dedt_ce_single = np.diff(e_ce_single, prepend=0) / np.diff(t_vec, prepend=1)
+        force_single = mech_model.computeForce(catn_single, e_ce_single + 1, dedt_ce_single)
+        
+        energy_rate_data_single, energy_data_single = energy_model.dHdt_Konno2025(
+            catn_single, t_vec, e_ce_single, dedt_ce_single,
+            force_single, local_params[muscle]['r1'],
+            local_params[muscle]['r2'], local_params
+        )
+        Q_a_konno2025_single = energy_rate_data_single['dQ_mdt'] * 0.4 # Get the approximate activation heat component
+        Q_a_total_single = cumtrapz(Q_a_konno2025_single, t_vec, initial=0)[-1]
+        
+        # fig, ax = plt.subplots()
+        # ax.plot(t_vec, cumtrapz(Q_a_konno2025_two - Q_a_konno2025_single, t_vec, initial=0)/ local_params[muscle]['F_0'] /local_params[muscle]['l_0'], label = '2nd twitch, k2025')
+        # ax.plot(t_vec, cumtrapz(Q_a_konno2025_single, t_vec, initial=0)/ local_params[muscle]['F_0'] /local_params[muscle]['l_0'], label = '1 twitch, k2025')
+        # ax.plot(t_vec, cumtrapz(q_a - q_a_single, t_vec, initial=0) , label = '2nd twitch, new')
+        # ax.plot(t_vec, cumtrapz(q_a_single, t_vec, initial=0), label = '1 twitch, new')
+        # ax.legend()
+        # plt.show()
+        
+        # Activation heat by subtraction
+        Q_a_total_second = Q_a_total_two - Q_a_total_single
+        pct_Q_a_second_vs_first = 100.0 * Q_a_total_second / Q_a_total_single
+        energy_konno_ratio_rows.append((stim_freq_hz, Q_a_total_single, Q_a_total_two, Q_a_total_second, pct_Q_a_second_vs_first))
+        ############################################
+
+    return np.array(activation_ratio_rows, dtype=float), np.array(ca_release_ratio_rows, dtype=float), np.array(energy_konno_ratio_rows, dtype=float)
 
 
 # Run the model
@@ -152,8 +192,8 @@ t_vec = np.linspace(params['t_start'], params['t_end'], int((params['t_end'] - p
 
 freq_list = (2.0, 4, 8, 16, 32, 64, 128, 256, 512)
 
-sol_act_rows, sol_ca_rows = analyze_muscle('SOL', t_vec, freq_list, n_twitches=2)
-edl_act_rows, edl_ca_rows = analyze_muscle('EDL', t_vec, freq_list, n_twitches=2)
+sol_act_rows, sol_ca_rows, sol_k2025_rows = analyze_muscle('SOL', t_vec, freq_list, n_twitches=2)
+edl_act_rows, edl_ca_rows, edl_k2025_rows = analyze_muscle('EDL', t_vec, freq_list, n_twitches=2)
 
 
 # sol_between_twitch = 1.0 / sol_act_rows[:, 0]
@@ -227,9 +267,19 @@ print('--------+--------------------+--------------------')
 for i, freq in enumerate(freq_list):
     print(f'{freq:7.2f} | {sol_ca_rows[i, 4]:18.2f} | {edl_ca_rows[i, 4]:18.2f}')
 
+# ===========================
+# Energy ratios using konno2025 model
+# ===========================
+sol_freq = sol_k2025_rows[:, 0]
+edl_freq = edl_k2025_rows[:, 0]
 
+print('')
+print('Maintenance heat ratios (konno2025 model)')
+print('freq_Hz | SOL_second/first_% | EDL_second/first_%')
+print('--------+--------------------+--------------------')
+for i, freq in enumerate(freq_list):
+    print(f'{freq:7.2f} | {sol_k2025_rows[i, 4]:18.2f} | {edl_k2025_rows[i, 4]:18.2f}')
 
-# Time-varying Ca amount: plot Ca concentration over time for each stimulation frequency
 n_freq = len(freq_list)
 slow_idx = np.round(np.linspace(0, len(lib.plot_style.palette_cont_slow) - 1, n_freq)).astype(int)
 fast_idx = np.round(np.linspace(0, len(lib.plot_style.palette_cont_fast) - 1, n_freq)).astype(int)

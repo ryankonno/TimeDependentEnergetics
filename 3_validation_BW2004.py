@@ -405,7 +405,8 @@ for muscle_name in ('SOL', 'EDL'):
             cumtrapz(E_tot_konno2025, t_vec, initial=0) /
             params[muscle]['mass'] * 1e3,
             label='KLD2025 Model', color='k'
-        ) 
+        )
+        ax_energy.grid(True, alpha=0.3) 
 
         # Store absolute end-of-trial energies for component contribution bar charts
         e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
@@ -495,6 +496,7 @@ for muscle_name in ('SOL', 'EDL'):
 
     ax_tau.set_xlabel('Time since end of stimulation (s)')
     ax_tau.set_ylabel('Total energy rate ($mW g^{-1}$)')
+    ax_tau.grid(True, alpha=0.3)
     ax_tau.legend(loc = 'upper right')
 
     axs_strain_cycle[0].set_xlabel('Time within cycle (s)')
@@ -553,6 +555,7 @@ for muscle_name in ('SOL', 'EDL'):
     ax_comp_rel.set_xticklabels([f'{freq} Hz' for freq in freq_list])
     ax_comp_rel.set_xlabel('Cycle frequency')
     ax_comp_rel.set_ylabel('Relative contribution at trial end')
+    ax_comp_rel.grid(True, alpha=0.3)
     # ax_comp_rel.legend()
 
     peak_qr_by_muscle[muscle_name] = np.array(peak_qr_vs_freq)

@@ -329,6 +329,7 @@ for muscle_name in ('SOL', 'EDL'):
         ) 
         ax_energy.set_xlabel('Time (s)')
         ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
+        ax_energy.grid(True, alpha=0.3)
 
         # # Compute energetics using previous model
         # energy_rate_data, energy_data_ = energy_model.dHdt_Konno2025(
@@ -476,6 +477,7 @@ for muscle_name in ('SOL', 'EDL'):
     ax_comp_rel.set_xticklabels([f'{stim_freq} Hz' for stim_freq in stim_freq_list])
     ax_comp_rel.set_xlabel('Stimulation frequency (Hz)')
     ax_comp_rel.set_ylabel('Relative contribution at trial end')
+    ax_comp_rel.grid(True, alpha=0.3)
     # ax_comp_rel.legend()
 
     peak_qr_by_muscle[muscle_name] = np.array(peak_qr_vs_freq)

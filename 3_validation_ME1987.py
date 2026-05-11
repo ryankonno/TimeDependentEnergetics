@@ -34,8 +34,6 @@ params_protocol = {
     # Time parameters for setting up the protocol 
     't_start': 0, # s
     't_end': 300, # s
-    'cycle_length': 0.3, # s, Defines the length of the cycle (used to set frequency of the contractions)
-    'N_cycles': 10, # unitless, Number of cycles to simulate (rest period after N_cycles contractions)
 }
 
 # Combine the parameter files 
@@ -134,11 +132,6 @@ dedt_ce = np.diff(e_ce, prepend = 0) / np.diff(t_vec, prepend = 1)
 
 # Compute the force directly  
 force_direct =  mech_model.computeForce(catn_vec, e_ce + 1, dedt_ce)
-
-# Plot one-cycle force trace using time normalised by cycle length.
-cycle_mask = (t_vec >= 0) * (t_vec < params['cycle_length'])
-t_cycle = t_vec[cycle_mask]
-t_cycle_norm = t_cycle / params['cycle_length']
 
 # Compute the initial energetics 
 energy_model = EnergeticsModel()

@@ -58,12 +58,17 @@ params_protocol = {
             'velo_short': 1.3, # l0/s, Barclay and Weber 2004
             'freq': 150, # Hz, Frequency of stimulation, adjusted for tetanus
 
+            # Parameters for the Bhargava model 
+            'G': ,
+
         }, 
         'EDL': {
             # Muscle-specific experimental protocol parameters
             'velo_short': 2.8, # l0/s, Barclay and Weber 2004
             'freq': 175, # Hz, Frequency of stimulation, Adjusted for tetenanus
-
+            
+            # Parameters for the Bhargava model 
+            'G': ,
         },
 }
 

@@ -15,12 +15,12 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 import lib.plot_style
 
-# palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
 import sys 
 sys.path.append('./')
 
 # Import library 
 from lib.recursive_merge import recursive_merge
+from lib.model_metrics import r2_score, mse_calc
 
 # Import parameters 
 from parameters_muscle import params as params_muscle
@@ -632,7 +632,6 @@ fig_total_energy_mJg_compare_norm.savefig('Figures/L2014_total_energy_mJg_comp_n
 fig_total_energy_mJg_compare_norm.savefig('Figures/L2014_total_energy_mJg_comp_norm.svg')
 
 # Compute the r^2 values of the fit 
-from lib.model_metrics import r2_score 
 # Interpolate 
 mod_vals_interp_sol = np.interp(exp_energy_sol['freq'], stim_freq_list, total_energy_output_mJg_by_muscle['SOL'])
 mod_vals_interp_edl = np.interp(exp_energy_edl['freq'], stim_freq_list, total_energy_output_mJg_by_muscle['EDL'])
@@ -641,5 +640,9 @@ r2_sol = r2_score(mod_vals_interp_sol/max(mod_vals_interp_sol), exp_energy_sol['
 r2_edl = r2_score(mod_vals_interp_edl/max(mod_vals_interp_edl), exp_energy_edl['E']/max(exp_energy_edl['E']))
 print(f'SOL: r2 = {r2_sol}')
 print(f'EDL: r2 = {r2_edl}')
+mse_model_sol = mse_calc(mod_vals_interp_sol/max(mod_vals_interp_sol), exp_energy_sol['E']/max( exp_energy_sol['E']))
+mse_model_edl = mse_calc(mod_vals_interp_edl/max(mod_vals_interp_edl), exp_energy_edl['E']/max(exp_energy_edl['E']))
+print(f'SOL: mse = {mse_model_sol}')
+print(f'EDL: mse = {mse_model_edl}')
 
 plt.show()

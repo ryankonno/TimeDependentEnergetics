@@ -33,7 +33,7 @@ Define protocol specific parmeters
 params_protocol = {
     # Time parameters for setting up the protocol 
     't_start': 0, # s
-    't_end': 300, # s
+    't_end': 320, # s
 }
 
 # Combine the parameter files 
@@ -119,6 +119,8 @@ ax.plot(t_vec, catn_vec, label = 'CaTn')
 # ax.plot(stim_vec)
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Normalised concentration')
+fig.savefig(f'Figures/ME1987_Ca_time_{params["muscle"]}.jpg')
+fig.savefig(f'Figures/ME1987_Ca_time_{params["muscle"]}.svg')
 plt.show()
 
 
@@ -181,8 +183,8 @@ ax_energy.plot(t_vec, cumtrapz(E_tot + q_r, t_vec, initial = 0) * energy_unit_sc
 # ax_energy.legend()
 ax_energy.set_xlabel('Time (s)')
 ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
-# fig_energy.savefig('./Figures/B2004_SepVars_EnergyUse_' + params['muscle'] + '.jpg')
-# fig_energy.savefig('./Figures/B2004_SepVars_EnergyUse_' + params['muscle'] + '.svg')
+fig_energy.savefig(f'Figures/ME1987_EnergyUse_{params["muscle"]}.jpg')
+fig_energy.savefig(f'Figures/ME1987_EnergyUse_{params["muscle"]}.svg')
 
 # Store absolute end-of-trial energies for component contribution bar charts.
 e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
@@ -220,6 +222,8 @@ ax_tau.plot(t_rel, exp_decay(t_rel, *popt), '--', color = palette[single_run_idx
 ax_tau.set_xlabel('Time since recovery start (s)')
 ax_tau.set_ylabel('Energy rate ($mW g^{-1}$)')
 ax_tau.legend()
+fig_tau.savefig(f'Figures/ME1987_RecoveryFit_{params["muscle"]}.jpg')
+fig_tau.savefig(f'Figures/ME1987_RecoveryFit_{params["muscle"]}.svg')
 
 # Compute the peak recovery rate 
 peak_qr_vs_freq.append(np.max(q_r[mask] * energy_unit_scaler))

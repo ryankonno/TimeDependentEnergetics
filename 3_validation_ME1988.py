@@ -33,7 +33,7 @@ Define protocol specific parmeters
 params_protocol = {
     # Time parameters for setting up the protocol 
     't_start': -10, # s, 10 s pre-stimulation buffer
-    't_end': 100, # s
+    't_end': 150, # s
     'cycle_length': 0.3, # s, Defines the length of the cycle (used to set frequency of the contractions)
     'N_cycles': 10, # unitless, Number of cycles to simulate (rest period after N_cycles contractions)
 }
@@ -121,6 +121,8 @@ ax.plot(t_vec, catn_vec, label = 'CaTn')
 # ax.plot(stim_vec)
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Normalised concentration')
+fig.savefig(f'Figures/ME1988_Ca_time_{params["muscle"]}.jpg')
+fig.savefig(f'Figures/ME1988_Ca_time_{params["muscle"]}.svg')
 plt.show()
 
 
@@ -141,6 +143,8 @@ ax_force.plot(t_vec, force_direct, color = palette[single_run_idx], label = 'For
 ax_force.set_xlabel('Time (s)')
 ax_force.set_ylabel('Normalised force')
 ax_force.legend()
+fig_force.savefig(f'Figures/ME1988_Force_{params["muscle"]}.jpg')
+fig_force.savefig(f'Figures/ME1988_Force_{params["muscle"]}.svg')
 
 # Compute the initial energetics 
 energy_model = EnergeticsModel()
@@ -187,6 +191,8 @@ axs_atp_pcr_conc[1].set_xlabel('Time (s)')
 axs_atp_pcr_conc[1].set_ylabel('PCR (mM)')
 axs_atp_pcr_conc[1].set_title('PCR concentration')
 axs_atp_pcr_conc[1].legend(loc='upper right')
+fig_atp_pcr_conc.savefig(f'Figures/ME1988_ATP_PCR_conc_{params["muscle"]}.jpg')
+fig_atp_pcr_conc.savefig(f'Figures/ME1988_ATP_PCR_conc_{params["muscle"]}.svg')
 
 # Plot ATP and PCR derivatives over time.
 d_atp_dt = bioenergetic_model.atp_rhs(sol.t, sol.y)
@@ -198,6 +204,8 @@ ax_atp_pcr.set_xlabel('Time (s)')
 ax_atp_pcr.set_ylabel('Rate (mM/s)')
 ax_atp_pcr.set_title('ATP and PCR derivatives')
 ax_atp_pcr.legend(loc='upper right')
+fig_atp_pcr.savefig(f'Figures/ME1988_ATP_PCR_deriv_{params["muscle"]}.jpg')
+fig_atp_pcr.savefig(f'Figures/ME1988_ATP_PCR_deriv_{params["muscle"]}.svg')
 
 # Compute the energetic rates 
 scale =  params[muscle]['mass'] / params[muscle]['F_0'] / params[muscle]['l_0'] 
@@ -211,11 +219,11 @@ fig_energy, ax_energy = plt.subplots(layout = 'constrained')
 ax_energy.plot(t_vec, cumtrapz(E_tot, t_vec, initial = 0) * energy_unit_scaler, label = '$ e_{init}$', color = palette[single_run_idx], alpha = 0.25) 
 ax_energy.plot(t_vec, cumtrapz(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$', color = palette[single_run_idx], ls = lib.plot_style.ls_styles[2], alpha = 0.5) 
 ax_energy.plot(t_vec, cumtrapz(E_tot + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$', color = palette[single_run_idx]) 
-# ax_energy.legend()
 ax_energy.set_xlabel('Time (s)')
 ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
-# fig_energy.savefig('./Figures/B2004_SepVars_EnergyUse_' + params['muscle'] + '.jpg')
-# fig_energy.savefig('./Figures/B2004_SepVars_EnergyUse_' + params['muscle'] + '.svg')
+ax_energy.legend()
+fig_energy.savefig(f'Figures/ME1988_EnergyUse_{params["muscle"]}.jpg')
+fig_energy.savefig(f'Figures/ME1988_EnergyUse_{params["muscle"]}.svg')
 
 # Store absolute end-of-trial energies for component contribution bar charts.
 e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
@@ -238,6 +246,8 @@ ax_heat_rate.set_xlabel('Time (s)')
 ax_heat_rate.set_ylabel('Heat rate ($mW g^{-1}$)')
 ax_heat_rate.set_ylim((0,0.75))
 ax_heat_rate.legend()
+fig_heat_rate.savefig(f'Figures/ME1988_HeatRate_{params["muscle"]}.jpg')
+fig_heat_rate.savefig(f'Figures/ME1988_HeatRate_{params["muscle"]}.svg')
 
 mask = t_vec >= 50 + 3 # Add 3s buffer
 t_decay = t_vec[mask]
@@ -264,6 +274,8 @@ ax_tau.plot(t_rel, exp_decay(t_rel, *popt), '--', color = palette[single_run_idx
 ax_tau.set_xlabel('Time since recovery start (s)')
 ax_tau.set_ylabel('Energy rate ($mW g^{-1}$)')
 ax_tau.legend()
+fig_tau.savefig(f'Figures/ME1988_RecoveryFit_{params["muscle"]}.jpg')
+fig_tau.savefig(f'Figures/ME1988_RecoveryFit_{params["muscle"]}.svg')
 
 # Compute the peak recovery rate 
 peak_qr_vs_freq.append(np.max(q_r[mask] * energy_unit_scaler))

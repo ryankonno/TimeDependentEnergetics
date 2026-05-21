@@ -17,7 +17,7 @@ The model framework consists of four components including an excitation-activati
 The codes contained within this repository include demo codes along with parameter optimisation and validation codes. The relevant codes are described below. 
 
 ### DEMO codes 
-##### DEMO_workrest_bioenergetics.py
+#### ```DEMO_workrest_bioenergetics.py```
 This script simulates the energetics of a 'work-rest' contraction. Despite the name this is an isometric contraction. 
 
 The 'work' phase consists of a fixed initial energetic rate prescribed (E_rate). Following the initial period, the recovery of the energetic rates is computed using the bioenergetics model.
@@ -34,8 +34,7 @@ The script produces three figures and prints a summary of the fitted recovery be
 
  - Table 1: The fitted time constant, initial energy, recovery energy, and recovery-to-initial energy ratio for each target energy value.
 
-
-##### DEMO_repeatedcontractions.py
+#### ```DEMO_repeatedcontractions.py```
 This code simulates the energetics for repeated isometric contractions. 
 
 All parameters for the code are contained within the file. 
@@ -62,12 +61,12 @@ NOTE: for output, the frequency will correspond to either contraction frequency 
 
 ### Parameter optimisation 
 
-##### 1_initial_energy_opt.py
+#### ```1_initial_energy_opt.py```
 Initial energetics model optimisation was done to optimise the initial energetics parameters to data from 
  - Barclay, C. J., Woledge, R. C. and Curtin, N. A. (2010). Is the efficiency of mammalian (mouse) skeletal muscle temperature dependent? J Physiol. 588, 3819–3831.
 
 
-##### 2_recovery_energy_opt.py
+#### ```2_recovery_energy_opt.py```
 Bioenergetics model optimisation was used to inform parameters based on the time course of recovery observed in 
  - Barclay, C. J., Arnold, P. D. and Gibbs, C. L. (1995). Fatigue and heat production in repeated contractions of mouse skeletal muscle. J Physiol. 488, 741–752.
 
@@ -91,20 +90,20 @@ The model was validated against data from a number of experimental studies:
 
 All muscle specific parameters are contained within `parameters_valid.py`
 
-#### 3_validation_B2012
+#### ```3_validation_B2012```
 This code implements a comparison to the dataset from Barclay et al., 2012. These simulations include a series of two muscle twitches at varying frequency to test the dependence of activation heat rates (heat due to Ca transport) on the the frequency of muscle twitches. Simulations are performed for both fast-type and slow-type muscle.
 
-#### 3_validation_BW2004
+#### ```3_validation_BW2004```
 This code implements a comparison to the dataset from Barclay and Weber 2004. These simulations include dynamic contractions with an isometric phase followed by an isokinetic phase. Simulations are performed at varying contraction frequencies. Simulations are performed for both fast-type and slow-type muscle.
 
-#### 3_validation_LB2014
+#### ```3_validation_LB2014```
 This code implements a comparison to the dataset from Lewis and Barclay 2004. These simulations follow the same protocol as BW2004 simulations, but only at one contraction frequency. Here, the contraction frequency is varied to investigate the role of submaximal activations on energetic rates. Simulations are performed for both fast-type and slow-type muscle.
 
-#### 3_validation_ME1987
+#### ```3_validation_ME1987```
 This code implements a comparison to the dataset from Mast and Elzinga 1987. The protocol for this simulations involves a series of isometric muscle twitches. The time-constant of recovery is determined to compare with the time-constant of oxygen recovery. Slow-type muscle parameters are used.
 
-#### 3_validation_ME1988
+#### ```3_validation_ME1988```
 This code implements a comparison to the dataset from Mast and Elzinga 1988. The protocol for this simulations involves a series of 10 isometric muscle twitches. The time-constant of recovery and the ratio of initial to recovery heat is compared to the experimental data. Slow-type muscle parameters are used.
 
-## AI use
-The portions of the codes within this repository were written with the assistance of Microsoft Copilot. All codes have been manually checked and tested.
+## AI use acknowledgement
+Portions of the codes within this repository were written with the assistance of Microsoft Copilot. All codes have been manually checked and tested.

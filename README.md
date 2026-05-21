@@ -2,7 +2,7 @@
 
 This repository contains the time-dependent energetics model developed in the manuscript 
     
- - Konno RN, Lichtwark GA, Dick TJM. A time-dependent mechano-bioenergetics model of muscle contraction. 2026. [Submitted]. Preprint available at [PREPRINT LINK HERE]
+ - Konno RN, Lichtwark GA, Dick TJM. A time-dependent mechano-bioenergetics model of muscle contraction. 2026. Preprint available at [PREPRINT LINK HERE]
 
 This model is designed to capture the time-dependent response of muscle energy consumption under a number of contractile conditions. As a validation we include codes demonstrating model behaviour in response to dynamic contractions, varying stimuli frequencies, and twitch contractions. 
 
@@ -14,7 +14,51 @@ Report any issues in this repository to r.konno@uq.edu.au.
 The model framework consists of four components including an excitation-activation model, a mechanics model, an initial energetics model, and a recovery bioenergetics model. The models are contained in the following codes, respectively, `ActivationModel.py`, `MechanicsModel.py`, `InitialEnergeticsModel.py`, and `BioenergeticsModel.py`. For a description of the model, see [PREPRINT LINK HERE]
 
 ## Codes 
-The codes contained within this repository include both parameter optimisation and validation codes. The relevant codes are described below. 
+The codes contained within this repository include demo codes along with parameter optimisation and validation codes. The relevant codes are described below. 
+
+### DEMO codes 
+##### DEMO_workrest_bioenergetics.py
+This script simulates the energetics of a 'work-rest' contraction. Despite the name this is an isometric contraction. 
+
+The 'work' phase consists of a fixed initial energetic rate prescribed (E_rate). Following the initial period, the recovery of the energetic rates is computed using the bioenergetics model.
+
+All parameters used by the model are defined in this file. The params dictionary contains the time settings used to configure the simulation together with muscle-specific energetics parameters for SOL and EDL.
+
+The script produces three figures and prints a summary of the fitted recovery behaviour to the console:
+
+ - Figure 1: Cumulative total energy over the simulation
+
+ - Figure 2: Recovery energy rate after the work phase with the fitted exponential decay
+
+ - Figure 3: ATP and PCr concentration over time
+
+ - Table 1: The fitted time constant, initial energy, recovery energy, and recovery-to-initial energy ratio for each target energy value.
+
+
+##### DEMO_repeatedcontractions.py
+This code simulates the energetics for repeated isometric contractions. 
+
+All parameters for the code are contained within the file. 
+
+Within the parameter dictionary (params) are time variables to set up the simulation including the contraction frequency and stimulation frequency. Muscle specific parameter for the energetics model are also included for the SOL and EDL. 
+
+To investigate the role of contraction frequency or stimulation frequency, the parameter sim_type can be chosen to choose the simulation setup. The options are 
+ - varycontrfreq: vary the frequency of the contractions with stimulation frequency as defined
+ - varystimfreq: vary the frequency of the stimulation with contraction frequency as defined 
+ - single: Perfrom a single stimulation and contraction frequency with parameters as defined
+
+
+The outputs from this code include two tables and two figures: 
+
+ - Table 1: Comparison of time constants and recovery to initial energetics across different frequencies 
+
+ - Table 2: Total energy be component over the simulation 
+
+ - Figure 1: Cumulative energy over the simulation including total energy (solid line), initial energy (dotted line), and recovery energy (dashed line)
+
+ - Figure 2: Total energy spent per componentent
+
+NOTE: for output, the frequency will correspond to either contraction frequency or stimulation frequency depending on the sim_type parameter
 
 ### Parameter optimisation 
 

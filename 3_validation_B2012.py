@@ -25,7 +25,7 @@ from Models.MechanicsModel import MechModel
 from Models.InitialEnergeticsModel import EnergeticsModel
 from Models.BioenergeticsModel import Bioenergetics
 
-from lib.model_metrics import r2_score, mse_calc
+from lib.model_metrics import r2_score, nrmse_calc
 
 # Import parameters 
 from parameters_muscle import params as params_muscle
@@ -190,7 +190,7 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
 dt = 0.0001
 t_vec = np.linspace(params['t_start'], params['t_end'], int((params['t_end'] - params['t_start']) / dt)) 
 
-freq_list = (2.0, 4, 8, 16, 32, 64, 128, 256, 512)
+freq_list = (2.0, 4, 8, 16, 32, 64, 128, 256)
 
 sol_act_rows, sol_ca_rows, sol_k2025_rows = analyze_muscle('SOL', t_vec, freq_list, n_twitches=2)
 edl_act_rows, edl_ca_rows, edl_k2025_rows = analyze_muscle('EDL', t_vec, freq_list, n_twitches=2)
@@ -216,6 +216,8 @@ ax_act_ratio.plot(1/np.array(data_exp_EDL['t_int']), np.array(data_exp_EDL['qA_r
 # ax_act_ratio.plot(edl_between_twitch, edl_act_rows[:, 4], '-o', color=lib.plot_style.palette_cont_fast[0], label='EDL Mod')
 ax_act_ratio.plot(sol_freq, sol_act_rows[:, 4], '-o', color=lib.plot_style.palette_cont_slow[0], label='SOL Mod')   
 ax_act_ratio.plot(edl_freq, edl_act_rows[:, 4], '-o', color=lib.plot_style.palette_cont_fast[0], label='EDL Mod')
+ax_act_ratio.plot(sol_freq, sol_k2025_rows[:, 4], '--s', color=lib.plot_style.palette_cont_slow[0], alpha = 0.5, label='SOL Konno2025')
+ax_act_ratio.plot(edl_freq, edl_k2025_rows[:, 4], '--s', color=lib.plot_style.palette_cont_fast[0], alpha = 0.5, label='EDL Konno2025')
 # ax_act_ratio.set_xlabel('Between-twitch time (s)')
 ax_act_ratio.set_xlabel('Stimulation frequency ($Hz$)')
 ax_act_ratio.set_ylabel('Activation heat (%)')
@@ -232,18 +234,18 @@ fig_act_ratio.savefig('Figures/conseq_twitches_activation_heat_ratio.svg')
 sol_act_mod_interp = np.interp(np.array(data_exp_SOL['t_int']), np.flip(sol_between_twitch), np.flip(sol_act_rows[:, 4]))
 edl_act_mod_interp = np.interp(np.array(data_exp_EDL['t_int']), np.flip(edl_between_twitch), np.flip(edl_act_rows[:, 4]))
 r2_model_sol =  r2_score(sol_act_mod_interp, np.array(data_exp_SOL['qA_rel']))
-mse_model_sol = mse_calc(sol_act_mod_interp, np.array(data_exp_SOL['qA_rel']))
+mse_model_sol = nrmse_calc(sol_act_mod_interp, np.array(data_exp_SOL['qA_rel']))
 r2_model_edl =  r2_score(edl_act_mod_interp, np.array(data_exp_EDL['qA_rel']))
-mse_model_edl = mse_calc(edl_act_mod_interp, np.array(data_exp_EDL['qA_rel']))
-print(f'SOL: r2 = {r2_model_sol}, mse = {mse_model_sol}')
-print(f'EDL: r2 = {r2_model_edl}, mse = {mse_model_edl}')
+mse_model_edl = nrmse_calc(edl_act_mod_interp, np.array(data_exp_EDL['qA_rel']))
+print(f'SOL: r2 = {r2_model_sol}, nrmse = {mse_model_sol}')
+print(f'EDL: r2 = {r2_model_edl}, nrmse = {mse_model_edl}')
 
 
 # Plot the ca released as a percentage of the first twitch
 fig_ca_release_ratio, ax_ca_release_ratio = plt.subplots(figsize=(4,3))
 fig_ca_release_ratio.subplots_adjust(left=0.15)
-ax_ca_release_ratio.plot(sol_between_twitch, sol_ca_rows[:, 4], '-o', color=lib.plot_style.palette_cont_slow[0], label='SOL (tau_1 = 0.001)')
-ax_ca_release_ratio.plot(edl_between_twitch, edl_ca_rows[:, 4], '-o', color=lib.plot_style.palette_cont_fast[0], label='EDL (tau_1 = 0.0007)')
+ax_ca_release_ratio.plot(sol_between_twitch, sol_ca_rows[:, 4], '-o', color=lib.plot_style.palette_cont_slow[0], label='SOL')
+ax_ca_release_ratio.plot(edl_between_twitch, edl_ca_rows[:, 4], '-o', color=lib.plot_style.palette_cont_fast[0], label='EDL')
 ax_ca_release_ratio.set_xlabel('Between-twitch time (s)')
 ax_ca_release_ratio.set_ylabel('Relative Ca release (%)')
 # ax_ca_release_ratio.set_title('Second-twitch Relative Ca Release')

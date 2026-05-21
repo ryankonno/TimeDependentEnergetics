@@ -7,9 +7,9 @@ def r2_score(y_pred, y_exp):
     r2 = 1 - (ss_res / ss_tot)
     return r2 
 
-# Compute mean square error 
-def mse_calc(y_pred, y_exp): 
-    return np.sqrt(np.sum( (y_pred - y_exp)**2 )) / np.size(y_pred,0)
+# Compute normalised root mean square error 
+def nrmse_calc(y_pred, y_exp): 
+    return np.sqrt(np.sum( (y_pred - y_exp)**2 ) / np.size(y_pred,0)) / np.mean(y_exp)
 
 # Compute relative error (L2 norm)
 def l2_err(y_pred, y_exp): 

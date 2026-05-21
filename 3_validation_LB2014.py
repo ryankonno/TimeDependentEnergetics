@@ -20,7 +20,7 @@ sys.path.append('./')
 
 # Import library 
 from lib.recursive_merge import recursive_merge
-from lib.model_metrics import r2_score, mse_calc
+from lib.model_metrics import r2_score, nrmse_calc
 
 # Import parameters 
 from parameters_muscle import params as params_muscle
@@ -640,9 +640,9 @@ r2_sol = r2_score(mod_vals_interp_sol/max(mod_vals_interp_sol), exp_energy_sol['
 r2_edl = r2_score(mod_vals_interp_edl/max(mod_vals_interp_edl), exp_energy_edl['E']/max(exp_energy_edl['E']))
 print(f'SOL: r2 = {r2_sol}')
 print(f'EDL: r2 = {r2_edl}')
-mse_model_sol = mse_calc(mod_vals_interp_sol/max(mod_vals_interp_sol), exp_energy_sol['E']/max( exp_energy_sol['E']))
-mse_model_edl = mse_calc(mod_vals_interp_edl/max(mod_vals_interp_edl), exp_energy_edl['E']/max(exp_energy_edl['E']))
-print(f'SOL: mse = {mse_model_sol}')
-print(f'EDL: mse = {mse_model_edl}')
+mse_model_sol = nrmse_calc(mod_vals_interp_sol/max(mod_vals_interp_sol), exp_energy_sol['E']/max( exp_energy_sol['E']))
+mse_model_edl = nrmse_calc(mod_vals_interp_edl/max(mod_vals_interp_edl), exp_energy_edl['E']/max(exp_energy_edl['E']))
+print(f'SOL: nrmse = {mse_model_sol}')
+print(f'EDL: nrmse = {mse_model_edl}')
 
 plt.show()

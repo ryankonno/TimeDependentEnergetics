@@ -68,7 +68,7 @@ params = {
     'stim_freq_list': (1, 2, 4, 8, 16, 32, 64, 128),
 
     # Define the muscle for the simulation 
-    'muscle': 'SOL',
+    'muscle': 'SOL', # 'SOL' or 'EDL'
 
     # General muscle parameters
     'rho0':  1e6, # g/m^3, Density of muscle

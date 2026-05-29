@@ -43,7 +43,7 @@ params = {
         # General muscle parameters
     'rho0':  1e6, # g/m^3, Density of muscle
 
-    'muscle': 'SOL',
+    'muscle': 'SOL', #'SOL' or 'EDL'
 
         # Mouse data 
         'SOL': {
@@ -261,3 +261,5 @@ for target_energy_j, tau_fit, e_init_end_j, q_r_end_j, recovery_to_init_ratio in
         f'{target_energy_j * 1e3:12.2f} | {tau_fit:10.2f} | '
         f'{e_init_end_j:12.4f} | {q_r_end_j:12.4f} | {recovery_to_init_ratio:18.4f}'
     )
+
+plt.show()

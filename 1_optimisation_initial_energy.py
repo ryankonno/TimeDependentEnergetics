@@ -8,7 +8,7 @@ The University of Queensland
 
 # Import 
 import numpy as np 
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt 
 import lib.plot_style
@@ -156,7 +156,7 @@ for muscle_type in ['SOL','EDL']:
             
             # set up the mechanical conditions
             dedt_ce = np.zeros_like(t_vec) + v_short * (t_vec >= 1) * (t_vec < 1.1)
-            # e_ce = cumtrapz(dedt_ce, t_vec, initial=1.05)
+            # e_ce = cumulative_trapezoid(dedt_ce, t_vec, initial=1.05)
             e_ce = np.zeros_like(dedt_ce) # NOTE: We choose no strain since we are at steady state and shortening over plateau 
 
             # Get the force
@@ -386,11 +386,11 @@ for muscle_type in ['SOL','EDL']:
         q_a, q_m, q_sl, w = energy_model.solveInitialEnergetics(t_vec, ca_vec, catn_vec, params[muscle], e_ce + 1, dedt_ce, force, mech_model)
 
         # Compute cumulative energy for each component
-        q_a_cum = cumtrapz(q_a, t_vec, initial=0)
-        q_m_cum = cumtrapz(q_m, t_vec, initial=0)
-        q_sl_cum = cumtrapz(q_sl, t_vec, initial=0)
-        w_cum = cumtrapz(w, t_vec, initial=0)
-        total_cum = cumtrapz(q_a + q_m + q_sl + w, t_vec, initial=0)
+        q_a_cum = cumulative_trapezoid(q_a, t_vec, initial=0)
+        q_m_cum = cumulative_trapezoid(q_m, t_vec, initial=0)
+        q_sl_cum = cumulative_trapezoid(q_sl, t_vec, initial=0)
+        w_cum = cumulative_trapezoid(w, t_vec, initial=0)
+        total_cum = cumulative_trapezoid(q_a + q_m + q_sl + w, t_vec, initial=0)
 
         # Overlay each shortening value on the same 5-panel figure
         axs_energy_comp[0].plot(

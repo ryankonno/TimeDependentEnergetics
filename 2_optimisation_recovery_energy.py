@@ -8,7 +8,7 @@ The University of Queensland
 
 # Import 
 import numpy as np 
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 from scipy.optimize import minimize, curve_fit
 import matplotlib.pyplot as plt 
 import lib.plot_style
@@ -346,9 +346,9 @@ fig.savefig('Figures/2_optimisation_recovery_energy_rate_components.svg')
 
 # Plot the total energy over the cycle
 fig, ax = plt.subplots(layout = 'constrained')
-ax.plot(t_vec, cumtrapz(E_tot_scaled + q_r, t_vec, initial = 0), label = '$ q_r + e_{init}$') 
-ax.plot(t_vec, cumtrapz(E_tot_scaled, t_vec, initial = 0), label = '$ e_{init}$') 
-ax.plot(t_vec, cumtrapz(q_r, t_vec, initial = 0), label = '$ q_r$') 
+ax.plot(t_vec, cumulative_trapezoid(E_tot_scaled + q_r, t_vec, initial = 0), label = '$ q_r + e_{init}$') 
+ax.plot(t_vec, cumulative_trapezoid(E_tot_scaled, t_vec, initial = 0), label = '$ e_{init}$') 
+ax.plot(t_vec, cumulative_trapezoid(q_r, t_vec, initial = 0), label = '$ q_r$') 
 ax.legend()
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Energy  ($F_0 l_0$)')
@@ -357,7 +357,7 @@ fig.savefig('Figures/2_optimisation_recovery_energy_integral_components.svg')
 plt.show()
 
 # Print the ratio between initial and recovery heat 
-q_r_cum = cumtrapz(q_r, t_vec, initial = 0)
-e_init_cum = cumtrapz(E_tot_scaled, t_vec, initial = 0)
+q_r_cum = cumulative_trapezoid(q_r, t_vec, initial = 0)
+e_init_cum = cumulative_trapezoid(E_tot_scaled, t_vec, initial = 0)
 dt = t_vec[1] - t_vec[0]
 print(f'Ratio in initial and recovery heat: {e_init_cum[int(params["t_cycle_end"]/dt)] / q_r_cum[int(params["t_cycle_end"]/dt)]}')

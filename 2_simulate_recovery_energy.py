@@ -10,7 +10,7 @@ The University of Queensland
 
 # Import 
 import numpy as np 
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 import lib.plot_style
@@ -221,9 +221,9 @@ fig.savefig('Figures/B1995Opt_' + muscle + '__expdatacomp' + save_id + '.svg')
 
 # Plot the total energy over the cycle
 fig, ax = plt.subplots()
-ax.plot(t_vec, cumtrapz(E_tot_scaled, t_vec, initial = 0) * energy_unit_scaler, label = '$ e_{init}$') 
-ax.plot(t_vec, cumtrapz(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$') 
-ax.plot(t_vec, cumtrapz(E_tot_scaled + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$')
+ax.plot(t_vec, cumulative_trapezoid(E_tot_scaled, t_vec, initial = 0) * energy_unit_scaler, label = '$ e_{init}$') 
+ax.plot(t_vec, cumulative_trapezoid(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$') 
+ax.plot(t_vec, cumulative_trapezoid(E_tot_scaled + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$')
 ax.legend()
 ax.set_xlabel('Time (s)')
 # ax.set_ylabel('Energy  ($mJ g^{-1}$)')
@@ -288,7 +288,7 @@ ax.grid(True)
 n_atp = 38 # number of atp
 Gatp = 60e3 # J/mol 
 # r_rec is in units of J / mol
-q_r_totalheat = cumtrapz(q_r, t_vec, initial = 0) * energy_unit_scaler
+q_r_totalheat = cumulative_trapezoid(q_r, t_vec, initial = 0) * energy_unit_scaler
 r_rec_J = q_r_totalheat[-1]
 efficiency = n_atp * Gatp / (params[muscle]['r_rec'] + n_atp * Gatp)
 print(f'    efficiency: {efficiency}')

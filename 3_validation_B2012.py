@@ -12,7 +12,7 @@ The University of Queensland
 import numpy as np
 import matplotlib.pyplot as plt
 import lib.plot_style
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 
 # global plotting defaults are set in lib.plot_style
 palette = ("#32cd9c", "#f67410", "#2b21b8", "#C21599", "#83d921", "#1ab6e9")
@@ -153,7 +153,7 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
             local_params[muscle]['r2'], local_params
         )
         Q_a_konno2025_two = energy_rate_data_two['dQ_mdt'] * 0.4 # Get the approximate activation heat component
-        Q_a_total_two = cumtrapz(Q_a_konno2025_two, t_vec, initial=0)[-1]
+        Q_a_total_two = cumulative_trapezoid(Q_a_konno2025_two, t_vec, initial=0)[-1]
         
         # Compute energetics using konno2025 model for single twitch
         e_ce_single = dl_vec / local_params[muscle]['l_0'] + 0.1
@@ -166,13 +166,13 @@ def analyze_muscle(muscle_name, t_vec, freq_list, n_twitches=2):
             local_params[muscle]['r2'], local_params
         )
         Q_a_konno2025_single = energy_rate_data_single['dQ_mdt'] * 0.4 # Get the approximate activation heat component
-        Q_a_total_single = cumtrapz(Q_a_konno2025_single, t_vec, initial=0)[-1]
+        Q_a_total_single = cumulative_trapezoid(Q_a_konno2025_single, t_vec, initial=0)[-1]
         
         # fig, ax = plt.subplots()
-        # ax.plot(t_vec, cumtrapz(Q_a_konno2025_two - Q_a_konno2025_single, t_vec, initial=0)/ local_params[muscle]['F_0'] /local_params[muscle]['l_0'], label = '2nd twitch, k2025')
-        # ax.plot(t_vec, cumtrapz(Q_a_konno2025_single, t_vec, initial=0)/ local_params[muscle]['F_0'] /local_params[muscle]['l_0'], label = '1 twitch, k2025')
-        # ax.plot(t_vec, cumtrapz(q_a - q_a_single, t_vec, initial=0) , label = '2nd twitch, new')
-        # ax.plot(t_vec, cumtrapz(q_a_single, t_vec, initial=0), label = '1 twitch, new')
+        # ax.plot(t_vec, cumulative_trapezoid(Q_a_konno2025_two - Q_a_konno2025_single, t_vec, initial=0)/ local_params[muscle]['F_0'] /local_params[muscle]['l_0'], label = '2nd twitch, k2025')
+        # ax.plot(t_vec, cumulative_trapezoid(Q_a_konno2025_single, t_vec, initial=0)/ local_params[muscle]['F_0'] /local_params[muscle]['l_0'], label = '1 twitch, k2025')
+        # ax.plot(t_vec, cumulative_trapezoid(q_a - q_a_single, t_vec, initial=0) , label = '2nd twitch, new')
+        # ax.plot(t_vec, cumulative_trapezoid(q_a_single, t_vec, initial=0), label = '1 twitch, new')
         # ax.legend()
         # plt.show()
         

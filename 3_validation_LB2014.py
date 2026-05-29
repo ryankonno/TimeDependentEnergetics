@@ -10,7 +10,7 @@ The University of Queensland
 
 # Import 
 import numpy as np 
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 import lib.plot_style
@@ -291,39 +291,39 @@ for muscle_name in ('SOL', 'EDL'):
             t_cycle = t_vec[cycle_mask]
             
             # Compute cumulative energy for each component
-            q_a_cum = cumtrapz(
+            q_a_cum = cumulative_trapezoid(
                 q_a[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
-            q_m_cum = cumtrapz(
+            q_m_cum = cumulative_trapezoid(
                 q_m[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
-            q_sl_cum = cumtrapz(
+            q_sl_cum = cumulative_trapezoid(
                 q_sl[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
-            w_cum = cumtrapz(
+            w_cum = cumulative_trapezoid(
                 w[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
-            q_r_cum = cumtrapz(
+            q_r_cum = cumulative_trapezoid(
                 q_r[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
             
         # Plot total energy
         ax_energy.plot(
             t_vec,
-            cumtrapz(E_tot, t_vec, initial=0) *
+            cumulative_trapezoid(E_tot, t_vec, initial=0) *
             energy_unit_scaler,
             label='$e_{init}$', color=palette[idx], alpha=0.25
         )
         ax_energy.plot(
             t_vec,
-            cumtrapz(q_r, t_vec, initial=0) *
+            cumulative_trapezoid(q_r, t_vec, initial=0) *
             energy_unit_scaler,
             label='$q_r$', color=palette[idx], ls=lib.plot_style.ls_styles[2],
             alpha=0.5
         )
         ax_energy.plot(
             t_vec,
-            cumtrapz(E_tot + q_r, t_vec, initial=0) *
+            cumulative_trapezoid(E_tot + q_r, t_vec, initial=0) *
             energy_unit_scaler,
             label='$q_r + e_{init}$', color=palette[idx]
         ) 
@@ -340,17 +340,17 @@ for muscle_name in ('SOL', 'EDL'):
         # E_tot_konno2025 = energy_rate_data['dEdt']
         # ax_energy.plot(
         #     t_vec,
-        #     cumtrapz(E_tot_konno2025, t_vec, initial=0) /
+        #     cumulative_trapezoid(E_tot_konno2025, t_vec, initial=0) /
         #     params[muscle]['mass'] * 1e3,
         #     label='KLD2025 Model', color='k'
         # ) 
 
         # Store absolute end-of-trial energies for component contribution bar charts.
-        e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
-        e_q_m_end = cumtrapz(q_m, t_vec, initial = 0)[-1] * energy_unit_scaler
-        e_q_sl_end = cumtrapz(q_sl, t_vec, initial = 0)[-1] * energy_unit_scaler
-        e_w_end = cumtrapz(w, t_vec, initial = 0)[-1] * energy_unit_scaler
-        e_q_r_end = cumtrapz(q_r, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_q_a_end = cumulative_trapezoid(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_q_m_end = cumulative_trapezoid(q_m, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_q_sl_end = cumulative_trapezoid(q_sl, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_w_end = cumulative_trapezoid(w, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_q_r_end = cumulative_trapezoid(q_r, t_vec, initial = 0)[-1] * energy_unit_scaler
         component_energy_abs.append((e_q_a_end, e_q_m_end, e_q_sl_end, e_w_end, e_q_r_end))
 
         #######################
@@ -380,9 +380,9 @@ for muscle_name in ('SOL', 'EDL'):
         tau_vs_freq.append(tau_fit)
 
         # Compute efficiencies from integrated energies over the full simulation window.
-        E_tot_end = cumtrapz(E_tot, t_vec, initial = 0)[-1]
-        E_rec_end = cumtrapz(q_r, t_vec, initial = 0)[-1]
-        W_end = cumtrapz(w, t_vec, initial = 0)[-1]
+        E_tot_end = cumulative_trapezoid(E_tot, t_vec, initial = 0)[-1]
+        E_rec_end = cumulative_trapezoid(q_r, t_vec, initial = 0)[-1]
+        W_end = cumulative_trapezoid(w, t_vec, initial = 0)[-1]
         E_tot_end_mJg = E_tot_end * energy_unit_scaler
         E_rec_end_mJg = E_rec_end * energy_unit_scaler
         E_total_out_mJg = E_tot_end_mJg + E_rec_end_mJg

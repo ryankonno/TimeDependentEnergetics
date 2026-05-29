@@ -11,7 +11,7 @@ The University of Queensland
 
 # Import 
 import numpy as np 
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 import lib.plot_style
@@ -161,10 +161,10 @@ E_tot = q_a + q_m + q_sl + w  # F0l0/s, Total energy
 # ax.set_ylabel('Energy rate ($W \, (F_0 l_0)^{-1}$)')
 # # Plot the total energy over the cycle
 # fig, ax = plt.subplots(layout = 'constrained')
-# ax.plot(t_vec, cumtrapz(q_a, t_vec, initial = 0), label = '$ q_a$') 
-# ax.plot(t_vec, cumtrapz(q_m, t_vec, initial = 0), label = '$ q_m$') 
-# ax.plot(t_vec, cumtrapz(q_sl, t_vec, initial = 0), label = '$ q_{sl}$') 
-# ax.plot(t_vec, cumtrapz(w, t_vec, initial = 0), label = '$ w$')
+# ax.plot(t_vec, cumulative_trapezoid(q_a, t_vec, initial = 0), label = '$ q_a$') 
+# ax.plot(t_vec, cumulative_trapezoid(q_m, t_vec, initial = 0), label = '$ q_m$') 
+# ax.plot(t_vec, cumulative_trapezoid(q_sl, t_vec, initial = 0), label = '$ q_{sl}$') 
+# ax.plot(t_vec, cumulative_trapezoid(w, t_vec, initial = 0), label = '$ w$')
 # ax.legend()
 # ax.set_xlabel('Time (s)')
 # ax.set_ylabel('Energy  ($J \, (F_0 l_0)^{-1}$)')
@@ -216,9 +216,9 @@ energy_unit_scaler = params[muscle]['F_0'] * params[muscle]['l_0'] / params[musc
 
 # Plot the total energy over the cycle
 fig_energy, ax_energy = plt.subplots(layout = 'constrained')
-ax_energy.plot(t_vec, cumtrapz(E_tot, t_vec, initial = 0) * energy_unit_scaler, label = '$ e_{init}$', color = palette[single_run_idx], alpha = 0.25) 
-ax_energy.plot(t_vec, cumtrapz(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$', color = palette[single_run_idx], ls = lib.plot_style.ls_styles[2], alpha = 0.5) 
-ax_energy.plot(t_vec, cumtrapz(E_tot + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$', color = palette[single_run_idx]) 
+ax_energy.plot(t_vec, cumulative_trapezoid(E_tot, t_vec, initial = 0) * energy_unit_scaler, label = '$ e_{init}$', color = palette[single_run_idx], alpha = 0.25) 
+ax_energy.plot(t_vec, cumulative_trapezoid(q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r$', color = palette[single_run_idx], ls = lib.plot_style.ls_styles[2], alpha = 0.5) 
+ax_energy.plot(t_vec, cumulative_trapezoid(E_tot + q_r, t_vec, initial = 0) * energy_unit_scaler, label = '$ q_r + e_{init}$', color = palette[single_run_idx]) 
 ax_energy.set_xlabel('Time (s)')
 ax_energy.set_ylabel('Energy  ($mJ g^{-1}$)')
 ax_energy.legend()
@@ -226,11 +226,11 @@ fig_energy.savefig(f'Figures/ME1988_EnergyUse_{params["muscle"]}.jpg')
 fig_energy.savefig(f'Figures/ME1988_EnergyUse_{params["muscle"]}.svg')
 
 # Store absolute end-of-trial energies for component contribution bar charts.
-e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
-e_q_m_end = cumtrapz(q_m, t_vec, initial = 0)[-1] * energy_unit_scaler
-e_q_sl_end = cumtrapz(q_sl, t_vec, initial = 0)[-1] * energy_unit_scaler
-e_w_end = cumtrapz(w, t_vec, initial = 0)[-1] * energy_unit_scaler
-e_q_r_end = cumtrapz(q_r, t_vec, initial = 0)[-1] * energy_unit_scaler
+e_q_a_end = cumulative_trapezoid(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
+e_q_m_end = cumulative_trapezoid(q_m, t_vec, initial = 0)[-1] * energy_unit_scaler
+e_q_sl_end = cumulative_trapezoid(q_sl, t_vec, initial = 0)[-1] * energy_unit_scaler
+e_w_end = cumulative_trapezoid(w, t_vec, initial = 0)[-1] * energy_unit_scaler
+e_q_r_end = cumulative_trapezoid(q_r, t_vec, initial = 0)[-1] * energy_unit_scaler
 component_energy_abs.append((e_q_a_end, e_q_m_end, e_q_sl_end, e_w_end, e_q_r_end))
 
 #######################
@@ -281,10 +281,10 @@ fig_tau.savefig(f'Figures/ME1988_RecoveryFit_{params["muscle"]}.svg')
 peak_qr_vs_freq.append(np.max(q_r[mask] * energy_unit_scaler))
 
 # Compute efficiencies from integrated energies over the full simulation window.
-E_tot_end = cumtrapz(E_tot, t_vec, initial = 0)[-1]
-E_rec_end = cumtrapz(q_r, t_vec, initial = 0)[-1]
-W_end = cumtrapz(w, t_vec, initial = 0)[-1]
-total_heat_end_mJg = cumtrapz(total_energy_rate, t_vec, initial = 0)[-1]
+E_tot_end = cumulative_trapezoid(E_tot, t_vec, initial = 0)[-1]
+E_rec_end = cumulative_trapezoid(q_r, t_vec, initial = 0)[-1]
+W_end = cumulative_trapezoid(w, t_vec, initial = 0)[-1]
+total_heat_end_mJg = cumulative_trapezoid(total_energy_rate, t_vec, initial = 0)[-1]
 
 if np.isclose(E_rec_end, 0.0):
     init_to_recovery_heat_ratio = np.inf

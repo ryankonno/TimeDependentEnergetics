@@ -32,7 +32,7 @@ The University of Queensland
 
 # Import 
 import numpy as np 
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 import lib.plot_style
@@ -300,11 +300,11 @@ if params['sim_type'] == 'varycontrfreq':
         initial_energy_rate = total_energy_rate - q_r
 
         # Compute the total energies 
-        q_a_cum = cumtrapz(q_a, t_vec, initial=0)
-        q_m_cum = cumtrapz(q_m, t_vec, initial=0)
-        q_sl_cum = cumtrapz(q_sl, t_vec, initial=0)
-        w_cum = cumtrapz(w, t_vec, initial=0)
-        q_r_cum = cumtrapz(q_r, t_vec, initial=0)
+        q_a_cum = cumulative_trapezoid(q_a, t_vec, initial=0)
+        q_m_cum = cumulative_trapezoid(q_m, t_vec, initial=0)
+        q_sl_cum = cumulative_trapezoid(q_sl, t_vec, initial=0)
+        w_cum = cumulative_trapezoid(w, t_vec, initial=0)
+        q_r_cum = cumulative_trapezoid(q_r, t_vec, initial=0)
         total_energy_cum = q_a_cum + q_m_cum + q_sl_cum + w_cum + q_r_cum
         component_cum_time_series.append((contr_freq, q_a_cum.copy(), q_m_cum.copy(), q_sl_cum.copy(), w_cum.copy(), q_r_cum.copy(), total_energy_cum.copy()))
 
@@ -338,8 +338,8 @@ if params['sim_type'] == 'varycontrfreq':
             print(f'Tau fit failed for {contr_freq} Hz')
 
 
-        E_init_end = float(cumtrapz(total_energy_cum - q_r, t_vec, initial=0)[-1])
-        E_rec_end = float(cumtrapz(q_r, t_vec, initial=0)[-1])
+        E_init_end = float(cumulative_trapezoid(total_energy_cum - q_r, t_vec, initial=0)[-1])
+        E_rec_end = float(cumulative_trapezoid(q_r, t_vec, initial=0)[-1])
         rec_over_init = E_rec_end / E_init_end if np.abs(E_init_end) > 1e-12 else np.nan
         results.append((contr_freq, tau_fit, rec_over_init))
 
@@ -371,11 +371,11 @@ elif params['sim_type'] == 'varystimfreq':
 
 
         # Compute the total energies 
-        q_a_cum = cumtrapz(q_a, t_vec, initial=0)
-        q_m_cum = cumtrapz(q_m, t_vec, initial=0)
-        q_sl_cum = cumtrapz(q_sl, t_vec, initial=0)
-        w_cum = cumtrapz(w, t_vec, initial=0)
-        q_r_cum = cumtrapz(q_r, t_vec, initial=0)
+        q_a_cum = cumulative_trapezoid(q_a, t_vec, initial=0)
+        q_m_cum = cumulative_trapezoid(q_m, t_vec, initial=0)
+        q_sl_cum = cumulative_trapezoid(q_sl, t_vec, initial=0)
+        w_cum = cumulative_trapezoid(w, t_vec, initial=0)
+        q_r_cum = cumulative_trapezoid(q_r, t_vec, initial=0)
         total_energy_cum = q_a_cum + q_m_cum + q_sl_cum + w_cum + q_r_cum
         component_cum_time_series.append((stim_freq, q_a_cum.copy(), q_m_cum.copy(), q_sl_cum.copy(), w_cum.copy(), q_r_cum.copy(), total_energy_cum.copy()))
 
@@ -409,8 +409,8 @@ elif params['sim_type'] == 'varystimfreq':
             print(f'Tau fit failed for {stim_freq} Hz')
 
 
-        E_init_end = float(cumtrapz(total_energy_cum - q_r, t_vec, initial=0)[-1])
-        E_rec_end = float(cumtrapz(q_r, t_vec, initial=0)[-1])
+        E_init_end = float(cumulative_trapezoid(total_energy_cum - q_r, t_vec, initial=0)[-1])
+        E_rec_end = float(cumulative_trapezoid(q_r, t_vec, initial=0)[-1])
         rec_over_init = E_rec_end / E_init_end if np.abs(E_init_end) > 1e-12 else np.nan
         results.append((stim_freq, tau_fit, rec_over_init))
 
@@ -427,11 +427,11 @@ elif params['sim_type'] == 'single':
 
 
     # Compute the total energies 
-    q_a_cum = cumtrapz(q_a, t_vec, initial=0)
-    q_m_cum = cumtrapz(q_m, t_vec, initial=0)
-    q_sl_cum = cumtrapz(q_sl, t_vec, initial=0)
-    w_cum = cumtrapz(w, t_vec, initial=0)
-    q_r_cum = cumtrapz(q_r, t_vec, initial=0)
+    q_a_cum = cumulative_trapezoid(q_a, t_vec, initial=0)
+    q_m_cum = cumulative_trapezoid(q_m, t_vec, initial=0)
+    q_sl_cum = cumulative_trapezoid(q_sl, t_vec, initial=0)
+    w_cum = cumulative_trapezoid(w, t_vec, initial=0)
+    q_r_cum = cumulative_trapezoid(q_r, t_vec, initial=0)
     total_energy_cum = q_a_cum + q_m_cum + q_sl_cum + w_cum + q_r_cum
     component_cum_time_series.append((params['contr_freq'], q_a_cum.copy(), q_m_cum.copy(), q_sl_cum.copy(), w_cum.copy(), q_r_cum.copy(), total_energy_cum.copy()))
 
@@ -461,8 +461,8 @@ elif params['sim_type'] == 'single':
         print(f'Tau fit failed for {params["contr_freq"]} Hz')
 
 
-    E_init_end = float(cumtrapz(total_energy_cum - q_r, t_vec, initial=0)[-1])
-    E_rec_end = float(cumtrapz(q_r, t_vec, initial=0)[-1])
+    E_init_end = float(cumulative_trapezoid(total_energy_cum - q_r, t_vec, initial=0)[-1])
+    E_rec_end = float(cumulative_trapezoid(q_r, t_vec, initial=0)[-1])
     rec_over_init = E_rec_end / E_init_end if np.abs(E_init_end) > 1e-12 else np.nan
     results.append((params['contr_freq'], tau_fit, rec_over_init))
 else: 

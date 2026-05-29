@@ -23,7 +23,7 @@ The University of Queensland
 
 # Import 
 import numpy as np 
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt 
 import lib.plot_style
@@ -192,8 +192,8 @@ for i, target_energy_j in enumerate(target_energy_values_j):
     e_init_w = E_initial_converted * params[muscle]['mass']
     q_r_w = q_r_w_per_g * params[muscle]['mass']
 
-    e_init_j = cumtrapz(e_init_w, t_vec, initial=0)
-    q_r_j = cumtrapz(q_r_w, t_vec, initial=0)
+    e_init_j = cumulative_trapezoid(e_init_w, t_vec, initial=0)
+    q_r_j = cumulative_trapezoid(q_r_w, t_vec, initial=0)
     total_j = e_init_j + q_r_j
 
     ax_energy.plot(t_vec, total_j, color=color, label=x_label)

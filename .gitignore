@@ -1,4 +1,6 @@
-Figures/* 
+Figures/*.jpg
+Figures/*.svg
+Figures/*.pdf
 Old/*
 Docs/*
 Models/__pycache__/*.pyc

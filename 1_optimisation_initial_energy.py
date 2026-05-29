@@ -450,16 +450,16 @@ for muscle_type in ['SOL','EDL']:
     ax_force.set_ylabel('Force (N)')
     ax_force.grid(True, alpha=0.3)
     ax_force.legend(loc='best')
-    fig_force.savefig(f'Figures/1_cxbcatmech_force_{muscle}.jpg')
-    fig_force.savefig(f'Figures/1_cxbcatmech_force_{muscle}.svg')
+    # fig_force.(f'Figures/1_cxbcatmech_force_{muscle}.jpg')
+    # fig_force.savefisavefigg(f'Figures/1_cxbcatmech_force_{muscle}.svg')
     
-    # Save energy components figure
-    fig_energy_components.savefig(
-        f'Figures/1_cxbcatmech_energy_components_{muscle}.jpg'
-    )
-    fig_energy_components.savefig(
-        f'Figures/1_cxbcatmech_energy_components_{muscle}.svg'
-    )
+    # # Save energy components figure
+    # fig_energy_components.savefig(
+    #     f'Figures/1_cxbcatmech_energy_components_{muscle}.jpg'
+    # )
+    # fig_energy_components.savefig(
+    #     f'Figures/1_cxbcatmech_energy_components_{muscle}.svg'
+    # )
 
     # Plot activation-to-total heat ratio across frequencies
     #   need to recompute the energetics for a range of frequencies
@@ -517,11 +517,11 @@ for muscle_type in ['SOL','EDL']:
     ax_ratio.set_ylabel('Activation/Total heat ratio')
     ax_ratio.grid(True, alpha=0.3)
     ax_ratio.legend(loc='best')
-    fig_ratio.savefig(f'Figures/1_cxbcatmech_activation_ratio_vs_frequency_{muscle}.jpg')
-    fig_ratio.savefig(f'Figures/1_cxbcatmech_activation_ratio_vs_frequency_{muscle}.svg')
+    # fig_ratio.savefig(f'Figures/1_cxbcatmech_activation_ratio_vs_frequency_{muscle}.jpg')
+    # fig_ratio.savefig(f'Figures/1_cxbcatmech_activation_ratio_vs_frequency_{muscle}.svg')
 
-fig_hr.savefig('Figures/1_cxbcatmech_fit.jpg')
-fig_hr.savefig('Figures/1_cxbcatmech_fit.svg')
+# fig_hr.savefig('Figures/1_cxbcatmech_fit.jpg')
+# fig_hr.savefig('Figures/1_cxbcatmech_fit.svg')
 
 plt.show()
 

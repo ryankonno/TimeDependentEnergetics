@@ -8,7 +8,7 @@ This model is designed to capture the time-dependent response of muscle energy c
 
 All codes required to run the model are contained within this repository. 
 
-Report any issues in this repository to r.konno@uq.edu.au.
+If you have any questions of find any issues in this repository please email r.konno@uq.edu.au.
 
 ## Model 
 The model framework consists of four components including an excitation-activation model, a mechanics model, an initial energetics model, and a recovery bioenergetics model. The models are contained in the following codes, respectively, `ActivationModel.py`, `MechanicsModel.py`, `InitialEnergeticsModel.py`, and `BioenergeticsModel.py`. For a description of the model, see [PREPRINT LINK HERE]

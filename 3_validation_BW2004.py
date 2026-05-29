@@ -10,7 +10,7 @@ The University of Queensland
 
 # Import 
 import numpy as np 
-from scipy.integrate import cumulative_trapezoid
+from scipy.integrate import cumtrapz
 from scipy.optimize import curve_fit
 
 # Import matplotlib and define plot properties
@@ -319,19 +319,19 @@ for muscle_name in ('SOL', 'EDL'):
             t_cycle = t_vec[cycle_mask]
             
             # Compute cumulative energy for each component
-            q_a_cum = cumulative_trapezoid(
+            q_a_cum = cumtrapz(
                 q_a[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
-            q_m_cum = cumulative_trapezoid(
+            q_m_cum = cumtrapz(
                 q_m[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
-            q_sl_cum = cumulative_trapezoid(
+            q_sl_cum = cumtrapz(
                 q_sl[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
-            w_cum = cumulative_trapezoid(
+            w_cum = cumtrapz(
                 w[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
-            q_r_cum = cumulative_trapezoid(
+            q_r_cum = cumtrapz(
                 q_r[cycle_mask], t_cycle, initial=0
             ) * energy_unit_scaler
             
@@ -366,20 +366,20 @@ for muscle_name in ('SOL', 'EDL'):
         # Plot total energy
         ax_energy.plot(
             t_vec,
-            cumulative_trapezoid(E_tot, t_vec, initial=0) *
+            cumtrapz(E_tot, t_vec, initial=0) *
             energy_unit_scaler,
             label='$e_{init}$', color=palette_cont[idx], alpha=0.25
         )
         ax_energy.plot(
             t_vec,
-            cumulative_trapezoid(q_r, t_vec, initial=0) *
+            cumtrapz(q_r, t_vec, initial=0) *
             energy_unit_scaler,
             label='$q_r$', color=palette_cont[idx], ls=':',
             alpha=0.5
         )
         ax_energy.plot(
             t_vec,
-            cumulative_trapezoid(E_tot + q_r, t_vec, initial=0) *
+            cumtrapz(E_tot + q_r, t_vec, initial=0) *
             energy_unit_scaler,
             label='$q_r + e_{init}$', color=palette_cont[idx]
         ) 
@@ -402,18 +402,18 @@ for muscle_name in ('SOL', 'EDL'):
         E_tot_konno2025 = energy_rate_data['dEdt']
         ax_energy.plot(
             t_vec,
-            cumulative_trapezoid(E_tot_konno2025, t_vec, initial=0) /
+            cumtrapz(E_tot_konno2025, t_vec, initial=0) /
             params[muscle]['mass'] * 1e3,
             label='KLD2025 Model', color='k'
         )
         ax_energy.grid(True, alpha=0.3) 
 
         # Store absolute end-of-trial energies for component contribution bar charts
-        e_q_a_end = cumulative_trapezoid(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
-        e_q_m_end = cumulative_trapezoid(q_m, t_vec, initial = 0)[-1] * energy_unit_scaler
-        e_q_sl_end = cumulative_trapezoid(q_sl, t_vec, initial = 0)[-1] * energy_unit_scaler
-        e_w_end = cumulative_trapezoid(w, t_vec, initial = 0)[-1] * energy_unit_scaler
-        e_q_r_end = cumulative_trapezoid(q_r, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_q_a_end = cumtrapz(q_a, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_q_m_end = cumtrapz(q_m, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_q_sl_end = cumtrapz(q_sl, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_w_end = cumtrapz(w, t_vec, initial = 0)[-1] * energy_unit_scaler
+        e_q_r_end = cumtrapz(q_r, t_vec, initial = 0)[-1] * energy_unit_scaler
         component_energy_abs.append((e_q_a_end, e_q_m_end, e_q_sl_end, e_w_end, e_q_r_end))
 
         #######################
@@ -451,9 +451,9 @@ for muscle_name in ('SOL', 'EDL'):
         tau_vs_freq.append(tau_fit)
 
         # Compute efficiencies from integrated energies over the full simulation window.
-        E_tot_end = cumulative_trapezoid(E_tot, t_vec, initial = 0)[-1]
-        E_rec_end = cumulative_trapezoid(q_r, t_vec, initial = 0)[-1]
-        W_end = cumulative_trapezoid(w, t_vec, initial = 0)[-1]
+        E_tot_end = cumtrapz(E_tot, t_vec, initial = 0)[-1]
+        E_rec_end = cumtrapz(q_r, t_vec, initial = 0)[-1]
+        W_end = cumtrapz(w, t_vec, initial = 0)[-1]
         E_tot_end_mJg = E_tot_end * energy_unit_scaler
         E_rec_end_mJg = E_rec_end * energy_unit_scaler
         W_end_mJg = W_end * energy_unit_scaler
@@ -601,14 +601,14 @@ for muscle_name in ('SOL', 'EDL'):
     power_output_by_muscle[muscle_name] = efficiency_array[:, 8]
         
     # Save the energetics figure 
-    fig_energy.savefig('Figures/B2004_energy_' + muscle + '.jpg')
-    fig_energy.savefig('Figures/B2004_energy_' + muscle + '.svg')
-    fig_energy_components.savefig(
-        'Figures/B2004_energy_components_' + muscle + '.jpg'
-    )
-    fig_energy_components.savefig(
-        'Figures/B2004_energy_components_' + muscle + '.svg'
-    )
+    # fig_energy.savefig('Figures/B2004_energy_' + muscle + '.jpg')
+    # fig_energy.savefig('Figures/B2004_energy_' + muscle + '.svg')
+    # fig_energy_components.savefig(
+    #     'Figures/B2004_energy_components_' + muscle + '.jpg'
+    # )
+    # fig_energy_components.savefig(
+    #     'Figures/B2004_energy_components_' + muscle + '.svg'
+    # )
 
 
 '''
@@ -642,8 +642,8 @@ if 'SOL' in trace_plot_data_by_muscle and 'EDL' in trace_plot_data_by_muscle:
     ax_trace_strain.set_ylabel('Strain ($e_{ce}$)')
     ax_trace_strain.grid(True, alpha=0.3)
     ax_trace_strain.legend(loc='upper right')
-    fig_trace_strain.savefig('Figures/B2004_trace_strain_comp.jpg')
-    fig_trace_strain.savefig('Figures/B2004_trace_strain_comp.svg')
+    # fig_trace_strain.savefig('Figures/B2004_trace_strain_comp.jpg')
+    # fig_trace_strain.savefig('Figures/B2004_trace_strain_comp.svg')
     
     # Create force figure
     fig_trace_force, ax_trace_force = plt.subplots(figsize=(4, 3))
@@ -664,8 +664,8 @@ if 'SOL' in trace_plot_data_by_muscle and 'EDL' in trace_plot_data_by_muscle:
     ax_trace_force.set_ylabel('Force (N)')
     ax_trace_force.grid(True, alpha=0.3)
     ax_trace_force.legend(loc='upper right')
-    fig_trace_force.savefig('Figures/B2004_trace_force_comp.jpg')
-    fig_trace_force.savefig('Figures/B2004_trace_force_comp.svg')
+    # fig_trace_force.savefig('Figures/B2004_trace_force_comp.jpg')
+    # fig_trace_force.savefig('Figures/B2004_trace_force_comp.svg')
 
 # Plot peak recovery rate versus frequency for both muscles
 fig_peak_qr_compare, ax_peak_qr_compare = plt.subplots()
@@ -690,8 +690,8 @@ ax_peak_qr_compare.plot(
 
 ax_peak_qr_compare.grid(True, alpha = 0.3)
 ax_peak_qr_compare.legend(loc = 'upper right')
-fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp.jpg')
-fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp.svg')
+# fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp.jpg')
+# fig_peak_qr_compare.savefig('Figures/B2004_SepVars_rrecmax_comp.svg')
 
 # Plot initial and total energy-rate output against power output for both muscles.
 fig_energy_power_compare, ax_energy_power_compare = plt.subplots()
@@ -720,8 +720,8 @@ ax_energy_power_compare.set_xlabel('Power output ($mW g^{-1}$)')
 ax_energy_power_compare.set_ylabel('Total energy rate output ($mW g^{-1}$)')
 ax_energy_power_compare.grid(True, alpha = 0.3)
 ax_energy_power_compare.legend(loc = 'upper right')
-fig_energy_power_compare.savefig('Figures/B2004_energy_vs_power_comp.jpg')
-fig_energy_power_compare.savefig('Figures/B2004_energy_vs_power_comp.svg')
+# fig_energy_power_compare.savefig('Figures/B2004_energy_vs_power_comp.jpg')
+# fig_energy_power_compare.savefig('Figures/B2004_energy_vs_power_comp.svg')
 
 # Plot fitted time constants versus frequency for both muscles
 fig_tau_freq_compare, ax_tau_freq_compare = plt.subplots()
@@ -747,8 +747,8 @@ ax_tau_freq_compare.plot(
 ax_tau_freq_compare.grid(True, alpha = 0.3)
 ax_tau_freq_compare.legend(loc = 'upper right')
 
-fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp.jpg')
-fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp.svg')
+# fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp.jpg')
+# fig_tau_freq_compare.savefig('Figures/B2004_SepVars_tau_comp.svg')
 
 # Compute mean experimental and model time constants
 print('\n========== TIME CONSTANT ANALYSIS ==========')

@@ -140,9 +140,9 @@ ax.plot(params['t_cycle_start'] + 5 * cycles, params[params['muscle']]['heat_exp
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Recovery heat ($F_0 l_0 s^{-1}$)')
 ax.legend()
-fig.savefig('Figures/2_optimisation_recovery_energy_initial_heat_fit.jpg')
-fig.savefig('Figures/2_optimisation_recovery_energy_initial_heat_fit.svg')
-# plt.savefig('./Figures/B1995QiFit_SOL.pdf')
+# fig.savefig('Figures/2_optimisation_recovery_energy_initial_heat_fit.jpg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_initial_heat_fit.svg')
+# # plt.savefig('./Figures/B1995QiFit_SOL.pdf')
 plt.show()
 
           
@@ -216,8 +216,8 @@ ax.set_xlabel('Time (s)')
 ax.set_ylabel('Recovery heat rate ($F_0 l_0 s^{-1}$)')
 ax.legend()
 ax.grid(True)
-fig.savefig('Figures/B1995Opt_' + muscle + '__expdatacomp' + save_id + '.jpg')
-fig.savefig('Figures/B1995Opt_' + muscle + '__expdatacomp' + save_id + '.svg')
+# fig.savefig('Figures/B1995Opt_' + muscle + '__expdatacomp' + save_id + '.jpg')
+# fig.savefig('Figures/B1995Opt_' + muscle + '__expdatacomp' + save_id + '.svg')
 
 # Plot the total energy over the cycle
 fig, ax = plt.subplots()
@@ -228,8 +228,8 @@ ax.legend()
 ax.set_xlabel('Time (s)')
 # ax.set_ylabel('Energy  ($mJ g^{-1}$)')
 ax.set_ylabel('Energy  ($F_0 l_0$)')
-fig.savefig('Figures/B1995Opt_' + muscle + '_totalenergy' + save_id + '.jpg')
-fig.savefig('Figures/B1995Opt_' + muscle + '_totalenergy' + save_id + '.svg')
+# fig.savefig('Figures/B1995Opt_' + muscle + '_totalenergy' + save_id + '.jpg')
+# fig.savefig('Figures/B1995Opt_' + muscle + '_totalenergy' + save_id + '.svg')
 
 # Compare model and experimental recovery heat rates
 # recovery_heat_exp = rec_heat_exp(sol.t, params[muscle]['heat_exp_rec'])
@@ -241,8 +241,8 @@ fig.savefig('Figures/B1995Opt_' + muscle + '_totalenergy' + save_id + '.svg')
 # ax.set_ylabel('Recovery heat rate ($F_0 l_0 s^{-1}$)')
 # ax.legend()
 # ax.grid(True)
-# fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp' + save_id + '.jpg')
-# fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp' + save_id + '.svg')
+# # fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp' + save_id + '.jpg')
+# # fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp' + save_id + '.svg')
 
 # Compute the time constant from an exponential fit on post-contraction decay
 energy_unit_scaler = params[params['muscle']]['F_0'] * params[params['muscle']]['l_0'] / params[params['muscle']]['mass'] * 1e3 # convert from W/F0l0 to mW/g
@@ -280,8 +280,8 @@ ax.set_ylabel('Total energy rate ($mW\,g^{-1}$)')
 # ax.set_title(f'Exponential Decay Fit ({muscle})')
 ax.legend()
 ax.grid(True)
-# fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp.jpg')
-# fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp.svg')
+# # fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp.jpg')
+# # fig.savefig('Figures/B1995Opt_' + muscle + '_expdatacomp.svg')
 
 # Compute the thermodynamic efficiency based on substrates + thermodynamics theory 
 # TODO: FIX THIS CALCULATION

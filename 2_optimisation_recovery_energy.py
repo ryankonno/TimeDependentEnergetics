@@ -132,9 +132,9 @@ ax.plot(params['t_cycle_start'] + 5 * cycles, params[params['muscle']]['heat_exp
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Recovery heat ($F_0 l_0 s^{-1}$)')
 ax.legend()
-fig.savefig('Figures/2_optimisation_recovery_energy_initial_heat_fit.jpg')
-fig.savefig('Figures/2_optimisation_recovery_energy_initial_heat_fit.svg')
-# plt.savefig('./Figures/B1995QiFit_SOL.pdf')
+# fig.savefig('Figures/2_optimisation_recovery_energy_initial_heat_fit.jpg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_initial_heat_fit.svg')
+# # plt.savefig('./Figures/B1995QiFit_SOL.pdf')
 plt.show()
 
 #Function to get the recovery heat 
@@ -161,8 +161,8 @@ ax.plot(t_exp_rec, params[params['muscle']]['heat_exp_rec'] * params['q10_heat']
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Recovery heat ($F_0 l_0 s^{-1}$)')
 ax.legend()
-fig.savefig('Figures/2_optimisation_recovery_energy_recovery_heat_fit.jpg')
-fig.savefig('Figures/2_optimisation_recovery_energy_recovery_heat_fit.svg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_recovery_heat_fit.jpg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_recovery_heat_fit.svg')
 plt.show()
           
 # Initialise the intial energy 
@@ -316,8 +316,8 @@ ax.set_xlabel('Time (s)')
 ax.set_ylabel('Recovery heat rate ($F_0 l_0 s^{-1}$)')
 ax.legend()
 ax.grid(True)
-fig.savefig('Figures/2_optimisation_recovery_energy_cycle_mean_comparison.jpg')
-fig.savefig('Figures/2_optimisation_recovery_energy_cycle_mean_comparison.svg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_cycle_mean_comparison.jpg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_cycle_mean_comparison.svg')
 
 # Compare model and experimental recovery heat rates
 recovery_heat_exp = rec_heat_exp(sol.t, params[muscle]['heat_exp_rec'])
@@ -329,8 +329,8 @@ ax.set_xlabel('Time (s)')
 ax.set_ylabel('Recovery heat rate ($F_0 l_0 s^{-1}$)')
 ax.legend()
 ax.grid(True)
-fig.savefig('Figures/2_optimisation_recovery_energy_recovery_rate_comparison.jpg')
-fig.savefig('Figures/2_optimisation_recovery_energy_recovery_rate_comparison.svg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_recovery_rate_comparison.jpg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_recovery_rate_comparison.svg')
 
 
 # Plot with units in F0l0/s
@@ -341,8 +341,8 @@ ax.plot(t_vec, q_r, label = '$\dot q_r$')
 ax.legend()
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Energy rate ($F_0 l_0 s^{-1}$)')
-fig.savefig('Figures/2_optimisation_recovery_energy_rate_components.jpg')
-fig.savefig('Figures/2_optimisation_recovery_energy_rate_components.svg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_rate_components.jpg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_rate_components.svg')
 
 # Plot the total energy over the cycle
 fig, ax = plt.subplots(layout = 'constrained')
@@ -352,8 +352,8 @@ ax.plot(t_vec, cumulative_trapezoid(q_r, t_vec, initial = 0), label = '$ q_r$')
 ax.legend()
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Energy  ($F_0 l_0$)')
-fig.savefig('Figures/2_optimisation_recovery_energy_integral_components.jpg')
-fig.savefig('Figures/2_optimisation_recovery_energy_integral_components.svg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_integral_components.jpg')
+# fig.savefig('Figures/2_optimisation_recovery_energy_integral_components.svg')
 plt.show()
 
 # Print the ratio between initial and recovery heat 

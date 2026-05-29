@@ -119,8 +119,8 @@ ax.plot(t_vec, catn_vec, label = 'CaTn')
 # ax.plot(stim_vec)
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Normalised concentration')
-fig.savefig(f'Figures/ME1987_Ca_time_{params["muscle"]}.jpg')
-fig.savefig(f'Figures/ME1987_Ca_time_{params["muscle"]}.svg')
+# fig.savefig(f'Figures/ME1987_Ca_time_{params["muscle"]}.jpg')
+# fig.savefig(f'Figures/ME1987_Ca_time_{params["muscle"]}.svg')
 plt.show()
 
 

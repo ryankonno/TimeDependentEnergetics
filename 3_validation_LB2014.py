@@ -524,11 +524,11 @@ for muscle_name in ('SOL', 'EDL'):
     power_output_by_muscle[muscle_name] = efficiency_array[:, 8]
         
     # Save the energetics figure 
-    fig_energy.savefig('Figures/L2014_energy_' + muscle + '.jpg')
-    fig_energy.savefig('Figures/L2014_energy_' + muscle + '.svg')
+    # fig_energy.savefig('Figures/L2014_energy_' + muscle + '.jpg')
+    # fig_energy.savefig('Figures/L2014_energy_' + muscle + '.svg')
     # Save the per-muscle force cycle figure
-    fig_force_cycle.savefig('Figures/L2014_force_' + muscle + '.jpg')
-    fig_force_cycle.savefig('Figures/L2014_force_' + muscle + '.svg')
+    # fig_force_cycle.savefig('Figures/L2014_force_' + muscle + '.jpg')
+    # fig_force_cycle.savefig('Figures/L2014_force_' + muscle + '.svg')
 
 
 # Plot initial and total energy-rate output against power output for both muscles.

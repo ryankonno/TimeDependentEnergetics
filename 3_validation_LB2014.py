@@ -558,8 +558,8 @@ ax_energy_power_compare.set_xlabel('Power output ($mW g^{-1}$)')
 ax_energy_power_compare.set_ylabel('Total energy rate output ($mW g^{-1}$)')
 ax_energy_power_compare.grid(True, alpha = 0.3)
 ax_energy_power_compare.legend(loc = 'upper right')
-fig_energy_power_compare.savefig('Figures/L2014_energy_vs_power_comp.jpg')
-fig_energy_power_compare.savefig('Figures/L2014_energy_vs_power_comp.svg')
+# fig_energy_power_compare.savefig('Figures/L2014_energy_vs_power_comp.jpg')
+# fig_energy_power_compare.savefig('Figures/L2014_energy_vs_power_comp.svg')
 
 # Plot total energy output in mJ g^-1 for both muscles.
 fig_total_energy_mJg_compare, ax_total_energy_mJg_compare = plt.subplots(figsize=(4, 3))
@@ -588,8 +588,8 @@ ax_total_energy_mJg_compare.set_xlabel('Stimulation frequency (Hz)')
 ax_total_energy_mJg_compare.set_ylabel('Total energy ($mJ g^{-1}$)')
 ax_total_energy_mJg_compare.grid(True, alpha = 0.3)
 ax_total_energy_mJg_compare.legend(loc = 'upper right')
-fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.jpg')
-fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.svg')
+# fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.jpg')
+# fig_total_energy_mJg_compare.savefig('Figures/L2014_total_energy_mJg_comp.svg')
 
 # Plot total energy output normalised by each series maximum.
 def normalise_to_max(values):
@@ -628,8 +628,8 @@ ax_total_energy_mJg_compare_norm.set_xlabel('Stimulation frequency (Hz)')
 ax_total_energy_mJg_compare_norm.set_ylabel('Normalised total energy (-)')
 ax_total_energy_mJg_compare_norm.grid(True, alpha = 0.3)
 ax_total_energy_mJg_compare_norm.legend(loc = 'upper right')
-fig_total_energy_mJg_compare_norm.savefig('Figures/L2014_total_energy_mJg_comp_norm.jpg')
-fig_total_energy_mJg_compare_norm.savefig('Figures/L2014_total_energy_mJg_comp_norm.svg')
+# fig_total_energy_mJg_compare_norm.savefig('Figures/L2014_total_energy_mJg_comp_norm.jpg')
+# fig_total_energy_mJg_compare_norm.savefig('Figures/L2014_total_energy_mJg_comp_norm.svg')
 
 # Compute the r^2 values of the fit 
 # Interpolate 
